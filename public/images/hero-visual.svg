@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 400" fill="none">
+  <!-- Background glow -->
+  <circle cx="250" cy="200" r="180" fill="url(#glow)" opacity="0.15"/>
+
+  <!-- Monitor/Browser Window -->
+  <rect x="80" y="60" width="340" height="220" rx="16" fill="#0F1E38" stroke="#1E5EFF" stroke-width="1.5"/>
+  <rect x="80" y="60" width="340" height="36" rx="16" fill="#162040"/>
+  <rect x="80" y="78" width="340" height="18" fill="#162040"/>
+  <!-- Browser dots -->
+  <circle cx="104" cy="78" r="5" fill="#FF6B6B"/>
+  <circle cx="120" cy="78" r="5" fill="#FFB800"/>
+  <circle cx="136" cy="78" r="5" fill="#22C55E"/>
+  <!-- Address bar -->
+  <rect x="155" y="70" width="200" height="16" rx="8" fill="#0A1628" opacity="0.6"/>
+  <text x="255" y="81" text-anchor="middle" fill="#4A7FFF" font-size="8" font-family="DM Sans, sans-serif">jayvisionx.com</text>
+
+  <!-- Screen content: Chart bars -->
+  <rect x="100" y="130" width="28" height="80" rx="4" fill="#1E5EFF" opacity="0.8"/>
+  <rect x="138" y="110" width="28" height="100" rx="4" fill="#4A7FFF" opacity="0.8"/>
+  <rect x="176" y="145" width="28" height="65" rx="4" fill="#1E5EFF" opacity="0.6"/>
+  <rect x="214" y="95" width="28" height="115" rx="4" fill="#FF6B35"/>
+  <rect x="252" y="125" width="28" height="85" rx="4" fill="#1E5EFF" opacity="0.8"/>
+  <rect x="290" y="105" width="28" height="105" rx="4" fill="#4A7FFF"/>
+  <rect x="328" y="80" width="28" height="130" rx="4" fill="#FF6B35" opacity="0.9"/>
+
+  <!-- Trend line -->
+  <polyline points="114,160 152,140 190,165 228,118 266,145 304,125 342,95" stroke="#22C55E" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Trend dots -->
+  <circle cx="114" cy="160" r="4" fill="#22C55E"/>
+  <circle cx="228" cy="118" r="4" fill="#22C55E"/>
+  <circle cx="342" cy="95" r="4" fill="#22C55E"/>
+
+  <!-- Floating card: SEO -->
+  <rect x="20" y="170" width="110" height="60" rx="10" fill="white" opacity="0.08" stroke="#1E5EFF" stroke-width="1"/>
+  <text x="35" y="195" fill="#4A7FFF" font-size="9" font-weight="bold" font-family="DM Sans">SEO Ranking</text>
+  <text x="35" y="213" fill="#22C55E" font-size="14" font-weight="800" font-family="DM Sans">#1 Google</text>
+  <text x="35" y="225" fill="#8B9BB4" font-size="8" font-family="DM Sans">↑ 12 positions</text>
+
+  <!-- Floating card: Leads -->
+  <rect x="370" y="100" width="110" height="60" rx="10" fill="white" opacity="0.08" stroke="#FF6B35" stroke-width="1"/>
+  <text x="385" y="125" fill="#FF6B35" font-size="9" font-weight="bold" font-family="DM Sans">Lead Growth</text>
+  <text x="385" y="143" fill="white" font-size="14" font-weight="800" font-family="DM Sans">+285%</text>
+  <text x="385" y="155" fill="#8B9BB4" font-size="8" font-family="DM Sans">This month</text>
+
+  <!-- Bottom floating card: ROI -->
+  <rect x="150" y="305" width="200" height="55" rx="10" fill="white" opacity="0.06" stroke="#1E5EFF" stroke-width="1"/>
+  <text x="250" y="328" text-anchor="middle" fill="#4A7FFF" font-size="9" font-weight="bold" font-family="DM Sans">Campaign ROI</text>
+  <text x="250" y="348" text-anchor="middle" fill="white" font-size="15" font-weight="800" font-family="DM Sans">5x Return</text>
+
+  <!-- Orbiting dots -->
+  <circle cx="420" cy="200" r="5" fill="#1E5EFF" opacity="0.6"/>
+  <circle cx="60"  cy="140" r="4" fill="#FF6B35" opacity="0.5"/>
+  <circle cx="460" cy="310" r="6" fill="#4A7FFF" opacity="0.4"/>
+  <circle cx="40"  cy="310" r="3" fill="#22C55E" opacity="0.5"/>
+
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1E5EFF"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </radialGradient>
+  </defs>
+</svg>
