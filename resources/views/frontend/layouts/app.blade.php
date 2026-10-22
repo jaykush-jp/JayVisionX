@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="{{ asset('images/favicon/favicon.ico') }}?v=10">
 
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon/favicon-16x16.png') }}?v=10">
@@ -23,7 +24,12 @@
     <!-- Open Graph -->
     <meta property="og:title" content="@yield('meta_title', \App\Models\Setting::get('meta_title'))">
     <meta property="og:description" content="@yield('meta_description', \App\Models\Setting::get('meta_description'))">
-    <meta property="og:image" content="@yield('og_image', asset('images/og-image.jpg'))">
+    @php
+        $ogImageDefault = \App\Models\Setting::get('site_logo')
+            ? asset('storage/' . \App\Models\Setting::get('site_logo'))
+            : asset('images/logo.png');
+    @endphp
+    <meta property="og:image" content="@yield('og_image', $ogImageDefault)">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="JayVisionX">
@@ -32,6 +38,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@yield('meta_title', \App\Models\Setting::get('meta_title'))">
     <meta name="twitter:description" content="@yield('meta_description', \App\Models\Setting::get('meta_description'))">
+    <meta name="twitter:image" content="@yield('og_image', $ogImageDefault)">
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon"
@@ -189,6 +196,9 @@
                     <li class="nav-item {{ request()->routeIs('contact') ? 'active' : '' }}">
                         <a href="{{ route('contact') }}" class="nav-link">Contact</a>
                     </li>
+                    <li class="nav-item {{ request()->routeIs('landing') ? 'active' : '' }}">
+                        <a href="{{ route('landing') }}" class="nav-link">Get Started</a>
+                    </li>
                 </ul>
 
                 <!-- CTA -->
@@ -282,6 +292,12 @@
                             <li><a href="{{ route('blog') }}"><i class="fas fa-chevron-right"></i> Blog</a></li>
                             <li><a href="{{ route('contact') }}"><i class="fas fa-chevron-right"></i> Contact Us</a>
                             </li>
+                            <li><a href="{{ route('landing') }}"><i class="fas fa-chevron-right"></i> Get Started</a>
+                            </li>
+                            <li><a href="{{ route('privacy') }}"><i class="fas fa-chevron-right"></i> Privacy Policy</a>
+                            </li>
+                            <li><a href="{{ route('terms') }}"><i class="fas fa-chevron-right"></i> Terms &amp; Conditions</a>
+                            </li>
                         </ul>
                     </div>
 
@@ -350,10 +366,142 @@
         <i class="fas fa-chevron-up"></i>
     </button>
 
+    <!-- Support Chatbot -->
+    <div class="chatbot" id="chatbot">
+        <button class="chatbot-launcher" id="chatbotLauncher" aria-label="Chat with us">
+            <i class="fas fa-comment-dots chatbot-launcher-open"></i>
+            <i class="fas fa-times chatbot-launcher-close"></i>
+            <span class="chatbot-launcher-label">Chat with us</span>
+        </button>
+
+        <div class="chatbot-panel" id="chatbotPanel" role="dialog" aria-label="Support chat">
+            <div class="chatbot-header">
+                <div class="chatbot-header-info">
+                    <div class="chatbot-avatar"><i class="fas fa-headset"></i></div>
+                    <div>
+                        <strong>JayVisionX Support</strong>
+                        <span><span class="chatbot-dot"></span> Online — we reply instantly</span>
+                    </div>
+                </div>
+                <button class="chatbot-close" id="chatbotClose" aria-label="Close chat"><i class="fas fa-chevron-down"></i></button>
+            </div>
+
+            <div class="chatbot-messages" id="chatbotMessages">
+                <div class="chatbot-msg bot">
+                    👋 Hi! I'm the JayVisionX assistant. Ask me about our services, pricing, or anything else — I'm here to help!
+                </div>
+                <div class="chatbot-suggestions" id="chatbotSuggestions">
+                    <button type="button">What services do you offer?</button>
+                    <button type="button">How much does a website cost?</button>
+                    <button type="button">How can I contact you?</button>
+                </div>
+            </div>
+
+            <form class="chatbot-input" id="chatbotForm" autocomplete="off">
+                <input type="text" id="chatbotInput" placeholder="Type your message..." maxlength="1000" required>
+                <button type="submit" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
+            </form>
+            <div class="chatbot-foot">Powered by JayVisionX</div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="{{ asset('js/app.js') }}"></script>
+
+    <!-- Support Chatbot -->
+    <script>
+        (function () {
+            var chatbot = document.getElementById('chatbot');
+            var launcher = document.getElementById('chatbotLauncher');
+            var closeBtn = document.getElementById('chatbotClose');
+            var form = document.getElementById('chatbotForm');
+            var input = document.getElementById('chatbotInput');
+            var messages = document.getElementById('chatbotMessages');
+            var suggestions = document.getElementById('chatbotSuggestions');
+            if (!chatbot || !form) return;
+
+            var csrf = document.querySelector('meta[name="csrf-token"]');
+            csrf = csrf ? csrf.getAttribute('content') : '';
+            var history = [];
+            var busy = false;
+
+            function toggle(open) {
+                chatbot.classList.toggle('open', open);
+                if (open) setTimeout(function () { input.focus(); }, 250);
+            }
+            launcher.addEventListener('click', function () { toggle(!chatbot.classList.contains('open')); });
+            closeBtn.addEventListener('click', function () { toggle(false); });
+
+            function escapeHtml(s) {
+                return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            }
+            function linkify(s) {
+                return s
+                    .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')
+                    .replace(/\n/g, '<br>');
+            }
+            function addMessage(text, who) {
+                var div = document.createElement('div');
+                div.className = 'chatbot-msg ' + who;
+                div.innerHTML = who === 'bot' ? linkify(escapeHtml(text)) : escapeHtml(text);
+                messages.appendChild(div);
+                messages.scrollTop = messages.scrollHeight;
+                return div;
+            }
+            function showTyping() {
+                var div = document.createElement('div');
+                div.className = 'chatbot-msg bot chatbot-typing';
+                div.innerHTML = '<span></span><span></span><span></span>';
+                messages.appendChild(div);
+                messages.scrollTop = messages.scrollHeight;
+                return div;
+            }
+
+            function send(text) {
+                if (busy || !text.trim()) return;
+                busy = true;
+                if (suggestions) suggestions.remove();
+                addMessage(text, 'user');
+                history.push({ role: 'user', content: text });
+                input.value = '';
+                var typing = showTyping();
+
+                fetch('{{ route('chatbot.reply') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ message: text, history: history.slice(-8) })
+                })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    typing.remove();
+                    var reply = (data && data.reply) ? data.reply : "Sorry, something went wrong. Please call us or try again.";
+                    addMessage(reply, 'bot');
+                    history.push({ role: 'assistant', content: reply });
+                })
+                .catch(function () {
+                    typing.remove();
+                    addMessage("Sorry, I couldn't connect. Please try again or contact us directly.", 'bot');
+                })
+                .finally(function () { busy = false; });
+            }
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                send(input.value);
+            });
+            if (suggestions) {
+                suggestions.querySelectorAll('button').forEach(function (b) {
+                    b.addEventListener('click', function () { send(b.textContent); });
+                });
+            }
+        })();
+    </script>
 
     @yield('scripts')
 

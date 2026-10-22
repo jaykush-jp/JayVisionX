@@ -8,6 +8,10 @@ use App\Http\Controllers\Frontend\ProjectController;
 use App\Http\Controllers\Frontend\BlogController;
 use App\Http\Controllers\Frontend\ContactController;
 use App\Http\Controllers\Frontend\CaseStudyController;
+use App\Http\Controllers\Frontend\ChatbotController;
+use App\Http\Controllers\Frontend\LandingController;
+use App\Http\Controllers\Frontend\LegalController;
+use App\Http\Controllers\Frontend\SitemapController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\AdminServiceController;
@@ -36,9 +40,20 @@ Route::get('/our-work', [CaseStudyController::class, 'index'])->name('our-work')
 Route::get('/our-work/{slug}', [CaseStudyController::class, 'show'])->name('our-work.show');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+Route::get('/landing', [LandingController::class, 'index'])->name('landing');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 Route::post('/newsletter', [ContactController::class, 'newsletter'])->name('newsletter');
+
+// Legal pages
+Route::get('/privacy-policy', [LegalController::class, 'privacy'])->name('privacy');
+Route::get('/terms-and-conditions', [LegalController::class, 'terms'])->name('terms');
+
+// SEO
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+// Support chatbot
+Route::post('/chatbot', [ChatbotController::class, 'reply'])->name('chatbot.reply');
 
 /*
 |--------------------------------------------------------------------------
@@ -59,25 +74,25 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         // Services
-        Route::resource('services', AdminServiceController::class);
+        Route::resource('services', AdminServiceController::class)->except('show');
         Route::post('services/{id}/toggle-status', [AdminServiceController::class, 'toggleStatus'])->name('services.toggle-status');
 
         // Projects
-        Route::resource('projects', AdminProjectController::class);
+        Route::resource('projects', AdminProjectController::class)->except('show');
         Route::post('projects/{id}/toggle-status', [AdminProjectController::class, 'toggleStatus'])->name('projects.toggle-status');
 
         // Case Studies
-        Route::resource('case-studies', AdminCaseStudyController::class);
+        Route::resource('case-studies', AdminCaseStudyController::class)->except('show');
 
         // Blogs
-        Route::resource('blogs', AdminBlogController::class);
+        Route::resource('blogs', AdminBlogController::class)->except('show');
         Route::post('blogs/{id}/toggle-status', [AdminBlogController::class, 'toggleStatus'])->name('blogs.toggle-status');
 
         // Testimonials
-        Route::resource('testimonials', AdminTestimonialController::class);
+        Route::resource('testimonials', AdminTestimonialController::class)->except('show');
 
         // FAQs
-        Route::resource('faqs', AdminFaqController::class);
+        Route::resource('faqs', AdminFaqController::class)->except('show');
 
         // Contact Enquiries
         Route::get('contacts', [AdminContactController::class, 'index'])->name('contacts.index');
@@ -90,6 +105,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('settings', [AdminSettingController::class, 'update'])->name('settings.update');
 
         // Pages (Home, About SEO)
-        Route::resource('pages', AdminPageController::class);
+        Route::resource('pages', AdminPageController::class)->except('show');
     });
 });
