@@ -1,6 +1,7 @@
 @extends('frontend.layouts.app')
 @section('meta_title', ($service->meta_title ?? $service->title) . ' - JayVisionX')
 @section('meta_description', $service->meta_description ?? $service->short_description)
+@section('og_image', $service->image_url)
 @section('content')
 
 <section class="page-banner">

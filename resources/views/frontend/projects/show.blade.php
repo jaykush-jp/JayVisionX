@@ -1,6 +1,7 @@
 @extends('frontend.layouts.app')
 @section('meta_title', ($project->meta_title ?? $project->title) . ' - JayVisionX Portfolio')
 @section('meta_description', $project->meta_description ?? $project->short_description)
+@section('og_image', $project->thumbnail_url)
 @section('content')
 
 <section class="page-banner">

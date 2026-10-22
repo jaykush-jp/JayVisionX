@@ -1,6 +1,7 @@
 @extends('frontend.layouts.app')
 @section('meta_title', ($caseStudy->meta_title ?? $caseStudy->title) . ' - JayVisionX Case Study')
 @section('meta_description', $caseStudy->meta_description ?? $caseStudy->result)
+@section('og_image', $caseStudy->thumbnail_url)
 @section('content')
 
 <section class="page-banner">

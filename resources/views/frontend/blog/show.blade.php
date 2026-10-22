@@ -2,6 +2,7 @@
 @section('meta_title', ($blog->meta_title ?? $blog->title) . ' | JayVisionX Blog')
 @section('meta_description', $blog->meta_description ?? $blog->excerpt)
 @section('meta_keywords', $blog->meta_keywords ?? $blog->tags)
+@section('og_image', $blog->thumbnail_url)
 @section('content')
 
 <section class="page-banner small-banner">
