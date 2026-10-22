@@ -3,7 +3,7 @@
 @section('title','Manage Projects')
 @section('content')
 <div class="page-header-row">
-    <h2>Projects <span class="count-badge">{{ $projects->count() }}</span></h2>
+    <h2>Projects <span class="count-badge">{{ $projects->total() }}</span></h2>
     <a href="{{ route('admin.projects.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Add Project</a>
 </div>
 <div class="admin-table-wrapper">
@@ -30,4 +30,5 @@
         </tbody>
     </table>
 </div>
+{{ $projects->links('admin.partials.pagination') }}
 @endsection

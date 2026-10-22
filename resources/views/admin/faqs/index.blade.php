@@ -2,7 +2,7 @@
 @section('title','Manage FAQs')
 @section('content')
 <div class="page-header-row">
-    <h2>FAQs <span class="count-badge">{{ $faqs->count() }}</span></h2>
+    <h2>FAQs <span class="count-badge">{{ $faqs->total() }}</span></h2>
     <a href="{{ route('admin.faqs.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Add FAQ</a>
 </div>
 <div class="admin-table-wrapper">
@@ -27,4 +27,5 @@
         </tbody>
     </table>
 </div>
+{{ $faqs->links('admin.partials.pagination') }}
 @endsection

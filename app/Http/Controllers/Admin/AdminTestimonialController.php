@@ -11,7 +11,7 @@ class AdminTestimonialController extends Controller
 {
     public function index()
     {
-        $testimonials = Testimonial::orderBy('sort_order')->get();
+        $testimonials = Testimonial::orderBy('sort_order')->paginate(20);
         return view('admin.testimonials.index', compact('testimonials'));
     }
     public function create() { return view('admin.testimonials.create'); }

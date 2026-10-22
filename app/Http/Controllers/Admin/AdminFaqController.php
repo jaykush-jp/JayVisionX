@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class AdminFaqController extends Controller
 {
-    public function index() { return view('admin.faqs.index', ['faqs' => Faq::orderBy('sort_order')->get()]); }
+    public function index() { return view('admin.faqs.index', ['faqs' => Faq::orderBy('sort_order')->paginate(20)]); }
     public function create() { return view('admin.faqs.create'); }
     public function store(Request $request)
     {

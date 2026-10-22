@@ -2,7 +2,7 @@
 @section('title', 'Manage Blogs')
 @section('content')
 <div class="page-header-row">
-    <h2>Blog Posts <span class="count-badge">{{ $blogs->count() }}</span></h2>
+    <h2>Blog Posts <span class="count-badge">{{ $blogs->total() }}</span></h2>
     <a href="{{ route('admin.blogs.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Add Post</a>
 </div>
 <div class="admin-table-wrapper">
@@ -37,4 +37,5 @@
         </tbody>
     </table>
 </div>
+{{ $blogs->links('admin.partials.pagination') }}
 @endsection

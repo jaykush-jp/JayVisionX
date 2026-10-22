@@ -2,7 +2,7 @@
 @section('title','Manage Testimonials')
 @section('content')
 <div class="page-header-row">
-    <h2>Testimonials <span class="count-badge">{{ $testimonials->count() }}</span></h2>
+    <h2>Testimonials <span class="count-badge">{{ $testimonials->total() }}</span></h2>
     <a href="{{ route('admin.testimonials.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Add Testimonial</a>
 </div>
 <div class="admin-table-wrapper">
@@ -36,4 +36,5 @@
         </tbody>
     </table>
 </div>
+{{ $testimonials->links('admin.partials.pagination') }}
 @endsection

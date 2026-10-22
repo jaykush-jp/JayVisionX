@@ -2,7 +2,7 @@
 @section('title', 'Manage Services')
 @section('content')
 <div class="page-header-row">
-    <h2>Services <span class="count-badge">{{ $services->count() }}</span></h2>
+    <h2>Services <span class="count-badge">{{ $services->total() }}</span></h2>
     <a href="{{ route('admin.services.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Add Service</a>
 </div>
 <div class="admin-table-wrapper">
@@ -35,4 +35,5 @@
         </tbody>
     </table>
 </div>
+{{ $services->links('admin.partials.pagination') }}
 @endsection

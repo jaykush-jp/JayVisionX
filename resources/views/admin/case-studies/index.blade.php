@@ -2,7 +2,7 @@
 @section('title','Case Studies')
 @section('content')
 <div class="page-header-row">
-    <h2>Case Studies <span class="count-badge">{{ $caseStudies->count() }}</span></h2>
+    <h2>Case Studies <span class="count-badge">{{ $caseStudies->total() }}</span></h2>
     <a href="{{ route('admin.case-studies.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Add Case Study</a>
 </div>
 <div class="admin-table-wrapper">
@@ -28,4 +28,5 @@
         </tbody>
     </table>
 </div>
+{{ $caseStudies->links('admin.partials.pagination') }}
 @endsection

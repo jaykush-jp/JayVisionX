@@ -12,7 +12,7 @@ class AdminProjectController extends Controller
 {
     public function index()
     {
-        $projects = Project::orderBy('sort_order')->get();
+        $projects = Project::orderBy('sort_order')->paginate(20);
         return view('admin.projects.index', compact('projects'));
     }
 
