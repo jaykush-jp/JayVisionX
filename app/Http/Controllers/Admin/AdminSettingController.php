@@ -17,6 +17,11 @@ class AdminSettingController extends Controller
 
     public function update(Request $request)
     {
+        $request->validate([
+            'site_logo'    => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
+            'site_favicon' => 'nullable|image|mimes:png,jpg,jpeg,ico|max:512',
+        ]);
+
         $data = $request->except(['_token', '_method', 'site_logo', 'site_favicon']);
 
         foreach ($data as $key => $value) {

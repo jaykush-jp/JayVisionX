@@ -112,4 +112,21 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Panel Credentials
+    |--------------------------------------------------------------------------
+    |
+    | Credentials for the single-admin panel login. These are defined here
+    | (rather than read via env() in a controller) so that `config:cache`
+    | keeps them available in production. The password is stored as a bcrypt
+    | hash — generate one with:
+    |
+    |     php -r "echo password_hash('your-password', PASSWORD_BCRYPT);"
+    |
+    */
+
+    'admin_email'         => env('ADMIN_EMAIL'),
+    'admin_password_hash' => env('ADMIN_PASSWORD_HASH'),
+
 ];
