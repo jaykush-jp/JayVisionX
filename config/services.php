@@ -35,4 +35,21 @@ return [
         ],
     ],
 
+    // Anthropic (Claude) — powers the AI support chatbot.
+    // Leave the key empty to run the chatbot in free DB/FAQ fallback mode.
+    'anthropic' => [
+        'key'   => env('ANTHROPIC_API_KEY'),
+        'model' => env('ANTHROPIC_MODEL', 'claude-haiku-5-5'),
+    ],
+
+    // Google Sheets — leads are POSTed to this Apps Script web-app URL.
+    'google_sheets' => [
+        'webhook_url' => env('GOOGLE_SHEETS_WEBHOOK_URL'),
+    ],
+
+    // Where new-lead email notifications are sent (falls back to the site email setting).
+    'leads' => [
+        'notify_email' => env('LEAD_NOTIFY_EMAIL'),
+    ],
+
 ];

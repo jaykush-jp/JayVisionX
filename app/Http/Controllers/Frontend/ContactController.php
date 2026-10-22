@@ -7,6 +7,7 @@ use App\Models\Contact;
 use App\Models\Newsletter;
 use App\Models\Page;
 use App\Models\Service;
+use App\Services\LeadNotifier;
 use Illuminate\Http\Request;
 
 class ContactController extends Controller
@@ -27,7 +28,7 @@ class ContactController extends Controller
             'message' => 'nullable|string|max:2000',
         ]);
 
-        Contact::create([
+        $lead = Contact::create([
             'name'               => $request->name,
             'email'              => $request->email,
             'phone'              => $request->phone,
@@ -36,6 +37,9 @@ class ContactController extends Controller
             'message'            => $request->message,
             'ip_address'         => $request->ip(),
         ]);
+
+        // Notify via email + push to Google Sheet (both are failure-tolerant).
+        app(LeadNotifier::class)->dispatch($lead);
 
         return back()->with('success', 'Thank you! Your enquiry has been submitted. Our team will contact you within 24 hours.');
     }
