@@ -6,6 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- Google Tag Manager -->
+    @if (\App\Models\Setting::get('google_tag_manager'))
+        <script>
+            (function (w, d, s, l, i) {
+                w[l] = w[l] || []; w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+                var f = d.getElementsByTagName(s)[0], j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+                j.async = true; j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+                f.parentNode.insertBefore(j, f);
+            })(window, document, 'script', 'dataLayer', '{{ \App\Models\Setting::get('google_tag_manager') }}');
+        </script>
+    @endif
+    <!-- End Google Tag Manager -->
+
     <link rel="icon" href="{{ asset('images/favicon/favicon.ico') }}?v=10">
 
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon/favicon-16x16.png') }}?v=10">
@@ -15,9 +29,9 @@
     <link rel="icon" type="image/png" sizes="512x512" href="{{ asset('images/favicon/favicon-512.png') }}?v=10">
 
     <!-- SEO Meta Tags -->
-    <title>@yield('meta_title', \App\Models\Setting::get('meta_title', 'JayVisionX - Digital Marketing Agency & Website Development Company'))</title>
-    <meta name="description" content="@yield('meta_description', \App\Models\Setting::get('meta_description', 'JayVisionX is a top Digital Marketing Agency in Delhi NCR offering SEO, Google Ads, Meta Ads, Social Media Marketing, Website Development, App Development & more.'))">
-    <meta name="keywords" content="@yield('meta_keywords', \App\Models\Setting::get('meta_keywords', 'Digital Marketing Agency Delhi NCR, Website Development, SEO Services'))">
+    <title>@yield('meta_title', \App\Models\Setting::get('meta_title', 'JayVisionX — Digital Growth & Technology Company'))</title>
+    <meta name="description" content="@yield('meta_description', \App\Models\Setting::get('meta_description', 'JayVisionX is a top Digital Growth & Technology Company in Delhi NCR offering SEO, Google Ads, Meta Ads, Social Media Marketing, Website Development, App Development & more.'))">
+    <meta name="keywords" content="@yield('meta_keywords', \App\Models\Setting::get('meta_keywords', 'Digital Growth & Technology Company Delhi NCR, Website Development, SEO Services'))">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url()->current() }}">
 
@@ -48,7 +62,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
         rel="stylesheet">
 
     <!-- Font Awesome -->
@@ -94,6 +108,13 @@
 </head>
 
 <body>
+
+    <!-- Google Tag Manager (noscript) -->
+    @if (\App\Models\Setting::get('google_tag_manager'))
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ \App\Models\Setting::get('google_tag_manager') }}"
+                height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    @endif
+    <!-- End Google Tag Manager (noscript) -->
 
     <!-- Top Bar -->
     <div class="topbar">
@@ -141,10 +162,11 @@
                 <!-- Logo -->
                 <a href="{{ route('home') }}" class="navbar-brand">
                     @if (\App\Models\Setting::get('site_logo'))
-                        <img src="{{ asset('storage/' . \App\Models\Setting::get('site_logo')) }}" alt="JayVisionX"
-                            class="logo-img">
+                        <img src="{{ asset('storage/' . \App\Models\Setting::get('site_logo')) }}"
+                            alt="JayVisionX — Digital Growth & Technology Company in Delhi NCR" class="logo-img">
                     @else
-                        <img src="{{ asset('images/logo.png') }}" alt="JayVisionX" class="logo-img">
+                        <img src="{{ asset('images/logo.png') }}"
+                            alt="JayVisionX — Digital Growth & Technology Company in Delhi NCR" class="logo-img">
                     @endif
                 </a>
 
@@ -235,11 +257,12 @@
                     <div class="footer-col footer-about">
                         @if (\App\Models\Setting::get('site_logo'))
                             <img src="{{ asset('storage/' . \App\Models\Setting::get('site_logo')) }}"
-                                alt="JayVisionX" class="footer-logo">
+                                alt="JayVisionX — Digital Marketing &amp; Website Development Company" class="footer-logo">
                         @else
-                            <img src="{{ asset('images/logo.png') }}" alt="JayVisionX" class="footer-logo">
+                            <img src="{{ asset('images/logo.png') }}"
+                                alt="JayVisionX — Digital Marketing &amp; Website Development Company" class="footer-logo">
                         @endif
-                        <p>{{ \App\Models\Setting::get('footer_about', 'JayVisionX is a leading Digital Marketing Agency & IT Company in Delhi NCR. We help businesses grow with powerful digital strategies, stunning websites, and result-driven marketing campaigns.') }}
+                        <p>{{ \App\Models\Setting::get('footer_about', 'JayVisionX is a leading Digital Growth & Technology Company in Delhi NCR. We help businesses grow with powerful digital strategies, stunning websites, and result-driven marketing campaigns.') }}
                         </p>
                         <div class="footer-socials">
                             @if (\App\Models\Setting::get('facebook_url'))
@@ -339,8 +362,8 @@
         <div class="footer-bottom">
             <div class="container">
                 <div class="footer-bottom-inner">
-                    <p>&copy; {{ date('Y') }} <strong>JayVisionX</strong>. All Rights Reserved. | Digital Marketing
-                        Agency & Website Development Company in Delhi NCR</p>
+                    <p>&copy; {{ date('Y') }} <strong>JayVisionX</strong>. All Rights Reserved. | Digital Growth
+                        & Technology Company in Delhi NCR</p>
                     <p>Designed & Developed with <i class="fas fa-heart text-orange"></i> by JayVisionX Team</p>
                 </div>
             </div>
@@ -386,22 +409,56 @@
                 <button class="chatbot-close" id="chatbotClose" aria-label="Close chat"><i class="fas fa-chevron-down"></i></button>
             </div>
 
+            @php
+                $aiCfg = \App\Models\AiSetting::current();
+                $aiWelcome = $aiCfg->welcome_message
+                    ?: "👋 Hi! Welcome to JayVisionX. I'm your AI assistant — ask me about our services, pricing or projects. What are you looking to build or grow?";
+                $aiSuggestions = is_array($aiCfg->suggested_questions) && $aiCfg->suggested_questions
+                    ? $aiCfg->suggested_questions
+                    : ['What services do you offer?', 'How much does a website cost?', 'Request a custom quote'];
+            @endphp
             <div class="chatbot-messages" id="chatbotMessages">
-                <div class="chatbot-msg bot">
-                    👋 Hi! I'm the JayVisionX assistant. Ask me about our services, pricing, or anything else — I'm here to help!
-                </div>
+                <div class="chatbot-msg bot">{{ $aiWelcome }}</div>
                 <div class="chatbot-suggestions" id="chatbotSuggestions">
-                    <button type="button">What services do you offer?</button>
-                    <button type="button">How much does a website cost?</button>
-                    <button type="button">How can I contact you?</button>
+                    @foreach($aiSuggestions as $sg)
+                    <button type="button">{{ $sg }}</button>
+                    @endforeach
+                </div>
+                <div class="chatbot-quickactions" id="chatbotQuickActions">
+                    <button type="button" data-intent="quote"><i class="fas fa-file-invoice-dollar"></i> Request a Quote</button>
+                    <button type="button" data-intent="callback"><i class="fas fa-phone-volume"></i> Request a Callback</button>
+                    <button type="button" data-intent="human"><i class="fas fa-headset"></i> Talk to Human</button>
                 </div>
             </div>
+
+            <!-- Lead capture form (hidden until a quick action is chosen) -->
+            <form class="chatbot-lead-form" id="chatbotLeadForm" autocomplete="off" hidden>
+                <div class="chatbot-lead-title" id="chatbotLeadTitle">Share your details</div>
+                <input type="text" name="name" placeholder="Your name *" maxlength="120" required>
+                <input type="email" name="email" placeholder="Email *" maxlength="120" required>
+                <input type="tel" name="phone" placeholder="Phone (optional)" maxlength="40">
+                <select name="project_type" id="chatbotProjectType" hidden>
+                    <option value="website">Website Development</option>
+                    <option value="android">Android App</option>
+                    <option value="webapp">Web Application</option>
+                    <option value="other">Other / Custom</option>
+                </select>
+                <textarea name="message" placeholder="Anything else? (optional)" rows="2" maxlength="1000"></textarea>
+                <label class="chatbot-consent">
+                    <input type="checkbox" name="consent" value="1" required>
+                    <span>I agree to be contacted about my enquiry. <a href="{{ route('privacy') }}" target="_blank" rel="noopener">Privacy Policy</a></span>
+                </label>
+                <div class="chatbot-lead-actions">
+                    <button type="button" class="chatbot-lead-cancel" id="chatbotLeadCancel">Back</button>
+                    <button type="submit" class="chatbot-lead-submit">Submit</button>
+                </div>
+            </form>
 
             <form class="chatbot-input" id="chatbotForm" autocomplete="off">
                 <input type="text" id="chatbotInput" placeholder="Type your message..." maxlength="1000" required>
                 <button type="submit" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
             </form>
-            <div class="chatbot-foot">Powered by JayVisionX</div>
+            <div class="chatbot-foot"><i class="fas fa-robot"></i> AI assistant · Powered by JayVisionX</div>
         </div>
     </div>
 
@@ -424,7 +481,8 @@
 
             var csrf = document.querySelector('meta[name="csrf-token"]');
             csrf = csrf ? csrf.getAttribute('content') : '';
-            var history = [];
+            var sessionToken = null;
+            try { sessionToken = localStorage.getItem('jvx_chat_token'); } catch (e) {}
             var busy = false;
 
             function toggle(open) {
@@ -464,7 +522,6 @@
                 busy = true;
                 if (suggestions) suggestions.remove();
                 addMessage(text, 'user');
-                history.push({ role: 'user', content: text });
                 input.value = '';
                 var typing = showTyping();
 
@@ -475,14 +532,17 @@
                         'X-CSRF-TOKEN': csrf,
                         'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: JSON.stringify({ message: text, history: history.slice(-8) })
+                    body: JSON.stringify({ message: text, session_token: sessionToken })
                 })
                 .then(function (r) { return r.json(); })
                 .then(function (data) {
                     typing.remove();
+                    if (data && data.session_token) {
+                        sessionToken = data.session_token;
+                        try { localStorage.setItem('jvx_chat_token', sessionToken); } catch (e) {}
+                    }
                     var reply = (data && data.reply) ? data.reply : "Sorry, something went wrong. Please call us or try again.";
                     addMessage(reply, 'bot');
-                    history.push({ role: 'assistant', content: reply });
                 })
                 .catch(function () {
                     typing.remove();
@@ -498,6 +558,85 @@
             if (suggestions) {
                 suggestions.querySelectorAll('button').forEach(function (b) {
                     b.addEventListener('click', function () { send(b.textContent); });
+                });
+            }
+
+            // --- Quick actions + lead capture (Talk to Human / Callback / Quote) ---
+            var quickActions = document.getElementById('chatbotQuickActions');
+            var leadForm = document.getElementById('chatbotLeadForm');
+            var leadTitle = document.getElementById('chatbotLeadTitle');
+            var leadCancel = document.getElementById('chatbotLeadCancel');
+            var projectType = document.getElementById('chatbotProjectType');
+            var currentIntent = null;
+
+            var INTENT_LABELS = {
+                quote: 'Request a Quote — share your details',
+                callback: 'Request a Callback — share your details',
+                human: 'Talk to a human — share your details'
+            };
+
+            function openLeadForm(intent) {
+                currentIntent = intent;
+                if (leadTitle) leadTitle.textContent = INTENT_LABELS[intent] || 'Share your details';
+                if (projectType) projectType.hidden = (intent !== 'quote');
+                leadForm.hidden = false;
+                form.hidden = true;
+                var n = leadForm.querySelector('input[name="name"]');
+                if (n) setTimeout(function () { n.focus(); }, 100);
+            }
+            function closeLeadForm() {
+                leadForm.hidden = true;
+                form.hidden = false;
+            }
+
+            if (quickActions) {
+                quickActions.querySelectorAll('button').forEach(function (b) {
+                    b.addEventListener('click', function () { openLeadForm(b.getAttribute('data-intent')); });
+                });
+            }
+            if (leadCancel) leadCancel.addEventListener('click', closeLeadForm);
+
+            if (leadForm) {
+                leadForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    if (busy) return;
+                    var fd = leadForm.querySelector('input[name="consent"]');
+                    if (fd && !fd.checked) { fd.focus(); return; }
+                    busy = true;
+                    var btn = leadForm.querySelector('.chatbot-lead-submit');
+                    if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+
+                    var payload = {
+                        session_token: sessionToken,
+                        intent: currentIntent,
+                        name: leadForm.name.value,
+                        email: leadForm.email.value,
+                        phone: leadForm.phone.value,
+                        message: leadForm.message.value,
+                        consent: fd && fd.checked ? 1 : 0
+                    };
+                    if (currentIntent === 'quote' && projectType) payload.project_type = projectType.value;
+
+                    fetch('{{ route('chatbot.lead') }}', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'X-Requested-With': 'XMLHttpRequest' },
+                        body: JSON.stringify(payload)
+                    })
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        closeLeadForm();
+                        if (quickActions) quickActions.remove();
+                        leadForm.reset();
+                        addMessage(data.reply || 'Thanks! Our team will get back to you.', 'bot');
+                    })
+                    .catch(function () {
+                        closeLeadForm();
+                        addMessage("Sorry, we couldn't submit that. Please call or WhatsApp us.", 'bot');
+                    })
+                    .finally(function () {
+                        busy = false;
+                        if (btn) { btn.disabled = false; btn.textContent = 'Submit'; }
+                    });
                 });
             }
         })();

@@ -2,7 +2,8 @@
 use Illuminate\Database\Eloquent\Model;
 
 class Faq extends Model {
-    protected $fillable = ['question','answer','category','is_active','sort_order'];
+    protected $fillable = ['service_id','question','answer','category','is_active','sort_order'];
     protected $casts = ['is_active'=>'boolean'];
     public function scopeActive($q) { return $q->where('is_active',true)->orderBy('sort_order'); }
+    public function service() { return $this->belongsTo(Service::class); }
 }

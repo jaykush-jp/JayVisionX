@@ -28,6 +28,11 @@ class ContactController extends Controller
             'message' => 'nullable|string|max:2000',
         ]);
 
+        // Where the lead came from — a hidden form field, limited to known values.
+        $source = in_array($request->input('source'), ['contact_form', 'landing'], true)
+            ? $request->input('source')
+            : 'contact_form';
+
         $lead = Contact::create([
             'name'               => $request->name,
             'email'              => $request->email,
@@ -36,6 +41,8 @@ class ContactController extends Controller
             'budget'             => $request->budget,
             'message'            => $request->message,
             'ip_address'         => $request->ip(),
+            'source'             => $source,
+            'status'             => 'new',
         ]);
 
         // Notify via email + push to Google Sheet (both are failure-tolerant).

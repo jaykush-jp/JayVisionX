@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
     {
         $settings = [
             'site_name'          => 'JayVisionX',
-            'site_tagline'       => 'Digital Marketing Agency & Website Development Company',
+            'site_tagline'       => 'Digital Growth & Technology Company',
             'site_description'   => 'JayVisionX offers SEO services, Google Ads, Meta Ads, social media marketing, website development, web app development, Android & iOS app development, graphic design, video editing, and complete digital growth solutions.',
             'site_email'         => 'info@jayvisionx.com',
             'site_phone'         => '+91-9999999999',
@@ -39,7 +39,7 @@ class DatabaseSeeder extends Seeder
             'twitter_url'        => 'https://twitter.com/jayvisionx',
             'linkedin_url'       => 'https://linkedin.com/company/jayvisionx',
             'youtube_url'        => 'https://youtube.com/@jayvisionx',
-            'footer_about'       => 'JayVisionX is a leading Digital Marketing Agency & IT Company in Delhi NCR. We help businesses grow with powerful digital strategies, stunning websites, and result-driven marketing campaigns.',
+            'footer_about'       => 'JayVisionX is a leading Digital Growth & Technology Company in Delhi NCR. We help businesses grow with powerful digital strategies, stunning websites, and result-driven marketing campaigns.',
             'hero_title'         => 'Grow Your Business with Website Development, SEO, Ads & Creative Digital Solutions',
             'hero_subtitle'      => 'We deliver measurable results through powerful Digital Marketing, SEO, PPC, Social Media Marketing, and cutting-edge Website & App Development.',
             'hero_cta_text'      => 'Get Free Consultation',
@@ -47,9 +47,9 @@ class DatabaseSeeder extends Seeder
             'hero_bg_image'      => '',
             'google_analytics'   => '',
             'google_tag_manager' => '',
-            'meta_title'         => 'JayVisionX - Digital Marketing Agency & Website Development Company in Delhi NCR',
-            'meta_description'   => 'JayVisionX is a top Digital Marketing Agency in Delhi NCR offering SEO, Google Ads, Meta Ads, Social Media Marketing, Website Development, App Development & more.',
-            'meta_keywords'      => 'Digital Marketing Agency Delhi NCR, Website Development Company Delhi, SEO Services Delhi, Google Ads Management, Social Media Marketing Agency, Laravel Website Development',
+            'meta_title'         => 'JayVisionX — Digital Growth & Technology Company in Delhi NCR',
+            'meta_description'   => 'JayVisionX is a top Digital Growth & Technology Company in Delhi NCR offering SEO, Google Ads, Meta Ads, Social Media Marketing, Website Development, App Development & more.',
+            'meta_keywords'      => 'Digital Growth & Technology Company Delhi NCR, Website Development Company Delhi, SEO Services Delhi, Google Ads Management, Social Media Marketing Agency, Laravel Website Development',
         ];
 
         foreach ($settings as $key => $value) {
@@ -126,8 +126,8 @@ class DatabaseSeeder extends Seeder
     private function seedPages(): void
     {
         $pages = [
-            ['page_name' => 'home', 'meta_title' => 'JayVisionX - Digital Marketing Agency & Website Development Company in Delhi NCR', 'meta_description' => 'JayVisionX is a leading Digital Marketing Agency in Delhi NCR. We offer SEO, Google Ads, Meta Ads, Social Media Marketing, Website Development, App Development & more. Get Free Consultation!', 'meta_keywords' => 'Digital Marketing Agency Delhi NCR, Website Development Company, SEO Services Delhi, Google Ads Management'],
-            ['page_name' => 'about', 'title' => 'About JayVisionX', 'meta_title' => 'About Us - JayVisionX Digital Marketing Agency Delhi NCR', 'meta_description' => 'Learn about JayVisionX - A trusted Digital Marketing Agency & IT Company in Delhi NCR. We help businesses grow with SEO, Ads, and powerful digital solutions.'],
+            ['page_name' => 'home', 'meta_title' => 'JayVisionX — Digital Growth & Technology Company in Delhi NCR', 'meta_description' => 'JayVisionX is a leading Digital Growth & Technology Company in Delhi NCR. We offer SEO, Google Ads, Meta Ads, Social Media Marketing, Website Development, App Development & more. Get Free Consultation!', 'meta_keywords' => 'Digital Growth & Technology Company Delhi NCR, Website Development Company, SEO Services Delhi, Google Ads Management'],
+            ['page_name' => 'about', 'title' => 'About JayVisionX', 'meta_title' => 'About Us - JayVisionX Digital Growth & Technology Company Delhi NCR', 'meta_description' => 'Learn about JayVisionX - a trusted Digital Growth & Technology Company in Delhi NCR. We help businesses grow with SEO, Ads, and powerful digital solutions.'],
             ['page_name' => 'services', 'title' => 'Our Services', 'meta_title' => 'Digital Marketing & Web Development Services - JayVisionX', 'meta_description' => 'Explore JayVisionX services: SEO, Google Ads, Meta Ads, Social Media, Website Development, App Development, Graphic Design, Video Editing and more.'],
             ['page_name' => 'projects', 'title' => 'Our Projects & Portfolio', 'meta_title' => 'Projects & Portfolio - JayVisionX Digital Agency', 'meta_description' => 'Explore our successful projects in website development, app development, digital marketing, and creative design.'],
             ['page_name' => 'blog', 'title' => 'Digital Marketing Blog', 'meta_title' => 'Blog - Digital Marketing Tips & Insights | JayVisionX', 'meta_description' => 'Read our latest blog posts about digital marketing, SEO, Google Ads, social media marketing, website development, and business growth strategies.'],

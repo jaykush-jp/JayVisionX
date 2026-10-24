@@ -11,7 +11,7 @@
         <h4>{{ ucfirst(str_replace('-',' ',$page->page_name)) }}</h4>
         <p>{{ Str::limit($page->meta_title, 60) ?: 'No meta title set' }}</p>
         <div class="actions-cell">
-            <a href="{{ route('admin.pages.edit',$page->id) }}" class="btn-sm btn-edit"><i class="fas fa-edit"></i> Edit SEO</a>
+            <a href="{{ route('admin.pages.edit',$page->id) }}" class="btn btn-xs btn-edit"><i class="fas fa-edit"></i> Edit SEO</a>
         </div>
     </div>
     @empty

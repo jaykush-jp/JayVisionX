@@ -13,7 +13,7 @@
             @forelse($projects as $p)
             <tr>
                 <td>{{ $loop->iteration }}</td>
-                <td><img src="{{ $p->thumbnail_url }}" style="width:56px;height:40px;object-fit:cover;border-radius:4px"></td>
+                <td><img src="{{ $p->thumbnail_url }}" alt="{{ $p->title }}" style="width:56px;height:40px;object-fit:cover;border-radius:4px"></td>
                 <td><strong>{{ $p->title }}</strong><br><small class="text-muted">{{ $p->slug }}</small></td>
                 <td>{{ $p->category ?? '-' }}</td>
                 <td>{{ $p->client_name ?? '-' }}</td>

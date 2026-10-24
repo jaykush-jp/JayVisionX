@@ -6,7 +6,7 @@
     <title>@yield('title', 'Admin Panel') - JayVisionX</title>
     <link rel="icon" href="{{ asset('images/favicon.ico') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
     @yield('head_extra')
 </head>
@@ -48,17 +48,62 @@
             <i class="fas fa-question-circle"></i> <span>FAQs</span>
         </a>
 
+        <div class="nav-section-label">AI Support</div>
+        <a href="{{ route('admin.knowledge.index') }}" class="sidebar-link {{ request()->routeIs('admin.knowledge*') ? 'active' : '' }}">
+            <i class="fas fa-brain"></i> <span>Knowledge Base</span>
+        </a>
+        <a href="{{ route('admin.packages.index') }}" class="sidebar-link {{ request()->routeIs('admin.packages*') ? 'active' : '' }}">
+            <i class="fas fa-tags"></i> <span>Packages &amp; Pricing</span>
+        </a>
+        <a href="{{ route('admin.inbox.index') }}" class="sidebar-link {{ request()->routeIs('admin.inbox*') ? 'active' : '' }}">
+            <i class="fas fa-comments"></i> <span>Live Inbox</span>
+            @php $openChats = \App\Models\ChatSession::where('status','open')->count(); @endphp
+            @if($openChats > 0)<span class="badge-count">{{ $openChats }}</span>@endif
+        </a>
+        <a href="{{ route('admin.ai-settings.index') }}" class="sidebar-link {{ request()->routeIs('admin.ai-settings*') ? 'active' : '' }}">
+            <i class="fas fa-robot"></i> <span>AI Configuration</span>
+        </a>
+        <a href="{{ route('admin.quotes.index') }}" class="sidebar-link {{ request()->routeIs('admin.quotes*') ? 'active' : '' }}">
+            <i class="fas fa-file-invoice-dollar"></i> <span>Quotes</span>
+        </a>
+        <a href="{{ route('admin.automation.index') }}" class="sidebar-link {{ request()->routeIs('admin.automation*') ? 'active' : '' }}">
+            <i class="fas fa-bolt"></i> <span>Automation</span>
+        </a>
+        <a href="{{ route('admin.reports.index') }}" class="sidebar-link {{ request()->routeIs('admin.reports*') ? 'active' : '' }}">
+            <i class="fas fa-chart-pie"></i> <span>Reports</span>
+        </a>
+        <a href="{{ route('admin.audit.index') }}" class="sidebar-link {{ request()->routeIs('admin.audit*') ? 'active' : '' }}">
+            <i class="fas fa-clipboard-list"></i> <span>Audit Logs</span>
+        </a>
+
         <div class="nav-section-label">SEO & Pages</div>
         <a href="{{ route('admin.pages.index') }}" class="sidebar-link {{ request()->routeIs('admin.pages*') ? 'active' : '' }}">
             <i class="fas fa-file-alt"></i> <span>Pages & SEO</span>
         </a>
 
-        <div class="nav-section-label">Enquiries</div>
+        <div class="nav-section-label">CRM</div>
         <a href="{{ route('admin.contacts.index') }}" class="sidebar-link {{ request()->routeIs('admin.contacts*') ? 'active' : '' }}">
-            <i class="fas fa-envelope"></i>
-            <span>Contacts</span>
+            <i class="fas fa-user-tie"></i>
+            <span>Leads</span>
             @php $unread = \App\Models\Contact::where('is_read',false)->count(); @endphp
             @if($unread > 0)<span class="badge-count">{{ $unread }}</span>@endif
+        </a>
+        <a href="{{ route('admin.customers') }}" class="sidebar-link {{ request()->routeIs('admin.customers') ? 'active' : '' }}">
+            <i class="fas fa-handshake"></i> <span>Customers</span>
+        </a>
+        <a href="{{ route('admin.email-templates.index') }}" class="sidebar-link {{ request()->routeIs('admin.email-templates*') ? 'active' : '' }}">
+            <i class="fas fa-envelope-open-text"></i> <span>Email Templates</span>
+        </a>
+
+        <div class="nav-section-label">Marketing</div>
+        <a href="{{ route('admin.reviews.index') }}" class="sidebar-link {{ request()->routeIs('admin.reviews*') ? 'active' : '' }}">
+            <i class="fas fa-star-half-alt"></i> <span>Google Reviews</span>
+        </a>
+        <a href="{{ route('admin.posts.index') }}" class="sidebar-link {{ request()->routeIs('admin.posts*') ? 'active' : '' }}">
+            <i class="fas fa-bullhorn"></i> <span>Social Posts</span>
+        </a>
+        <a href="{{ route('admin.integrations.index') }}" class="sidebar-link {{ request()->routeIs('admin.integrations*') ? 'active' : '' }}">
+            <i class="fas fa-plug"></i> <span>Integrations</span>
         </a>
 
         <div class="nav-section-label">Settings</div>

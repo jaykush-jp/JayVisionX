@@ -41,6 +41,92 @@
         </div>
     </div>
 
+    <!-- CRM snapshot -->
+    <div class="dashboard-section">
+        <div class="section-heading-row">
+            <h3 class="section-heading">Lead Pipeline</h3>
+            <a href="{{ route('admin.contacts.index') }}" class="view-all-link">Open CRM</a>
+        </div>
+        <div class="stats-row">
+            <div class="stat-card blue">
+                <div class="stat-icon"><i class="fas fa-user-plus"></i></div>
+                <div class="stat-info"><span class="stat-num">{{ $stats['leads_week'] }}</span><span class="stat-label">New leads (7 days)</span></div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-icon"><i class="fas fa-handshake"></i></div>
+                <div class="stat-info"><span class="stat-num">{{ $stats['customers'] }}</span><span class="stat-label">Customers (won)</span></div>
+                <a href="{{ route('admin.customers') }}" class="stat-link">View <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="stat-card red">
+                <div class="stat-icon"><i class="fas fa-bell"></i></div>
+                <div class="stat-info"><span class="stat-num">{{ $stats['due'] }}</span><span class="stat-label">Follow-ups due</span></div>
+            </div>
+        </div>
+        <div class="pipeline-bar">
+            @foreach($stats['pipeline'] as $stage)
+            <a href="{{ route('admin.contacts.index', ['status' => $stage['key']]) }}" class="pipeline-stage">
+                <span class="pipeline-count">{{ $stage['count'] }}</span>
+                <span class="lead-badge lead-badge-{{ $stage['key'] }}">{{ $stage['label'] }}</span>
+            </a>
+            @endforeach
+        </div>
+    </div>
+
+    <!-- AI Support snapshot -->
+    <div class="dashboard-section">
+        <div class="section-heading-row">
+            <h3 class="section-heading">AI Support &amp; Chatbot</h3>
+            <a href="{{ route('admin.inbox.index') }}" class="view-all-link">Open Inbox</a>
+        </div>
+        <div class="stats-row">
+            <div class="stat-card blue">
+                <div class="stat-icon"><i class="fas fa-comments"></i></div>
+                <div class="stat-info"><span class="stat-num">{{ $stats['chats'] }}</span><span class="stat-label">Total conversations</span></div>
+                <a href="{{ route('admin.inbox.index') }}" class="stat-link">View <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="stat-card orange">
+                <div class="stat-icon"><i class="fas fa-inbox"></i></div>
+                <div class="stat-info"><span class="stat-num">{{ $stats['chats_open'] }}</span><span class="stat-label">Open chats</span></div>
+            </div>
+            <div class="stat-card purple">
+                <div class="stat-icon"><i class="fas fa-headset"></i></div>
+                <div class="stat-info"><span class="stat-num">{{ $stats['chats_human'] }}</span><span class="stat-label">Human takeover</span></div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+                <div class="stat-info"><span class="stat-num">{{ $stats['chats_leads'] }}</span><span class="stat-label">Chats → leads</span></div>
+            </div>
+            <div class="stat-card teal">
+                <div class="stat-icon"><i class="fas fa-paper-plane"></i></div>
+                <div class="stat-info"><span class="stat-num">{{ $stats['chat_msgs_week'] }}</span><span class="stat-label">Messages (7 days)</span></div>
+            </div>
+        </div>
+    </div>
+
+    @if($dueFollowUps->count())
+    <!-- Follow-ups due -->
+    <div class="dashboard-section">
+        <div class="section-heading-row">
+            <h3 class="section-heading">Follow-ups Due</h3>
+        </div>
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead><tr><th>Name</th><th>Status</th><th>Due</th><th>Action</th></tr></thead>
+                <tbody>
+                    @foreach($dueFollowUps as $f)
+                    <tr>
+                        <td><strong>{{ $f->name }}</strong></td>
+                        <td><span class="lead-badge lead-badge-{{ $f->status }}">{{ $f->statusLabel() }}</span></td>
+                        <td class="{{ $f->follow_up_at->isPast() ? 'text-danger' : '' }}">{{ $f->follow_up_at->format('d M Y, h:i A') }}</td>
+                        <td><a href="{{ route('admin.contacts.show', $f->id) }}" class="btn-sm btn-view">Open</a></td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @endif
+
     <!-- Quick Actions -->
     <div class="dashboard-section">
         <h3 class="section-heading">Quick Actions</h3>

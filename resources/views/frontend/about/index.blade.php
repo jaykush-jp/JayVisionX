@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
-@section('meta_title', $page->meta_title ?? 'About JayVisionX - Digital Marketing Agency Delhi NCR')
-@section('meta_description', $page->meta_description ?? 'Learn about JayVisionX - A trusted Digital Marketing Agency & IT Company in Delhi NCR.')
+@section('meta_title', $page->meta_title ?? 'About JayVisionX — Digital Growth & Technology Company Delhi NCR')
+@section('meta_description', $page->meta_description ?? 'Learn about JayVisionX - a trusted Digital Growth & Technology Company in Delhi NCR.')
 @section('content')
 
     <section class="page-banner">
@@ -8,7 +8,7 @@
         <div class="container">
             <div class="page-banner-content" data-aos="fade-up">
                 <h1>About JayVisionX</h1>
-                <p>Delhi NCR's Most Trusted Digital Marketing Agency & IT Company</p>
+                <p>Delhi NCR's Most Trusted Digital Growth & Technology Company</p>
                 <nav class="breadcrumb-nav">
                     <a href="{{ route('home') }}">Home</a>
                     <i class="fas fa-chevron-right"></i>
@@ -22,7 +22,7 @@
         <div class="container">
             <div class="about-detail-grid">
                 <div class="about-detail-image" data-aos="fade-right">
-                    <img src="{{ asset('images/about-preview.png') }}" alt="JayVisionX Team" loading="lazy">
+                    <img src="{{ asset('images/about-preview.png') }}" alt="JayVisionX team — digital marketing experts in Delhi NCR" loading="lazy" width="560" height="620">
                     <div class="about-stats-overlay">
                         <div class="about-stat"><strong>3+</strong><span>Years</span></div>
                         <div class="about-stat"><strong>40+</strong><span>Projects</span></div>
@@ -32,7 +32,7 @@
                 <div class="about-detail-content" data-aos="fade-left" data-aos-delay="150">
                     <span class="section-badge">About Us</span>
                     <h2>See Beyond. Create Impact.</h2>
-                    <p>JayVisionX is a full-service <strong>Digital Marketing Agency & IT Company</strong> based in Delhi
+                    <p>JayVisionX is a full-service <strong>Digital Growth & Technology Company</strong> based in Delhi
                         NCR. Founded with a vision to empower businesses through technology and creativity, we have grown
                         into a team of 25+ passionate professionals.</p>
                     <p>We offer a comprehensive suite of digital services — from SEO and Google Ads to website development,

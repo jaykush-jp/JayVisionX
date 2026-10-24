@@ -61,6 +61,7 @@
 
                         <form action="{{ route('contact.store') }}" method="POST" class="lp-form">
                             @csrf
+                            <input type="hidden" name="source" value="landing">
                             <div class="lp-field">
                                 <label>Your Name *</label>
                                 <input type="text" name="name" value="{{ old('name') }}" placeholder="Full name" required>

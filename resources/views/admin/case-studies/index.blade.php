@@ -12,7 +12,7 @@
             @forelse($caseStudies as $cs)
             <tr>
                 <td>{{ $loop->iteration }}</td>
-                <td><img src="{{ $cs->thumbnail_url }}" style="width:56px;height:40px;object-fit:cover;border-radius:4px"></td>
+                <td><img src="{{ $cs->thumbnail_url }}" alt="{{ $cs->title }}" style="width:56px;height:40px;object-fit:cover;border-radius:4px"></td>
                 <td><strong>{{ $cs->title }}</strong></td>
                 <td>{{ $cs->client ?? '-' }}</td>
                 <td>{{ $cs->industry ?? '-' }}</td>

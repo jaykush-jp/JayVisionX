@@ -12,7 +12,7 @@
             @forelse($blogs as $b)
             <tr>
                 <td>{{ $loop->iteration }}</td>
-                <td><img src="{{ $b->thumbnail_url }}" style="width:50px;height:40px;object-fit:cover;border-radius:4px"></td>
+                <td><img src="{{ $b->thumbnail_url }}" alt="{{ $b->title }}" style="width:50px;height:40px;object-fit:cover;border-radius:4px"></td>
                 <td><strong>{{ $b->title }}</strong><br><small class="text-muted">{{ $b->slug }}</small></td>
                 <td>{{ $b->category ?? '-' }}</td>
                 <td>{{ $b->views }}</td>

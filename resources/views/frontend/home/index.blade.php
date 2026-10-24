@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('meta_title', $page->meta_title ?? 'JayVisionX - Digital Marketing Agency & Website Development Company in Delhi NCR')
+@section('meta_title', $page->meta_title ?? 'JayVisionX — Digital Growth & Technology Company in Delhi NCR')
 @section('meta_description', $page->meta_description ?? '')
 @section('meta_keywords', $page->meta_keywords ?? '')
 
@@ -10,7 +10,7 @@
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   "name": "JayVisionX",
-  "description": "Digital Marketing Agency & Website Development Company in Delhi NCR",
+  "description": "Digital Growth & Technology Company in Delhi NCR",
   "url": "{{ url('/') }}",
   "telephone": "{{ \App\Models\Setting::get('site_phone') }}",
   "address": { "@type": "PostalAddress", "addressLocality": "Delhi NCR", "addressCountry": "IN" },
@@ -92,7 +92,7 @@
                         </div>
                     </div>
                     <div class="hero-main-image">
-                        <img src="{{ asset('images/hero-visual.svg') }}" alt="Digital Marketing Agency JayVisionX" loading="lazy">
+                        <img src="{{ asset('images/hero-visual.svg') }}" alt="JayVisionX digital growth and technology company in Delhi NCR — SEO, Google Ads and web development" width="600" height="500" fetchpriority="high">
                     </div>
                 </div>
             </div>
@@ -154,7 +154,7 @@
         <div class="about-preview-grid">
             <div class="about-preview-image" data-aos="fade-right">
                 <div class="about-image-wrapper">
-                    <img src="{{ asset('images/about-preview.png') }}" alt="JayVisionX Team - Digital Marketing Agency Delhi NCR" loading="lazy">
+                    <img src="{{ asset('images/about-preview.png') }}" alt="JayVisionX team — digital marketing and website development agency in Delhi NCR" loading="lazy" width="560" height="620">
                     <div class="about-exp-badge">
                         <strong>3+</strong>
                         <span>Years of Excellence</span>
@@ -164,7 +164,7 @@
             <div class="about-preview-content" data-aos="fade-left" data-aos-delay="150">
                 <span class="section-badge">About JayVisionX</span>
                 <h2>Delhi NCR's Most Trusted Digital Marketing & IT Company</h2>
-                <p>JayVisionX is a full-service Digital Marketing Agency and IT Company based in Delhi NCR. We combine creativity, technology, and data-driven strategies to deliver measurable business results for our clients.</p>
+                <p>JayVisionX is a full-service Digital Growth & Technology Company based in Delhi NCR. We combine creativity, technology, and data-driven strategies to deliver measurable business results for our clients.</p>
                 <p>Our expert team of digital marketers, developers, designers, and content creators work together to help businesses of all sizes grow online — from startups to established enterprises.</p>
                 <div class="about-features-list">
                     <div class="about-feature-item"><i class="fas fa-check-circle"></i> 40+ Successful Projects Delivered</div>

@@ -1,5 +1,5 @@
 # JayVisionX — Complete Laravel Website
-### Digital Marketing Agency & Website Development Company
+### Digital Growth & Technology Company
 
 ---
 

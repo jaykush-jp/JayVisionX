@@ -3,14 +3,15 @@
    =================================================== */
 
 :root {
-  --primary:       #0A7CE0;
-  --primary-dark:  #0A5BAA;
+  --primary:       #1391DB;   /* JayVisionX logo azure */
+  --primary-dark:  #0B5FA6;   /* deep brand blue */
   --accent:        #15C6FF;
-  --dark:          #0A1628;
-  --dark-2:        #0F1E38;
-  --sidebar-bg:    #0D1B35;
-  --sidebar-hover: rgba(10,124,224,0.12);
-  --sidebar-active:#0A7CE0;
+  --silver:        #9AA6B3;   /* logo metallic accent */
+  --dark:          #0A1E3A;
+  --dark-2:        #0C2748;
+  --sidebar-bg:    #0B2444;
+  --sidebar-hover: rgba(19,145,219,0.14);
+  --sidebar-active:#1391DB;
   --white:         #ffffff;
   --light-bg:      #F4F7FF;
   --border:        #DDE4F0;
@@ -18,7 +19,7 @@
   --text-muted:    #6B7FA3;
   --shadow-sm:     0 2px 12px rgba(10,22,40,0.08);
   --shadow-md:     0 8px 32px rgba(10,22,40,0.12);
-  --font:          'DM Sans', sans-serif;
+  --font:          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --sidebar-width: 260px;
 }
 
@@ -34,7 +35,7 @@ img { max-width: 100%; }
 /* ===== SIDEBAR ===== */
 .admin-sidebar {
   width: var(--sidebar-width);
-  background: var(--sidebar-bg);
+  background: linear-gradient(180deg, #0C2A52 0%, #0A1C38 100%);
   height: 100vh;
   position: fixed;
   top: 0; left: 0;
@@ -94,7 +95,7 @@ img { max-width: 100%; }
 }
 .sidebar-link i { width: 18px; text-align: center; font-size: 0.95rem; }
 .sidebar-link:hover { background: var(--sidebar-hover); color: white; }
-.sidebar-link.active { background: var(--sidebar-active); color: white; box-shadow: 0 4px 14px rgba(10, 124, 224,0.35); }
+.sidebar-link.active { background: linear-gradient(90deg, var(--primary), var(--accent)); color: white; box-shadow: 0 4px 14px rgba(19,145,219,0.4); }
 .sidebar-logout { color: rgba(255,100,100,0.8); }
 .sidebar-logout:hover { background: rgba(255,50,50,0.1); color: #ff6b6b; }
 .badge-count {
@@ -452,3 +453,167 @@ select.form-control { cursor: pointer; }
 @media (max-width: 480px) {
   .admin-pagination ul { justify-content: center; }
 }
+
+/* ============================================================
+   CRM, Integrations, Reviews & Social — added for admin v2
+   ============================================================ */
+
+/* Lead status badges */
+.lead-badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:11px;font-weight:600;line-height:1.6;white-space:nowrap}
+.lead-badge-new{background:#e6f0ff;color:#0a5baa}
+.lead-badge-contacted{background:#fff4e0;color:#b4720a}
+.lead-badge-qualified{background:#e7f0ff;color:#2b5bd7}
+.lead-badge-proposal{background:#efe6ff;color:#6b2bd7}
+.lead-badge-won{background:#e3f9ec;color:#1a8a4e}
+.lead-badge-lost{background:#fdeaea;color:#c0392b}
+
+/* CRM stat strip */
+.crm-stat-strip{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.crm-stat{flex:1 1 auto;min-width:96px;background:#fff;border:1px solid #e6ebf3;border-radius:10px;padding:12px 14px;text-align:center;text-decoration:none;color:inherit;transition:.15s}
+.crm-stat:hover{border-color:#0a7ce0;box-shadow:0 4px 14px rgba(10,124,224,.1)}
+.crm-stat.active{border-color:#0a7ce0;background:#f3f9ff}
+.crm-stat-num{display:block;font-size:22px;font-weight:700;color:#0a1628}
+.crm-stat-label{display:block;font-size:12px;color:#6b7fa3;margin-top:2px}
+.crm-stat-alert{background:#fff8f0;border-color:#ffd9ad}
+
+/* Filter bar */
+.crm-filter-bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;align-items:center}
+.crm-filter-bar .form-control{width:auto;flex:0 1 auto;min-width:130px}
+.crm-filter-bar input[type=text]{flex:1 1 220px}
+.header-actions{display:flex;gap:10px}
+
+/* CRM detail layout */
+.crm-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.crm-col{display:flex;flex-direction:column;gap:18px}
+.inline-form{margin-bottom:10px}
+.inline-controls{display:flex;gap:10px}
+.inline-controls .form-control{flex:1}
+
+/* Timeline */
+.crm-timeline{list-style:none;margin:0;padding:0}
+.crm-timeline-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #eef1f6}
+.crm-timeline-item:last-child{border-bottom:none}
+.crm-timeline-item p{margin:0 0 2px}
+.crm-timeline-icon{flex:0 0 32px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#eef3fb;color:#0a5baa;font-size:13px}
+.crm-timeline-item.type-email .crm-timeline-icon{background:#e3f9ec;color:#1a8a4e}
+.crm-timeline-item.type-call .crm-timeline-icon{background:#fff4e0;color:#b4720a}
+.crm-timeline-item.type-status_change .crm-timeline-icon{background:#efe6ff;color:#6b2bd7}
+.crm-email-log{list-style:none;margin:0;padding:0}
+.crm-email-log li{padding:8px 0;border-bottom:1px solid #eef1f6}
+.crm-email-log li:last-child{border-bottom:none}
+.d-block{display:block}
+
+/* Modal */
+.crm-modal{display:none;position:fixed;inset:0;background:rgba(10,22,40,.5);z-index:1000;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto}
+.crm-modal.open{display:flex}
+.crm-modal-box{background:#fff;border-radius:12px;width:100%;max-width:560px;padding:24px}
+.crm-modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.crm-modal-close{background:none;border:none;font-size:28px;line-height:1;cursor:pointer;color:#6b7fa3}
+
+/* Integrations */
+.muted-intro{color:#6b7fa3;margin-bottom:18px}
+.integration-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.integration-card{background:#fff;border:1px solid #e6ebf3;border-radius:12px;padding:18px;display:flex;flex-direction:column}
+.integration-card.is-connected{border-color:#9fe0bb}
+.integration-head{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+.integration-head h3{margin:0 0 4px;font-size:15px}
+.integration-icon{width:42px;height:42px;border-radius:10px;background:#f1f6fd;color:#0a5baa;display:flex;align-items:center;justify-content:center;font-size:18px}
+.integration-detail{color:#6b7fa3;font-size:13px;flex:1;margin:0 0 14px}
+.btn-disabled{background:#eef1f6;color:#9aa7bd;cursor:not-allowed}
+.setup-notes{margin:0;padding-left:18px;color:#5a6b86;font-size:13px;line-height:1.9}
+.setup-notes code{background:#f1f6fd;padding:1px 6px;border-radius:4px;font-size:12px}
+
+/* Reviews */
+.empty-state{text-align:center;padding:48px 20px;background:#fff;border:1px dashed #d6deea;border-radius:12px}
+.empty-icon{font-size:40px;color:#b9c6da;margin-bottom:12px}
+.review-list{display:flex;flex-direction:column;gap:14px}
+.review-card{background:#fff;border:1px solid #e6ebf3;border-radius:12px;padding:16px}
+.review-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.review-stars .fa-star{color:#d6deea;font-size:13px}
+.review-stars .fa-star.filled{color:#f5a623}
+.review-comment{margin:0 0 10px;color:#334}
+.review-reply{background:#f3f9ff;border-radius:8px;padding:10px;font-size:13px}
+.review-reply-form{display:flex;gap:10px;align-items:flex-start}
+.review-reply-form textarea{flex:1}
+
+/* Social composer */
+.platform-picker{display:flex;flex-wrap:wrap;gap:10px}
+.platform-chip{display:flex;align-items:center;gap:6px;border:1px solid #d6deea;border-radius:999px;padding:6px 14px;cursor:pointer;font-size:13px}
+.platform-chip.disabled{opacity:.5;cursor:not-allowed}
+.platform-chip small{color:#9aa7bd}
+.social-post-item{border:1px solid #e6ebf3;border-radius:10px;padding:12px;margin-bottom:12px}
+.social-post-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.platform-tag{display:inline-block;background:#f1f6fd;color:#0a5baa;font-size:11px;padding:2px 8px;border-radius:6px;margin-left:4px}
+.social-post-actions{margin-top:8px;display:flex;gap:6px}
+
+/* Pipeline bar on dashboard */
+.pipeline-bar{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.pipeline-stage{flex:1 1 auto;min-width:110px;text-align:center;background:#fff;border:1px solid #e6ebf3;border-radius:10px;padding:12px;text-decoration:none}
+.pipeline-count{display:block;font-size:20px;font-weight:700;color:#0a1628;margin-bottom:6px}
+.text-danger{color:#c0392b}
+
+@media (max-width:860px){.crm-detail-grid{grid-template-columns:1fr}}
+
+/* ============================================================
+   UI fixes v2 — small labelled buttons, brand icons
+   ============================================================ */
+
+/* Small LABELLED button (auto width) — distinct from the 32px icon-only .btn-sm */
+.btn.btn-xs{width:auto;height:auto;padding:7px 14px;font-size:.8rem;border-radius:7px;gap:6px;white-space:nowrap}
+.btn-disabled{background:#eef1f6;color:#9aa7bd;cursor:not-allowed;border-color:#eef1f6}
+.btn-disabled:hover{transform:none;box-shadow:none}
+
+/* Labelled edit button (used on Pages & SEO cards) */
+.btn.btn-edit{background:rgba(19,145,219,.1);color:var(--primary);border-color:transparent}
+.btn.btn-edit:hover{background:var(--primary);color:#fff}
+
+/* Integration brand icons — white badge so colourful logos pop */
+.integration-icon{background:#fff;border:1px solid var(--border);overflow:hidden}
+.integration-icon svg{width:26px;height:26px;display:block}
+.integration-actions{margin-top:auto}
+
+/* ===== FILTER BAR (knowledge, etc.) ===== */
+.admin-filter-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.admin-filter-bar .form-control { width: auto; min-width: 150px; flex: 0 1 auto; }
+.admin-filter-bar input[type=text] { flex: 1 1 220px; }
+.admin-form-card .form-section-title { margin-top: 8px; }
+@media (max-width: 576px) {
+  .admin-filter-bar { flex-direction: column; }
+  .admin-filter-bar .form-control { width: 100%; }
+}
+
+/* ============================================================
+   AI Support — test chat + inbox transcript
+   ============================================================ */
+.test-chat-box{height:320px;overflow-y:auto;background:#f7f9fc;border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.test-msg{max-width:85%;padding:8px 12px;border-radius:12px;font-size:.86rem;line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
+.test-msg.user{align-self:flex-end;background:var(--primary);color:#fff;border-bottom-right-radius:4px}
+.test-msg.bot{align-self:flex-start;background:#fff;border:1px solid var(--border);border-bottom-left-radius:4px}
+.test-msg.meta{align-self:center;background:none;color:var(--text-muted);font-size:.7rem;padding:0}
+
+.transcript{max-height:520px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-right:4px}
+.transcript-msg{display:flex;flex-direction:column;max-width:85%}
+.transcript-msg.user{align-self:flex-end;align-items:flex-end}
+.transcript-msg.assistant{align-self:flex-start;align-items:flex-start}
+.transcript-bubble{padding:9px 13px;border-radius:12px;font-size:.88rem;line-height:1.55;white-space:pre-wrap;word-wrap:break-word}
+.transcript-msg.user .transcript-bubble{background:var(--primary);color:#fff;border-bottom-right-radius:4px}
+.transcript-msg.assistant .transcript-bubble{background:#f1f5fb;color:var(--text-dark);border-bottom-left-radius:4px}
+.transcript-time{color:var(--text-muted);font-size:.7rem;margin-top:3px}
+.transcript-system{align-self:center;background:#fff6e6;color:#8a6d1a;font-size:.76rem;padding:5px 12px;border-radius:999px}
+.btn-full{width:100%;justify-content:center}
+
+/* ============================================================
+   Phase C — quote builder + reports
+   ============================================================ */
+.quote-estimate{margin-top:16px;padding:16px;border:1px solid var(--border);border-radius:10px;background:#f3f9ff}
+.quote-estimate-amount{font-size:1.6rem;font-weight:700;color:var(--primary)}
+.quote-estimate-note{color:var(--text-muted);font-size:.82rem;margin:4px 0 10px}
+.quote-basis{margin:0;padding-left:18px;font-size:.82rem;color:#5a6b86;line-height:1.7}
+
+.report-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eef1f6;font-size:.88rem}
+.report-row:last-child{border-bottom:none}
+.report-bars{display:flex;align-items:flex-end;gap:6px;height:160px;padding:10px 0}
+.report-bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.report-bar-fill{width:70%;max-width:28px;background:linear-gradient(180deg,var(--accent),var(--primary));border-radius:4px 4px 0 0;min-height:2px;transition:.2s}
+.report-bar:hover .report-bar-fill{filter:brightness(1.1)}
+.report-bar-label{font-size:.62rem;color:var(--text-muted);margin-top:5px;white-space:nowrap}

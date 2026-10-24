@@ -1,5 +1,5 @@
 @extends('frontend.layouts.app')
-@section('meta_title', $page->meta_title ?? 'Our Services - JayVisionX Digital Marketing Agency')
+@section('meta_title', $page->meta_title ?? 'Our Services - JayVisionX Digital Growth & Technology Company')
 @section('meta_description', $page->meta_description ?? 'Explore JayVisionX services: SEO, Google Ads, Meta Ads, Social Media, Website Development, App Development and more.')
 @section('content')
 

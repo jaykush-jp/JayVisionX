@@ -14,7 +14,7 @@
                 <td>{{ $loop->iteration }}</td>
                 <td>
                     @if($t->photo)
-                    <img src="{{ asset('storage/'.$t->photo) }}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">
+                    <img src="{{ asset('storage/'.$t->photo) }}" alt="{{ $t->client_name }}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">
                     @else
                     <div style="width:40px;height:40px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem">{{ strtoupper(substr($t->client_name,0,1)) }}</div>
                     @endif
