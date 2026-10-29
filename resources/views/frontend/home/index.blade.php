@@ -7,13 +7,13 @@
 @section('head_extra')
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "LocalBusiness",
+  "@@context": "https://schema.org",
+  "@@type": "LocalBusiness",
   "name": "JayVisionX",
   "description": "Digital Growth & Technology Company in Delhi NCR",
   "url": "{{ url('/') }}",
   "telephone": "{{ \App\Models\Setting::get('site_phone') }}",
-  "address": { "@type": "PostalAddress", "addressLocality": "Delhi NCR", "addressCountry": "IN" },
+  "address": { "@@type": "PostalAddress", "addressLocality": "Delhi NCR", "addressCountry": "IN" },
   "openingHours": "Mo-Sa 09:00-19:00",
   "priceRange": "₹₹"
 }
@@ -445,14 +445,14 @@
             <div class="faqs-list" data-aos="fade-left" data-aos-delay="150">
                 <script type="application/ld+json">
                 {
-                  "@context": "https://schema.org",
-                  "@type": "FAQPage",
+                  "@@context": "https://schema.org",
+                  "@@type": "FAQPage",
                   "mainEntity": [
                     @foreach($faqs as $faq)
                     {
-                      "@type": "Question",
+                      "@@type": "Question",
                       "name": "{{ addslashes($faq->question) }}",
-                      "acceptedAnswer": { "@type": "Answer", "text": "{{ addslashes($faq->answer) }}" }
+                      "acceptedAnswer": { "@@type": "Answer", "text": "{{ addslashes($faq->answer) }}" }
                     }{{ !$loop->last ? ',' : '' }}
                     @endforeach
                   ]

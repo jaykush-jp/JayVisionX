@@ -82,19 +82,19 @@
     <!-- Schema Markup -->
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
-        "@type": "Organization",
+        "@@context": "https://schema.org",
+        "@@type": "Organization",
         "name": "JayVisionX",
         "url": "{{ url('/') }}",
         "logo": "{{ \App\Models\Setting::get('site_logo') ? asset('storage/'.\App\Models\Setting::get('site_logo')) : asset('images/logo.png') }}",
         "description": "{{ \App\Models\Setting::get('site_description') }}",
         "address": {
-            "@type": "PostalAddress",
+            "@@type": "PostalAddress",
             "addressLocality": "Delhi NCR",
             "addressCountry": "IN"
         },
         "contactPoint": {
-            "@type": "ContactPoint",
+            "@@type": "ContactPoint",
             "telephone": "{{ \App\Models\Setting::get('site_phone') }}",
             "contactType": "customer service"
         },
