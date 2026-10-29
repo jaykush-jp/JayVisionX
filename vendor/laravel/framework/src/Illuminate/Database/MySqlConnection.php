@@ -2,6 +2,7 @@
 
 namespace Illuminate\Database;
 
+use Closure;
 use Exception;
 use Illuminate\Database\Query\Grammars\MySqlGrammar as QueryGrammar;
 use Illuminate\Database\Query\Processors\MySqlProcessor;
@@ -59,6 +60,54 @@ class MySqlConnection extends Connection
     }
 
     /**
+     * Execute the given callback using OLAP workload.
+     *
+     * @template TReturn
+     *
+     * @param  (\Closure($this): TReturn)  $callback
+     * @return TReturn
+     */
+    public function olap(Closure $callback)
+    {
+        if (! $this->isVitess()) {
+            return $callback($this);
+        }
+
+        $this->setWorkload('olap');
+
+        try {
+            return $callback($this);
+        } finally {
+            $this->setWorkload('oltp');
+        }
+    }
+
+    /**
+     * Set the Vitess workload for the connection.
+     *
+     * @param  'olap'|'oltp'  $workload
+     * @return void
+     */
+    protected function setWorkload($workload)
+    {
+        $this->run("set workload = '{$workload}'", [], function ($query) {
+            if ($this->pretending()) {
+                return true;
+            }
+
+            $this->getPdo()->exec($query);
+
+            if ($this->readPdo instanceof Closure) {
+                $this->readPdo = call_user_func($this->readPdo);
+            }
+
+            $this->readPdo?->exec($query);
+
+            return true;
+        });
+    }
+
+    /**
      * Escape a binary value for safe SQL embedding.
      *
      * @param  string  $value
@@ -79,7 +128,24 @@ class MySqlConnection extends Connection
      */
     protected function isUniqueConstraintError(Exception $exception)
     {
-        return boolval(preg_match('#Integrity constraint violation: 1062#i', $exception->getMessage()));
+        return (bool) preg_match('#Integrity constraint violation: 1062#i', $exception->getMessage());
+    }
+
+    /**
+     * Extract the index that caused a unique constraint violation.
+     *
+     * @param  Exception  $exception
+     * @return array{index: string|null, columns: list<string>}
+     */
+    protected function parseUniqueConstraintViolation(Exception $exception): array
+    {
+        preg_match(
+            '#Duplicate entry \'.*?\' for key \'(?:.*?\.)?(.+?)\'#i',
+            $exception->getMessage(),
+            $matches
+        );
+
+        return ['columns' => [], 'index' => $matches[1] ?? null];
     }
 
     /**
@@ -103,6 +169,16 @@ class MySqlConnection extends Connection
     }
 
     /**
+     * Determine if the connected database is a Vitess database.
+     *
+     * @return bool
+     */
+    public function isVitess()
+    {
+        return Str::contains($this->getPdo()->getAttribute(PDO::ATTR_SERVER_VERSION), ['Vitess', 'PlanetScale'], ignoreCase: true);
+    }
+
+    /**
      * Get the server version for the connection.
      *
      * @return string
@@ -121,9 +197,7 @@ class MySqlConnection extends Connection
      */
     protected function getDefaultQueryGrammar()
     {
-        ($grammar = new QueryGrammar)->setConnection($this);
-
-        return $this->withTablePrefix($grammar);
+        return new QueryGrammar($this);
     }
 
     /**
@@ -147,9 +221,7 @@ class MySqlConnection extends Connection
      */
     protected function getDefaultSchemaGrammar()
     {
-        ($grammar = new SchemaGrammar)->setConnection($this);
-
-        return $this->withTablePrefix($grammar);
+        return new SchemaGrammar($this);
     }
 
     /**

@@ -101,9 +101,6 @@ DB_DATABASE=jayvisionx_db
 DB_USERNAME=root
 DB_PASSWORD=your_password
 
-# Admin credentials
-ADMIN_EMAIL=admin@jayvisionx.com
-ADMIN_PASSWORD=JayVisionX@2024
 
 # Company info
 WHATSAPP_NUMBER=919999999999
@@ -154,8 +151,6 @@ php artisan serve
 
 ```
 URL:      http://localhost:8000/admin/login
-Email:    admin@jayvisionx.com
-Password: JayVisionX@2024
 ```
 
 **To change admin credentials**, update `.env`:
