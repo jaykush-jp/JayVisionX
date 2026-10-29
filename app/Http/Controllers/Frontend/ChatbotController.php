@@ -13,11 +13,11 @@ use App\Models\Package;
 use App\Models\QuoteRequest;
 use App\Models\Service;
 use App\Models\Setting;
+use App\Services\AiProviderService;
 use App\Services\AutomationEngine;
 use App\Services\LeadNotifier;
 use App\Services\QuoteBuilder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
@@ -225,21 +225,10 @@ class ChatbotController extends Controller
             return ["A team member is with you on this chat and will reply here shortly. 🙂", 'human', []];
         }
 
-        // AI mode (grounded) when a provider key is configured; else DB fallback.
-        // Respect the admin's chosen provider, preferring Gemini when selected
-        // or when it is the only key present.
-        $useGemini = config('services.gemini.key')
-            && ($settings->provider === 'gemini' || ! config('services.anthropic.key'));
-
-        if ($useGemini) {
-            $ai = $this->askGemini($message, $session, $settings);
-            if ($ai !== null) {
-                return [$ai, 'ai', ['knowledge', 'services', 'packages']];
-            }
-        }
-
-        if (config('services.anthropic.key')) {
-            $ai = $this->askClaude($message, $session, $settings);
+        // AI mode (grounded) when the active provider has a key; else DB fallback.
+        $provider = app(AiProviderService::class);
+        if ($provider->isConfigured($settings)) {
+            $ai = $provider->ask($settings, $this->systemPrompt($settings), $this->buildMessages($message, $session));
             if ($ai !== null) {
                 return [$ai, 'ai', ['knowledge', 'services', 'packages']];
             }
@@ -248,13 +237,9 @@ class ChatbotController extends Controller
         return [$this->fallbackReply($message), 'fallback', []];
     }
 
-    /**
-     * Ask Claude, grounded in published knowledge, active services/packages and
-     * contact info. Returns null on any failure so the caller can fall back.
-     */
-    private function askClaude(string $message, ChatSession $session, AiSetting $settings): ?string
+    /** Normalised message list (role=user/assistant) from the stored conversation. */
+    private function buildMessages(string $message, ChatSession $session): array
     {
-        // Build the message list from the persisted conversation (server-side source of truth)
         $messages = [];
         $recent = $session->messages()->orderBy('created_at')->get()->slice(-10);
         foreach ($recent as $m) {
@@ -262,7 +247,7 @@ class ChatbotController extends Controller
                 continue;
             }
             $messages[] = [
-                'role'    => $m->role === 'user' ? 'user' : 'assistant', // map agent->assistant
+                'role'    => $m->role === 'user' ? 'user' : 'assistant',
                 'content' => $m->content,
             ];
         }
@@ -270,91 +255,7 @@ class ChatbotController extends Controller
             $messages[] = ['role' => 'user', 'content' => $message];
         }
 
-        try {
-            $response = Http::withHeaders([
-                'x-api-key'         => config('services.anthropic.key'),
-                'anthropic-version' => '2023-06-01',
-                'content-type'      => 'application/json',
-            ])->timeout(30)->post('https://api.anthropic.com/v1/messages', [
-                'model'      => $settings->model ?: config('services.anthropic.model', 'claude-haiku-5-5'),
-                'max_tokens' => (int) ($settings->max_response_tokens ?: 1024),
-                'system'     => $this->systemPrompt($settings),
-                'messages'   => $messages,
-            ]);
-
-            if (! $response->successful()) {
-                Log::warning('Chatbot Claude API error: ' . $response->status() . ' ' . $response->body());
-                return null;
-            }
-
-            $text = '';
-            foreach ($response->json('content', []) as $block) {
-                if (($block['type'] ?? null) === 'text') {
-                    $text .= $block['text'];
-                }
-            }
-
-            $text = trim($text);
-            return $text !== '' ? $text : null;
-        } catch (\Throwable $e) {
-            Log::warning('Chatbot Claude request failed: ' . $e->getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Ask Google Gemini, grounded in the same company data as Claude.
-     * Returns null on any failure so the caller can fall back.
-     */
-    private function askGemini(string $message, ChatSession $session, AiSetting $settings): ?string
-    {
-        // Gemini uses roles "user" and "model" (map assistant -> model).
-        $contents = [];
-        $recent = $session->messages()->orderBy('created_at')->get()->slice(-10);
-        foreach ($recent as $m) {
-            if ($m->role === 'system') {
-                continue;
-            }
-            $contents[] = [
-                'role'  => $m->role === 'user' ? 'user' : 'model',
-                'parts' => [['text' => $m->content]],
-            ];
-        }
-        if (empty($contents) || $contents[array_key_last($contents)]['parts'][0]['text'] !== $message) {
-            $contents[] = ['role' => 'user', 'parts' => [['text' => $message]]];
-        }
-
-        $model = $settings->model ?: config('services.gemini.model', 'gemini-2.0-flash');
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent";
-
-        try {
-            $response = Http::timeout(30)
-                ->withQueryParameters(['key' => config('services.gemini.key')])
-                ->post($url, [
-                    'system_instruction' => ['parts' => [['text' => $this->systemPrompt($settings)]]],
-                    'contents'           => $contents,
-                    'generationConfig'   => [
-                        'maxOutputTokens' => (int) ($settings->max_response_tokens ?: 1024),
-                        'temperature'     => 0.6,
-                    ],
-                ]);
-
-            if (! $response->successful()) {
-                Log::warning('Chatbot Gemini API error: ' . $response->status() . ' ' . $response->body());
-                return null;
-            }
-
-            $text = '';
-            foreach ($response->json('candidates.0.content.parts', []) as $part) {
-                $text .= $part['text'] ?? '';
-            }
-
-            $text = trim($text);
-            return $text !== '' ? $text : null;
-        } catch (\Throwable $e) {
-            Log::warning('Chatbot Gemini request failed: ' . $e->getMessage());
-            return null;
-        }
+        return $messages;
     }
 
     /**

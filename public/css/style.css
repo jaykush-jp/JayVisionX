@@ -3786,3 +3786,25 @@ ul {
 .chatbot-lead-submit{background:var(--primary);color:#fff}
 .chatbot-lead-submit:hover{background:var(--primary-dark)}
 .chatbot-foot i{margin-right:4px;opacity:.7}
+
+/* ============================================================
+   Fixes: chat widget hidden-state + navbar overflow
+   ============================================================ */
+/* The hidden attribute must win over the forms' display:flex,
+   so the lead form / input actually hide when toggled. */
+.chatbot-lead-form[hidden], .chatbot-input[hidden] { display: none !important; }
+
+/* Collapse the navbar to a hamburger before it overflows (993–1199px),
+   where the full horizontal nav no longer fits and the CTA was clipped. */
+@media (max-width: 1199px) {
+  .navbar-nav { display: none; }
+  .hamburger { display: flex; }
+  .navbar-cta .btn-primary { display: none; }
+  .navbar-nav.open {
+    display: flex; flex-direction: column; position: fixed; top: 0; right: 0;
+    width: 300px; height: 100vh; background: var(--white);
+    padding: 80px 24px 24px; z-index: 999; box-shadow: var(--shadow-lg);
+    overflow-y: auto; gap: 2px;
+  }
+  .mobile-overlay.open { display: block; }
+}

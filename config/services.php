@@ -42,11 +42,28 @@ return [
         'model' => env('ANTHROPIC_MODEL', 'claude-haiku-5-5'),
     ],
 
-    // Google Gemini — alternative AI provider for the chatbot. Set the AI
-    // Configuration provider to "gemini" (or leave only this key set) to use it.
+    // Additional chatbot AI providers. The admin can enter a key per provider in
+    // AI Configuration (stored encrypted in the DB); these env values are the
+    // fallback when no key is entered there.
     'gemini' => [
         'key'   => env('GEMINI_API_KEY'),
         'model' => env('GEMINI_MODEL', 'gemini-2.0-flash'),
+    ],
+    'openai' => [
+        'key'   => env('OPENAI_API_KEY'),
+        'model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
+    ],
+    'deepseek' => [
+        'key'   => env('DEEPSEEK_API_KEY'),
+        'model' => env('DEEPSEEK_MODEL', 'deepseek-chat'),
+    ],
+    'grok' => [
+        'key'   => env('GROK_API_KEY'),
+        'model' => env('GROK_MODEL', 'grok-2-latest'),
+    ],
+    'mistral' => [
+        'key'   => env('MISTRAL_API_KEY'),
+        'model' => env('MISTRAL_MODEL', 'mistral-small-latest'),
     ],
 
     // Google Sheets — leads are POSTed to this Apps Script web-app URL.

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\OauthToken;
 use App\Models\Setting;
+use App\Models\AiSetting;
+use App\Services\AiProviderService;
 use App\Services\GoogleBusinessProfileService;
 use App\Services\MetaGraphService;
 use Illuminate\Http\Request;
@@ -49,14 +51,21 @@ class AdminIntegrationController extends Controller
                 'detail'    => config('services.google_sheets.webhook_url') ? 'Leads are pushed to your sheet.' : 'Set GOOGLE_SHEETS_WEBHOOK_URL in .env.',
                 'manage'    => null,
             ],
-            [
-                'key'   => 'anthropic',
-                'name'  => 'AI Chatbot (Anthropic)',
-                'icon'  => 'fas fa-robot',
-                'connected' => (bool) config('services.anthropic.key'),
-                'detail'    => config('services.anthropic.key') ? 'Chatbot runs in AI mode.' : 'Runs in free FAQ fallback mode until ANTHROPIC_API_KEY is set.',
-                'manage'    => null,
-            ],
+            (function () {
+                $ai = AiSetting::current();
+                $svc = app(AiProviderService::class);
+                $connected = $svc->isConfigured($ai);
+                return [
+                    'key'   => 'anthropic',
+                    'name'  => 'AI Chatbot',
+                    'icon'  => 'fas fa-robot',
+                    'connected' => $connected,
+                    'detail'    => $connected
+                        ? ('Active provider: ' . $svc->providerLabel($ai->provider) . '. Chatbot runs in AI mode.')
+                        : 'Runs in free FAQ fallback mode. Pick a provider & add a key in AI Configuration.',
+                    'manage'    => route('admin.ai-settings.index'),
+                ];
+            })(),
             [
                 'key'       => 'google',
                 'name'      => 'Google Business Profile',

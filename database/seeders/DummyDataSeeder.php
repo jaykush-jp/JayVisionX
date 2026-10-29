@@ -25,6 +25,81 @@ class DummyDataSeeder extends Seeder
         $this->automation();
         $this->emailTemplates();
         $this->customers();
+        $this->projects();
+        $this->caseStudies();
+    }
+
+    private function projects(): void
+    {
+        if (\App\Models\Project::count() > 0) {
+            return;
+        }
+
+        $rows = [
+            ['Shivaay Real Estate Website', 'Shivaay Group', 'Website', ['Laravel', 'MySQL', 'Tailwind'], 'A fast, SEO-optimised real-estate website with property listings and enquiry capture.'],
+            ['MediCare Clinic App', 'MediCare', 'App', ['Flutter', 'Firebase'], 'Android app for appointment booking, reminders and patient records.'],
+            ['TrendKart E-commerce', 'TrendKart', 'Website', ['Laravel', 'Razorpay', 'Vue'], 'Full e-commerce store with payments, inventory and an admin dashboard.'],
+            ['EduLearn LMS', 'EduLearn', 'Web App', ['Laravel', 'Livewire'], 'Learning-management web app with courses, quizzes and progress tracking.'],
+            ['FitLife Gym Branding', 'FitLife', 'Branding', ['Illustrator', 'Photoshop'], 'Complete brand identity, logo and social creatives for a fitness chain.'],
+            ['LocalEats Food Delivery', 'LocalEats', 'App', ['React Native', 'Node.js'], 'Food-delivery app with live tracking, payments and a restaurant panel.'],
+        ];
+
+        foreach ($rows as $i => [$title, $client, $category, $tech, $desc]) {
+            \App\Models\Project::create([
+                'title'             => $title,
+                'slug'              => Str::slug($title),
+                'client_name'       => $client,
+                'category'          => $category,
+                'short_description' => $desc,
+                'description'       => '<p>' . $desc . ' Delivered by JayVisionX with a focus on performance, design and measurable results.</p>',
+                'technologies'      => $tech,
+                'completion_date'   => now()->subMonths($i + 1)->toDateString(),
+                'is_active'         => true,
+                'show_on_home'      => $i < 4,
+                'sort_order'        => $i + 1,
+            ]);
+        }
+    }
+
+    private function caseStudies(): void
+    {
+        if (\App\Models\CaseStudy::count() > 0) {
+            return;
+        }
+
+        $rows = [
+            ['3x Leads for a Real Estate Builder', 'Shivaay Group', 'Real Estate',
+                'Low online visibility and very few qualified enquiries.',
+                'Rebuilt the website, ran targeted Google & Meta Ads, and added SEO + lead capture.',
+                '3x more qualified leads in 90 days and a 42% lower cost per lead.',
+                [['label' => 'More leads', 'value' => '3x'], ['label' => 'Lower CPL', 'value' => '-42%']]],
+            ['E-commerce Revenue Doubled', 'TrendKart', 'Retail',
+                'High traffic but low conversions and abandoned carts.',
+                'Redesigned the store UX, optimised checkout and added retargeting campaigns.',
+                'Conversion rate up 2.1x and online revenue doubled in 6 months.',
+                [['label' => 'Revenue', 'value' => '2x'], ['label' => 'Conversions', 'value' => '+110%']]],
+            ['#1 Google Ranking for a Local Clinic', 'MediCare', 'Healthcare',
+                'Invisible on Google for key local searches.',
+                'Local SEO, Google Business Profile optimisation and consistent content.',
+                'Ranked #1 for 20+ local keywords and a 5x increase in calls.',
+                [['label' => 'Keywords #1', 'value' => '20+'], ['label' => 'Calls', 'value' => '5x']]],
+        ];
+
+        foreach ($rows as $i => [$title, $client, $industry, $challenge, $solution, $result, $stats]) {
+            \App\Models\CaseStudy::create([
+                'title'      => $title,
+                'slug'       => Str::slug($title),
+                'client'     => $client,
+                'industry'   => $industry,
+                'challenge'  => $challenge,
+                'solution'   => $solution,
+                'result'     => $result,
+                'content'    => '<p>' . $solution . ' ' . $result . '</p>',
+                'stats'      => $stats,
+                'is_active'  => true,
+                'sort_order' => $i + 1,
+            ]);
+        }
     }
 
     private function knowledge(): void

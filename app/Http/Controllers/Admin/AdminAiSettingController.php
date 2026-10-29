@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AiSetting;
 use App\Models\AuditLog;
+use App\Services\AiProviderService;
 use Illuminate\Http\Request;
 
 class AdminAiSettingController extends Controller
@@ -22,19 +23,25 @@ class AdminAiSettingController extends Controller
         'hinglish' => 'Hinglish',
     ];
 
-    public function index()
+    public function index(AiProviderService $ai)
     {
+        $settings = AiSetting::current();
+
         return view('admin.ai-settings.index', [
-            'settings'  => AiSetting::current(),
-            'styles'    => self::RESPONSE_STYLES,
-            'languages' => self::LANGUAGES,
+            'settings'    => $settings,
+            'styles'      => self::RESPONSE_STYLES,
+            'languages'   => self::LANGUAGES,
+            'providers'   => AiProviderService::PROVIDERS,
+            'keyIsSet'    => (bool) $settings->api_key,
+            'activeKeyOk' => $ai->isConfigured($settings),
         ]);
     }
 
     public function update(Request $request)
     {
         $data = $request->validate([
-            'provider'             => 'nullable|string|max:50',
+            'provider'             => 'nullable|in:' . implode(',', array_keys(AiProviderService::PROVIDERS)),
+            'api_key'              => 'nullable|string|max:500',
             'model'                => 'nullable|string|max:100',
             'business_description' => 'nullable|string|max:2000',
             'system_prompt'        => 'nullable|string|max:5000',
@@ -52,9 +59,19 @@ class AdminAiSettingController extends Controller
         ]);
 
         $settings = AiSetting::current();
+        $oldProvider = $settings->provider;
+        $newProvider = $data['provider'] ?? 'anthropic';
+
+        // API key: a new value overwrites; blank keeps the saved key — except when
+        // the provider changed, where a blank key is cleared (it was for the old one).
+        if (! empty($data['api_key'])) {
+            $settings->api_key = trim($data['api_key']);
+        } elseif ($newProvider !== $oldProvider) {
+            $settings->api_key = null;
+        }
 
         $settings->fill([
-            'provider'             => $data['provider'] ?? 'anthropic',
+            'provider'             => $newProvider,
             'model'                => $data['model'] ?? null,
             'business_description' => $data['business_description'] ?? null,
             'system_prompt'        => $data['system_prompt'] ?? null,

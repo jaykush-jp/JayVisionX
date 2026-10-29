@@ -22,14 +22,34 @@
 
                 <div class="form-row-2">
                     <div class="form-group">
-                        <label>Provider</label>
-                        <input type="text" name="provider" class="form-control" value="{{ old('provider', $settings->provider ?? 'anthropic') }}" placeholder="anthropic">
+                        <label>AI Provider</label>
+                        <select name="provider" id="aiProvider" class="form-control">
+                            @foreach($providers as $key => $def)
+                            <option value="{{ $key }}"
+                                data-model="{{ $def['default_model'] }}"
+                                data-hint="{{ $def['key_hint'] }}"
+                                data-label="{{ $def['label'] }}"
+                                {{ old('provider', $settings->provider ?? 'anthropic') === $key ? 'selected' : '' }}>{{ $def['label'] }}</option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">Pick which AI powers the chatbot, then enter its key below.</small>
                     </div>
                     <div class="form-group">
                         <label>Model</label>
-                        <input type="text" name="model" class="form-control" value="{{ old('model', $settings->model) }}" placeholder="claude-haiku-5-5">
-                        <small class="text-muted">API key is set server-side in <code>.env</code> (never here).</small>
+                        <input type="text" name="model" id="aiModel" class="form-control" value="{{ old('model', $settings->model) }}" placeholder="{{ $providers[$settings->provider ?? 'anthropic']['default_model'] ?? '' }}">
+                        <small class="text-muted">Leave blank to use the provider's default model.</small>
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label>API Key
+                        @if($keyIsSet)<span class="lead-badge lead-badge-won">saved</span>@elseif($activeKeyOk)<span class="lead-badge lead-badge-qualified">from .env</span>@else<span class="lead-badge lead-badge-lost">not set</span>@endif
+                    </label>
+                    <input type="password" name="api_key" class="form-control" autocomplete="new-password" placeholder="{{ $keyIsSet ? '•••••••• (saved — leave blank to keep)' : 'Paste your API key' }}">
+                    <small class="text-muted">
+                        Stored encrypted, server-side only. Get a key from <code id="aiKeyHint">{{ $providers[$settings->provider ?? 'anthropic']['key_hint'] ?? '' }}</code>.
+                        Switching provider with this blank clears the saved key.
+                    </small>
                 </div>
 
                 <div class="form-group">
@@ -132,6 +152,19 @@
 
 @section('scripts')
 <script>
+(function(){
+    // Provider dropdown → update model placeholder + where-to-get-key hint
+    var providerSel = document.getElementById('aiProvider');
+    var modelInput = document.getElementById('aiModel');
+    var keyHint = document.getElementById('aiKeyHint');
+    if (providerSel) {
+        providerSel.addEventListener('change', function(){
+            var opt = providerSel.options[providerSel.selectedIndex];
+            if (modelInput) modelInput.placeholder = opt.getAttribute('data-model') || '';
+            if (keyHint) keyHint.textContent = opt.getAttribute('data-hint') || '';
+        });
+    }
+})();
 (function(){
     var form = document.getElementById('testForm');
     var input = document.getElementById('testInput');

@@ -19,7 +19,7 @@
                         {{ $s->is_active ? 'Active' : 'Inactive' }}
                     </button>
                 </td>
-                <td>{{ $s->show_on_home ? '<span class="badge badge-yes">Yes</span>' : '<span class="badge badge-no">No</span>' }}</td>
+                <td>@if($s->show_on_home)<span class="badge badge-yes">Yes</span>@else<span class="badge badge-no">No</span>@endif</td>
                 <td>{{ $s->sort_order }}</td>
                 <td class="actions-cell">
                     <a href="{{ route('admin.services.edit', $s->id) }}" class="btn-sm btn-edit"><i class="fas fa-edit"></i></a>
