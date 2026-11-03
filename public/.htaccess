@@ -1,3 +1,14 @@
+# Raise upload limits for image uploads (only applied when PHP runs as an Apache module;
+# on FPM/CGI hosts these are ignored and .user.ini is used instead).
+<IfModule mod_php.c>
+    php_value upload_max_filesize 8M
+    php_value post_max_size 16M
+</IfModule>
+<IfModule mod_php7.c>
+    php_value upload_max_filesize 8M
+    php_value post_max_size 16M
+</IfModule>
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
