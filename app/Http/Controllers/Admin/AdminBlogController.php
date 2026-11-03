@@ -23,7 +23,11 @@ class AdminBlogController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(['title' => 'required|string|max:200', 'thumbnail' => 'nullable|image|max:2048']);
+        $request->validate(['title' => 'required|string|max:200', 'thumbnail' => 'nullable|image|max:3072'], [
+            'thumbnail.max'      => 'Thumbnail image 3 MB se chhoti honi chahiye.',
+            'thumbnail.image'    => 'Thumbnail ek valid image honi chahiye (jpg, png, webp, gif).',
+            'thumbnail.uploaded' => 'Image upload nahi ho payi — 3 MB se badi hai ya server limit cross hui. Chhoti file try karein.',
+        ]);
         $data = $request->except(['thumbnail', '_token']);
         $data['slug'] = Str::slug($request->title);
         if ($request->hasFile('thumbnail')) {
@@ -40,7 +44,11 @@ class AdminBlogController extends Controller
 
     public function update(Request $request, Blog $blog)
     {
-        $request->validate(['title' => 'required|string|max:200', 'thumbnail' => 'nullable|image|max:2048']);
+        $request->validate(['title' => 'required|string|max:200', 'thumbnail' => 'nullable|image|max:3072'], [
+            'thumbnail.max'      => 'Thumbnail image 3 MB se chhoti honi chahiye.',
+            'thumbnail.image'    => 'Thumbnail ek valid image honi chahiye (jpg, png, webp, gif).',
+            'thumbnail.uploaded' => 'Image upload nahi ho payi — 3 MB se badi hai ya server limit cross hui. Chhoti file try karein.',
+        ]);
         $data = $request->except(['thumbnail', '_token', '_method']);
         $data['slug'] = Str::slug($request->title);
         if ($request->hasFile('thumbnail')) {

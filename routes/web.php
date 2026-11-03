@@ -105,6 +105,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+        // Self-service password change
+        Route::get('account/password', [AuthController::class, 'showChangePassword'])->name('account.password');
+        Route::post('account/password', [AuthController::class, 'changePassword'])->name('account.password.update');
+
         // Services
         Route::resource('services', AdminServiceController::class)->except('show');
         Route::post('services/{id}/toggle-status', [AdminServiceController::class, 'toggleStatus'])->name('services.toggle-status');

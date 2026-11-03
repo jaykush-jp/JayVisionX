@@ -110,6 +110,9 @@
         <a href="{{ route('admin.settings.index') }}" class="sidebar-link {{ request()->routeIs('admin.settings*') ? 'active' : '' }}">
             <i class="fas fa-sliders-h"></i> <span>Website Settings</span>
         </a>
+        <a href="{{ route('admin.account.password') }}" class="sidebar-link {{ request()->routeIs('admin.account*') ? 'active' : '' }}">
+            <i class="fas fa-key"></i> <span>Change Password</span>
+        </a>
         <a href="{{ route('home') }}" target="_blank" class="sidebar-link">
             <i class="fas fa-external-link-alt"></i> <span>View Website</span>
         </a>

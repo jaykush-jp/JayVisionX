@@ -6,6 +6,14 @@
     <a href="{{ route('admin.blogs.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
 </div>
 <div class="admin-form-card">
+    @if($errors->any())
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i>
+        <ul style="margin:0;padding-left:18px">
+            @foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach
+        </ul>
+    </div>
+    @endif
     <form action="{{ isset($blog) ? route('admin.blogs.update', $blog->id) : route('admin.blogs.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         @if(isset($blog)) @method('PUT') @endif
@@ -45,7 +53,9 @@
         <div class="form-row-2">
             <div class="form-group">
                 <label>Thumbnail Image</label>
-                <input type="file" name="thumbnail" class="form-control" accept="image/*">
+                <input type="file" name="thumbnail" class="form-control @error('thumbnail') is-invalid @enderror" accept="image/*">
+                <small class="text-muted">Max 3 MB. Formats: jpg, png, webp, gif.</small>
+                @error('thumbnail')<small class="text-danger" style="display:block">{{ $message }}</small>@enderror
                 @if(isset($blog) && $blog->thumbnail)
                 <img src="{{ $blog->thumbnail_url }}" alt="Current" class="preview-img">
                 @endif
