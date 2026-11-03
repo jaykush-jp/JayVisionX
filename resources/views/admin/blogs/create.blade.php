@@ -55,7 +55,7 @@
                 <label>Thumbnail Image</label>
                 <input type="file" name="thumbnail" class="form-control @error('thumbnail') is-invalid @enderror" accept="image/*">
                 <small class="text-muted">Max 3 MB. Formats: jpg, png, webp, gif.</small>
-                @error('thumbnail')<small class="text-danger" style="display:block">{{ $message }}</small>@enderror
+                @error('thumbnail')<span class="field-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</span>@enderror
                 @if(isset($blog) && $blog->thumbnail)
                 <img src="{{ $blog->thumbnail_url }}" alt="Current" class="preview-img">
                 @endif

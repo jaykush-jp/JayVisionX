@@ -23,7 +23,11 @@ class AdminProjectController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(['title' => 'required|string|max:200', 'thumbnail' => 'nullable|image|max:2048']);
+        $request->validate(['title' => 'required|string|max:200', 'thumbnail' => 'nullable|image|max:3072'], [
+            'thumbnail.max'      => 'Image ka size bahut bada hai (max 3 MB). Chhoti image use karein.',
+            'thumbnail.image'    => 'File ek valid image honi chahiye (jpg, png, webp, gif).',
+            'thumbnail.uploaded' => 'Image upload nahi ho payi — size 3 MB se bada hai. Chhoti image use karein.',
+        ]);
         $data = $request->except(['thumbnail', '_token', 'technologies_input']);
         $data['slug'] = Str::slug($request->title);
         $data['technologies'] = $request->technologies_input ? explode(',', $request->technologies_input) : null;
@@ -41,7 +45,11 @@ class AdminProjectController extends Controller
 
     public function update(Request $request, Project $project)
     {
-        $request->validate(['title' => 'required|string|max:200', 'thumbnail' => 'nullable|image|max:2048']);
+        $request->validate(['title' => 'required|string|max:200', 'thumbnail' => 'nullable|image|max:3072'], [
+            'thumbnail.max'      => 'Image ka size bahut bada hai (max 3 MB). Chhoti image use karein.',
+            'thumbnail.image'    => 'File ek valid image honi chahiye (jpg, png, webp, gif).',
+            'thumbnail.uploaded' => 'Image upload nahi ho payi — size 3 MB se bada hai. Chhoti image use karein.',
+        ]);
         $data = $request->except(['thumbnail', '_token', '_method', 'technologies_input']);
         $data['slug'] = Str::slug($request->title);
         $data['technologies'] = $request->technologies_input ? explode(',', $request->technologies_input) : null;
