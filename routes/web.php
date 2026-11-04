@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\AdminContactController;
 use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Admin\AdminPageController;
 use App\Http\Controllers\Admin\AdminCaseStudyController;
+use App\Http\Controllers\Admin\AdminTechnologyController;
 use App\Http\Controllers\Admin\AdminKnowledgeController;
 use App\Http\Controllers\Admin\AdminPackageController;
 use App\Http\Controllers\Admin\AdminEmailTemplateController;
@@ -117,8 +118,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('projects', AdminProjectController::class)->except('show');
         Route::post('projects/{id}/toggle-status', [AdminProjectController::class, 'toggleStatus'])->name('projects.toggle-status');
 
-        // Case Studies
+        // Case Studies (shown as "Our Work" in the panel)
         Route::resource('case-studies', AdminCaseStudyController::class)->except('show');
+
+        // Technologies (home "Technologies We Use" section)
+        Route::get('technologies', [AdminTechnologyController::class, 'index'])->name('technologies.index');
+        Route::post('technologies', [AdminTechnologyController::class, 'update'])->name('technologies.update');
 
         // Blogs
         Route::resource('blogs', AdminBlogController::class)->except('show');

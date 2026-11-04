@@ -10,6 +10,7 @@ use App\Models\Testimonial;
 use App\Models\Faq;
 use App\Models\Setting;
 use App\Models\Page;
+use App\Http\Controllers\Admin\AdminTechnologyController;
 
 class HomeController extends Controller
 {
@@ -21,9 +22,10 @@ class HomeController extends Controller
         $blogs        = Blog::active()->take(3)->get();
         $testimonials = Testimonial::active()->get();
         $faqs         = Faq::active()->take(8)->get();
+        $technologies = AdminTechnologyController::list();
 
         return view('frontend.home.index', compact(
-            'page', 'services', 'projects', 'blogs', 'testimonials', 'faqs'
+            'page', 'services', 'projects', 'blogs', 'testimonials', 'faqs', 'technologies'
         ));
     }
 }

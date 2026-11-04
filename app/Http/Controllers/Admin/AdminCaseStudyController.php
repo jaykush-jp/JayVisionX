@@ -10,11 +10,15 @@ use Illuminate\Support\Facades\Storage;
 
 class AdminCaseStudyController extends Controller
 {
-    public function index() { return view('admin.case-studies.index', ['caseStudies' => CaseStudy::orderBy('sort_order')->paginate(20)]); }
+    public function index() { return view('admin.case-studies.index', ['caseStudies' => CaseStudy::orderByDesc('sort_order')->orderByDesc('id')->paginate(20)]); }
     public function create() { return view('admin.case-studies.create'); }
     public function store(Request $request)
     {
-        $request->validate(['title' => 'required']);
+        $request->validate(['title' => 'required|string|max:200', 'thumbnail' => 'nullable|image|max:3072'], [
+            'thumbnail.max'      => 'Image ka size bahut bada hai (max 3 MB). Chhoti image use karein.',
+            'thumbnail.image'    => 'File ek valid image honi chahiye (jpg, png, webp, gif).',
+            'thumbnail.uploaded' => 'Image upload nahi ho payi — size 3 MB se bada hai. Chhoti image use karein.',
+        ]);
         $data = $request->except(['thumbnail', '_token']);
         $data['slug'] = Str::slug($request->title);
         if ($request->hasFile('thumbnail')) {
@@ -26,6 +30,11 @@ class AdminCaseStudyController extends Controller
     public function edit(CaseStudy $caseStudy) { return view('admin.case-studies.edit', compact('caseStudy')); }
     public function update(Request $request, CaseStudy $caseStudy)
     {
+        $request->validate(['title' => 'required|string|max:200', 'thumbnail' => 'nullable|image|max:3072'], [
+            'thumbnail.max'      => 'Image ka size bahut bada hai (max 3 MB). Chhoti image use karein.',
+            'thumbnail.image'    => 'File ek valid image honi chahiye (jpg, png, webp, gif).',
+            'thumbnail.uploaded' => 'Image upload nahi ho payi — size 3 MB se bada hai. Chhoti image use karein.',
+        ]);
         $data = $request->except(['thumbnail', '_token', '_method']);
         $data['slug'] = Str::slug($request->title);
         if ($request->hasFile('thumbnail')) {

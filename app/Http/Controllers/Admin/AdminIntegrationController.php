@@ -107,7 +107,7 @@ class AdminIntegrationController extends Controller
                 'access_type'   => 'offline',
                 'prompt'        => 'consent',
                 'scope'         => config('services.google.scopes', 'https://www.googleapis.com/auth/business.manage'),
-                'state'         => csrf_token(),
+                'state'         => $this->issueState('google'),
             ]);
             return redirect('https://accounts.google.com/o/oauth2/v2/auth?' . $params);
         }
@@ -121,7 +121,7 @@ class AdminIntegrationController extends Controller
                 'redirect_uri'  => route('admin.integrations.callback', 'meta'),
                 'response_type' => 'code',
                 'scope'         => config('services.meta.scopes', 'pages_manage_posts,pages_read_engagement,instagram_basic,instagram_content_publish'),
-                'state'         => csrf_token(),
+                'state'         => $this->issueState('meta'),
             ]);
             return redirect('https://www.facebook.com/' . config('services.meta.graph_version', 'v21.0') . '/dialog/oauth?' . $params);
         }
@@ -135,6 +135,12 @@ class AdminIntegrationController extends Controller
         if ($request->filled('error') || ! $request->filled('code')) {
             return redirect()->route('admin.integrations.index')
                 ->with('error', 'Connection cancelled or failed.');
+        }
+
+        // CSRF protection: the state we issued in connect() must come back intact.
+        if (! $this->verifyState($provider, (string) $request->input('state'))) {
+            return redirect()->route('admin.integrations.index')
+                ->with('error', 'Connection could not be verified. Please try connecting again.');
         }
 
         try {
@@ -172,6 +178,32 @@ class AdminIntegrationController extends Controller
     {
         OauthToken::where('provider', $provider)->delete();
         return back()->with('success', Str::title($provider) . ' disconnected.');
+    }
+
+    /** Generate a one-time OAuth state, remember it in the session, and return it. */
+    private function issueState(string $provider): string
+    {
+        $state = Str::random(40);
+        session()->put($this->stateKey($provider), $state);
+
+        return $state;
+    }
+
+    /**
+     * Validate the state echoed back by the provider against the one we stored,
+     * then consume it so it cannot be replayed. Uses a constant-time compare.
+     */
+    private function verifyState(string $provider, string $state): bool
+    {
+        $expected = session()->pull($this->stateKey($provider));
+
+        return is_string($expected) && $expected !== '' && $state !== ''
+            && hash_equals($expected, $state);
+    }
+
+    private function stateKey(string $provider): string
+    {
+        return 'oauth_state_' . $provider;
     }
 
     private function storeToken(string $provider, array $res, string $label): void

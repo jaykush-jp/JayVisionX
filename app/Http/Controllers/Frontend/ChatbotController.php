@@ -31,52 +31,84 @@ class ChatbotController extends Controller
             'session_token' => 'nullable|uuid',
         ]);
 
-        $message  = trim($data['message']);
-        $settings = AiSetting::current();
+        // Anything that goes wrong (AI API error, logging/storage issue, etc.)
+        // must never show the visitor a raw 500 — fall back to a friendly reply.
+        try {
+            $message  = trim($data['message']);
+            $settings = AiSetting::current();
 
-        // --- Rate limiting (abuse protection) ---
-        $key = 'chatbot:' . $request->ip();
-        $perMinute = max(1, (int) ($settings->rate_limit_per_minute ?: 10));
-        if (RateLimiter::tooManyAttempts($key, $perMinute)) {
-            return response()->json([
-                'reply' => "You're sending messages too quickly. Please wait a moment and try again.",
-                'session_token' => $data['session_token'] ?? null,
-                'mode'  => 'rate_limited',
-            ], 429);
-        }
-        RateLimiter::hit($key, 60);
+            // --- Rate limiting (abuse protection) ---
+            $key = 'chatbot:' . $request->ip();
+            $perMinute = max(1, (int) ($settings->rate_limit_per_minute ?: 10));
+            if (RateLimiter::tooManyAttempts($key, $perMinute)) {
+                return response()->json([
+                    'reply' => "You're sending messages too quickly. Please wait a moment and try again.",
+                    'session_token' => $data['session_token'] ?? null,
+                    'mode'  => 'rate_limited',
+                ], 429);
+            }
+            RateLimiter::hit($key, 60);
 
-        // --- Resolve or create the conversation ---
-        $session = $this->resolveSession($data['session_token'] ?? null, $request);
+            // --- Resolve or create the conversation ---
+            $session = $this->resolveSession($data['session_token'] ?? null, $request);
 
-        // Persist the visitor's message
-        ChatMessage::create([
-            'chat_session_id' => $session->id,
-            'role'            => 'user',
-            'content'         => $message,
-        ]);
-
-        // --- Decide the reply ---
-        [$reply, $mode, $sources] = $this->resolveReply($message, $session, $settings);
-
-        // Persist the assistant's reply (unless a human has taken over)
-        if ($mode !== 'human') {
+            // Persist the visitor's message
             ChatMessage::create([
                 'chat_session_id' => $session->id,
-                'role'            => 'assistant',
-                'content'         => $reply,
-                'sources'         => $sources ?: null,
-                'meta'            => ['mode' => $mode, 'model' => $settings->model],
+                'role'            => 'user',
+                'content'         => $message,
+            ]);
+
+            // --- Decide the reply ---
+            [$reply, $mode, $sources] = $this->resolveReply($message, $session, $settings);
+
+            // Persist the assistant's reply (unless a human has taken over)
+            if ($mode !== 'human') {
+                ChatMessage::create([
+                    'chat_session_id' => $session->id,
+                    'role'            => 'assistant',
+                    'content'         => $reply,
+                    'sources'         => $sources ?: null,
+                    'meta'            => ['mode' => $mode, 'model' => $settings->model],
+                ]);
+            }
+
+            $session->update(['last_message_at' => now()]);
+
+            return response()->json([
+                'reply'         => $reply,
+                'session_token' => $session->session_token,
+                'mode'          => $mode,
+            ]);
+        } catch (\Throwable $e) {
+            $this->safeLog('Chatbot reply failed: ' . $e->getMessage());
+
+            return response()->json([
+                'reply'         => $this->errorFallback(),
+                'session_token' => $data['session_token'] ?? null,
+                'mode'          => 'error',
             ]);
         }
+    }
 
-        $session->update(['last_message_at' => now()]);
+    /** Friendly message shown when the chatbot hits an unexpected error. */
+    private function errorFallback(): string
+    {
+        $phone = Setting::get('site_phone', '+91-9999999999');
+        $wa    = Setting::get('whatsapp_number', '919999999999');
 
-        return response()->json([
-            'reply'         => $reply,
-            'session_token' => $session->session_token,
-            'mode'          => $mode,
-        ]);
+        return "Sorry, I'm having a little trouble right now. Please try again in a moment, "
+            . "or reach our team directly 📞 {$phone} · 💬 https://wa.me/{$wa}.";
+    }
+
+    /** Log without ever letting a broken log stream bubble up as a 500. */
+    private function safeLog(string $message): void
+    {
+        try {
+            Log::warning($message);
+        } catch (\Throwable $e) {
+            // Logging is best-effort; never break the response because of it.
+        }
     }
 
     private function resolveSession(?string $token, Request $request): ChatSession
@@ -123,6 +155,7 @@ class ChatbotController extends Controller
             'consent'       => 'accepted',
         ]);
 
+        try {
         // Resolve an existing conversation, or start one (visitor may submit
         // the form before typing a message).
         $session = $this->resolveSession($data['session_token'] ?? null, $request);
@@ -207,6 +240,16 @@ class ChatbotController extends Controller
         ]);
 
         return response()->json(['ok' => true, 'reply' => $reply, 'estimate' => $estimate]);
+        } catch (\Throwable $e) {
+            $this->safeLog('Chatbot lead failed: ' . $e->getMessage());
+            $phone = Setting::get('site_phone', '+91-9999999999');
+            $wa    = Setting::get('whatsapp_number', '919999999999');
+            return response()->json([
+                'ok'       => false,
+                'reply'    => "Sorry, we couldn't save that just now. Please call {$phone} or WhatsApp https://wa.me/{$wa} and we'll help you right away.",
+                'estimate' => null,
+            ]);
+        }
     }
 
     /** @return array{0:string,1:string,2:array} [reply, mode, sources] */

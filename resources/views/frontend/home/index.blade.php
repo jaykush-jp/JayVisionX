@@ -179,7 +179,7 @@
 </section>
 
 <!-- ===== TECH STACK ===== -->
-<section class="section tech-section">
+<section class="section tech-section" id="technologies">
     <div class="container">
         <div class="section-header" data-aos="fade-up">
             <span class="section-badge">Technologies</span>
@@ -187,28 +187,12 @@
             <p class="section-subtitle">We work with the latest and most powerful technologies to build robust, scalable, and high-performance digital solutions.</p>
         </div>
         <div class="tech-grid" data-aos="fade-up" data-aos-delay="100">
-            @php
-            $techs = [
-                ['name'=>'PHP','icon'=>'fab fa-php','color'=>'#777BB4'],
-                ['name'=>'Laravel','icon'=>'fab fa-laravel','color'=>'#FF2D20'],
-                ['name'=>'Bootstrap','icon'=>'fab fa-bootstrap','color'=>'#7952B3'],
-                ['name'=>'HTML5','icon'=>'fab fa-html5','color'=>'#E34F26'],
-                ['name'=>'CSS3','icon'=>'fab fa-css3-alt','color'=>'#1572B6'],
-                ['name'=>'JavaScript','icon'=>'fab fa-js-square','color'=>'#F7DF1E'],
-                ['name'=>'React.js','icon'=>'fab fa-react','color'=>'#61DAFB'],
-                ['name'=>'Node.js','icon'=>'fab fa-node-js','color'=>'#339933'],
-                ['name'=>'Vue.js','icon'=>'fab fa-vuejs','color'=>'#4FC08D'],
-                ['name'=>'Flutter','icon'=>'fas fa-mobile-alt','color'=>'#54C5F8'],
-                ['name'=>'Java','icon'=>'fab fa-java','color'=>'#ED8B00'],
-                ['name'=>'Android','icon'=>'fab fa-android','color'=>'#3DDC84'],
-            ];
-            @endphp
-            @foreach($techs as $tech)
+            @foreach($technologies as $tech)
             <div class="tech-item" data-aos="zoom-in" data-aos-delay="{{ $loop->index * 40 }}">
-                <div class="tech-icon" style="color: {{ $tech['color'] }}">
-                    <i class="{{ $tech['icon'] }}"></i>
+                <div class="tech-icon" style="color: {{ $tech['color'] ?? '#1E5EFF' }}">
+                    <i class="{{ $tech['icon'] ?? 'fas fa-code' }}"></i>
                 </div>
-                <span class="tech-name">{{ $tech['name'] }}</span>
+                <span class="tech-name">{{ $tech['name'] ?? '' }}</span>
             </div>
             @endforeach
         </div>

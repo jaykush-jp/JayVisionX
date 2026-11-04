@@ -1,9 +1,9 @@
 @extends('admin.layouts.app')
-@section('title','Case Studies')
+@section('title','Our Work')
 @section('content')
 <div class="page-header-row">
-    <h2>Case Studies <span class="count-badge">{{ $caseStudies->total() }}</span></h2>
-    <a href="{{ route('admin.case-studies.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Add Case Study</a>
+    <h2>Our Work <span class="count-badge">{{ $caseStudies->total() }}</span></h2>
+    <a href="{{ route('admin.case-studies.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Add Work</a>
 </div>
 <div class="admin-table-wrapper">
     <table class="admin-table">
@@ -23,7 +23,7 @@
                 </td>
             </tr>
             @empty
-            <tr><td colspan="7" class="text-center">No case studies yet.</td></tr>
+            <tr><td colspan="7" class="text-center">No work added yet.</td></tr>
             @endforelse
         </tbody>
     </table>

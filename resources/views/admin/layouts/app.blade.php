@@ -36,10 +36,13 @@
             <i class="fas fa-briefcase"></i> <span>Projects</span>
         </a>
         <a href="{{ route('admin.case-studies.index') }}" class="sidebar-link {{ request()->routeIs('admin.case-studies*') ? 'active' : '' }}">
-            <i class="fas fa-chart-bar"></i> <span>Case Studies</span>
+            <i class="fas fa-chart-bar"></i> <span>Our Work</span>
         </a>
         <a href="{{ route('admin.blogs.index') }}" class="sidebar-link {{ request()->routeIs('admin.blogs*') ? 'active' : '' }}">
             <i class="fas fa-blog"></i> <span>Blogs</span>
+        </a>
+        <a href="{{ route('admin.technologies.index') }}" class="sidebar-link {{ request()->routeIs('admin.technologies*') ? 'active' : '' }}">
+            <i class="fas fa-microchip"></i> <span>Technologies</span>
         </a>
         <a href="{{ route('admin.testimonials.index') }}" class="sidebar-link {{ request()->routeIs('admin.testimonials*') ? 'active' : '' }}">
             <i class="fas fa-star"></i> <span>Testimonials</span>
