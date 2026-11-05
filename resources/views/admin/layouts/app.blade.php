@@ -108,6 +108,9 @@
         <a href="{{ route('admin.integrations.index') }}" class="sidebar-link {{ request()->routeIs('admin.integrations*') ? 'active' : '' }}">
             <i class="fas fa-plug"></i> <span>Integrations</span>
         </a>
+        <a href="{{ route('admin.credentials.index') }}" class="sidebar-link {{ request()->routeIs('admin.credentials*') ? 'active' : '' }}">
+            <i class="fas fa-key"></i> <span>API Credentials</span>
+        </a>
 
         <div class="nav-section-label">Settings</div>
         <a href="{{ route('admin.settings.index') }}" class="sidebar-link {{ request()->routeIs('admin.settings*') ? 'active' : '' }}">

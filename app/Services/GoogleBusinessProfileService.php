@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Credential;
 use App\Models\OauthToken;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -27,10 +28,10 @@ class GoogleBusinessProfileService
         $this->token = OauthToken::where('provider', 'google')->first();
     }
 
-    /** Are the app credentials present in config/env? */
+    /** Are the app credentials present in the credential store? */
     public function isConfigured(): bool
     {
-        return (bool) (config('services.google.client_id') && config('services.google.client_secret'));
+        return (bool) (Credential::get('google.client_id') && Credential::get('google.client_secret'));
     }
 
     /** Has an admin completed the OAuth connect flow? */

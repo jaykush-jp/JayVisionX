@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Mail\NewLeadMail;
 use App\Models\Contact;
+use App\Models\Credential;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -40,7 +41,7 @@ class LeadNotifier
 
     private function pushToGoogleSheet(Contact $lead): void
     {
-        $url = config('services.google_sheets.webhook_url');
+        $url = Credential::get('google.sheets_webhook_url');
 
         if (! $url) {
             return; // integration not configured

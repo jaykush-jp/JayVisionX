@@ -190,7 +190,11 @@
             @foreach($technologies as $tech)
             <div class="tech-item" data-aos="zoom-in" data-aos-delay="{{ $loop->index * 40 }}">
                 <div class="tech-icon" style="color: {{ $tech['color'] ?? '#1E5EFF' }}">
+                    @if(!empty($tech['image']))
+                    <img src="{{ asset('storage/'.$tech['image']) }}" alt="{{ $tech['name'] ?? '' }}" style="width:48px;height:48px;object-fit:contain">
+                    @else
                     <i class="{{ $tech['icon'] ?? 'fas fa-code' }}"></i>
+                    @endif
                 </div>
                 <span class="tech-name">{{ $tech['name'] ?? '' }}</span>
             </div>

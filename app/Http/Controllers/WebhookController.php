@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Contact;
+use App\Models\Credential;
 use App\Services\AutomationEngine;
 use App\Services\LeadNotifier;
 use App\Services\MetaGraphService;
@@ -19,7 +20,7 @@ class WebhookController extends Controller
     /** Meta webhook verification handshake (GET). */
     public function metaVerify(Request $request)
     {
-        $verify = config('services.meta.lead_verify_token');
+        $verify = Credential::get('meta.lead_verify_token');
 
         if ($request->get('hub_mode') === 'subscribe'
             && $verify
@@ -64,7 +65,7 @@ class WebhookController extends Controller
     /** Google Ads lead-form webhook (POST). */
     public function googleLeads(Request $request)
     {
-        $key = config('services.google.lead_webhook_key');
+        $key = Credential::get('google.lead_webhook_key');
         if ($key && ! hash_equals((string) $key, (string) $request->input('google_key'))) {
             return response()->json(['status' => 'unauthorized'], 403);
         }

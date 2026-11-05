@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AiSetting;
 use App\Models\AuditLog;
+use App\Models\Credential;
 use App\Services\AiProviderService;
 use Illuminate\Http\Request;
 
@@ -32,7 +33,7 @@ class AdminAiSettingController extends Controller
             'styles'      => self::RESPONSE_STYLES,
             'languages'   => self::LANGUAGES,
             'providers'   => AiProviderService::PROVIDERS,
-            'keyIsSet'    => (bool) $settings->api_key,
+            'keyIsSet'    => Credential::has("ai.{$settings->provider}.key") || (bool) $settings->api_key,
             'activeKeyOk' => $ai->isConfigured($settings),
         ]);
     }
@@ -59,15 +60,14 @@ class AdminAiSettingController extends Controller
         ]);
 
         $settings = AiSetting::current();
-        $oldProvider = $settings->provider;
         $newProvider = $data['provider'] ?? 'anthropic';
 
-        // API key: a new value overwrites; blank keeps the saved key — except when
-        // the provider changed, where a blank key is cleared (it was for the old one).
+        // API key lives in the encrypted credential store, one per provider
+        // (Admin → API Credentials manages them all). A new value here saves the
+        // active provider's key; blank keeps whatever is already stored for it.
         if (! empty($data['api_key'])) {
-            $settings->api_key = trim($data['api_key']);
-        } elseif ($newProvider !== $oldProvider) {
-            $settings->api_key = null;
+            Credential::set("ai.{$newProvider}.key", trim($data['api_key']));
+            $settings->api_key = null; // legacy column no longer used for reads
         }
 
         $settings->fill([

@@ -15,7 +15,7 @@ class AdminSettingController extends Controller
      * arbitrary settings (e.g. the google_analytics script snippet).
      */
     private const ALLOWED_KEYS = [
-        'site_name', 'site_tagline', 'site_description', 'site_email', 'site_phone', 'site_address',
+        'site_name', 'owner_name', 'site_tagline', 'site_description', 'site_email', 'site_phone', 'site_address',
         'site_logo', 'site_favicon',
         'whatsapp_number',
         'facebook_url', 'instagram_url', 'linkedin_url', 'twitter_url', 'youtube_url',

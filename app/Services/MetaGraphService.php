@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Credential;
 use App\Models\OauthToken;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -23,12 +24,12 @@ class MetaGraphService
     public function __construct()
     {
         $this->token = OauthToken::where('provider', 'meta')->first();
-        $this->graph = 'https://graph.facebook.com/' . config('services.meta.graph_version', 'v21.0');
+        $this->graph = 'https://graph.facebook.com/' . (Credential::get('meta.graph_version') ?: 'v21.0');
     }
 
     public function isConfigured(): bool
     {
-        return (bool) (config('services.meta.app_id') && config('services.meta.app_secret'));
+        return (bool) (Credential::get('meta.app_id') && Credential::get('meta.app_secret'));
     }
 
     public function isConnected(): bool
@@ -44,7 +45,7 @@ class MetaGraphService
     /** Page access token with leads_retrieval — env override, else OAuth token. */
     public function pageToken(): ?string
     {
-        return config('services.meta.page_access_token')
+        return Credential::get('meta.page_access_token')
             ?: ($this->token->meta['page_access_token'] ?? null)
             ?: $this->token?->access_token;
     }

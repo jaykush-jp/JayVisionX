@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Credential;
 use App\Models\OauthToken;
 use App\Models\Setting;
 use App\Models\AiSetting;
@@ -47,9 +48,9 @@ class AdminIntegrationController extends Controller
                 'key'   => 'google_sheets',
                 'name'  => 'Google Sheets (Leads)',
                 'icon'  => 'fas fa-table',
-                'connected' => (bool) config('services.google_sheets.webhook_url'),
-                'detail'    => config('services.google_sheets.webhook_url') ? 'Leads are pushed to your sheet.' : 'Set GOOGLE_SHEETS_WEBHOOK_URL in .env.',
-                'manage'    => null,
+                'connected' => (bool) Credential::get('google.sheets_webhook_url'),
+                'detail'    => Credential::get('google.sheets_webhook_url') ? 'Leads are pushed to your sheet.' : 'Add the Sheets webhook URL in API Credentials.',
+                'manage'    => route('admin.credentials.index'),
             ],
             (function () {
                 $ai = AiSetting::current();
@@ -75,7 +76,7 @@ class AdminIntegrationController extends Controller
                 'connected' => $gbp->isConnected(),
                 'detail'    => $gbp->isConnected()
                     ? ('Connected: ' . ($gbp->accountLabel() ?: 'Google account'))
-                    : ($gbp->isConfigured() ? 'Ready to connect — reviews & Google Posts.' : 'Add Google OAuth credentials in .env to enable.'),
+                    : ($gbp->isConfigured() ? 'Ready to connect — reviews & Google Posts.' : 'Add Google OAuth credentials in API Credentials to enable.'),
             ],
             [
                 'key'       => 'meta',
@@ -86,7 +87,7 @@ class AdminIntegrationController extends Controller
                 'connected' => $meta->isConnected(),
                 'detail'    => $meta->isConnected()
                     ? ('Connected: ' . ($meta->accountLabel() ?: 'Meta account'))
-                    : ($meta->isConfigured() ? 'Ready to connect — publish posts to FB & IG.' : 'Add Meta app credentials in .env to enable.'),
+                    : ($meta->isConfigured() ? 'Ready to connect — publish posts to FB & IG.' : 'Add Meta app credentials in API Credentials to enable.'),
             ],
         ];
 
@@ -97,33 +98,33 @@ class AdminIntegrationController extends Controller
     public function connect(string $provider)
     {
         if ($provider === 'google') {
-            if (! config('services.google.client_id')) {
-                return back()->with('error', 'Google OAuth credentials are not configured in .env yet.');
+            if (! Credential::get('google.client_id')) {
+                return back()->with('error', 'Google OAuth credentials are not configured in API Credentials yet.');
             }
             $params = http_build_query([
-                'client_id'     => config('services.google.client_id'),
+                'client_id'     => Credential::get('google.client_id'),
                 'redirect_uri'  => route('admin.integrations.callback', 'google'),
                 'response_type' => 'code',
                 'access_type'   => 'offline',
                 'prompt'        => 'consent',
-                'scope'         => config('services.google.scopes', 'https://www.googleapis.com/auth/business.manage'),
+                'scope'         => Credential::get('google.scopes') ?: 'https://www.googleapis.com/auth/business.manage',
                 'state'         => $this->issueState('google'),
             ]);
             return redirect('https://accounts.google.com/o/oauth2/v2/auth?' . $params);
         }
 
         if ($provider === 'meta') {
-            if (! config('services.meta.app_id')) {
-                return back()->with('error', 'Meta app credentials are not configured in .env yet.');
+            if (! Credential::get('meta.app_id')) {
+                return back()->with('error', 'Meta app credentials are not configured in API Credentials yet.');
             }
             $params = http_build_query([
-                'client_id'     => config('services.meta.app_id'),
+                'client_id'     => Credential::get('meta.app_id'),
                 'redirect_uri'  => route('admin.integrations.callback', 'meta'),
                 'response_type' => 'code',
-                'scope'         => config('services.meta.scopes', 'pages_manage_posts,pages_read_engagement,instagram_basic,instagram_content_publish'),
+                'scope'         => Credential::get('meta.scopes') ?: 'pages_manage_posts,pages_read_engagement,instagram_basic,instagram_content_publish',
                 'state'         => $this->issueState('meta'),
             ]);
-            return redirect('https://www.facebook.com/' . config('services.meta.graph_version', 'v21.0') . '/dialog/oauth?' . $params);
+            return redirect('https://www.facebook.com/' . (Credential::get('meta.graph_version') ?: 'v21.0') . '/dialog/oauth?' . $params);
         }
 
         abort(404);
@@ -147,17 +148,17 @@ class AdminIntegrationController extends Controller
             if ($provider === 'google') {
                 $res = Http::asForm()->post('https://oauth2.googleapis.com/token', [
                     'code'          => $request->code,
-                    'client_id'     => config('services.google.client_id'),
-                    'client_secret' => config('services.google.client_secret'),
+                    'client_id'     => Credential::get('google.client_id'),
+                    'client_secret' => Credential::get('google.client_secret'),
                     'redirect_uri'  => route('admin.integrations.callback', 'google'),
                     'grant_type'    => 'authorization_code',
                 ])->json();
 
                 $this->storeToken('google', $res, 'Google Business Profile');
             } elseif ($provider === 'meta') {
-                $res = Http::get('https://graph.facebook.com/' . config('services.meta.graph_version', 'v21.0') . '/oauth/access_token', [
-                    'client_id'     => config('services.meta.app_id'),
-                    'client_secret' => config('services.meta.app_secret'),
+                $res = Http::get('https://graph.facebook.com/' . (Credential::get('meta.graph_version') ?: 'v21.0') . '/oauth/access_token', [
+                    'client_id'     => Credential::get('meta.app_id'),
+                    'client_secret' => Credential::get('meta.app_secret'),
                     'redirect_uri'  => route('admin.integrations.callback', 'meta'),
                     'code'          => $request->code,
                 ])->json();

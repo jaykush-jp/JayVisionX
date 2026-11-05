@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AiSetting;
+use App\Models\Credential;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -29,22 +30,22 @@ class AiProviderService
         'mistral'   => ['label' => 'Mistral',             'type' => 'openai',    'default_model' => 'mistral-small-latest', 'base' => 'https://api.mistral.ai/v1', 'key_hint' => 'console.mistral.ai'],
     ];
 
-    /** The API key for the active provider: admin-entered first, else the .env fallback. */
+    /**
+     * The API key for the active provider. Source of truth is the encrypted
+     * DB credential store (Admin → API Credentials); falls back to the legacy
+     * key saved directly on the ai_settings row. No .env is used.
+     */
     public function apiKey(AiSetting $settings): ?string
     {
-        if (! empty($settings->api_key)) {
-            return $settings->api_key;
+        $provider = $settings->provider ?: 'anthropic';
+
+        $key = Credential::get("ai.{$provider}.key");
+        if (! empty($key)) {
+            return $key;
         }
 
-        return match ($settings->provider) {
-            'anthropic' => config('services.anthropic.key'),
-            'gemini'    => config('services.gemini.key'),
-            'openai'    => config('services.openai.key'),
-            'deepseek'  => config('services.deepseek.key'),
-            'grok'      => config('services.grok.key'),
-            'mistral'   => config('services.mistral.key'),
-            default     => null,
-        };
+        // Legacy: active-provider key stored on the ai_settings row.
+        return ! empty($settings->api_key) ? $settings->api_key : null;
     }
 
     public function isConfigured(AiSetting $settings): bool
@@ -60,8 +61,40 @@ class AiProviderService
     private function sslVerify(): string|bool
     {
         $bundle = config('services.ai_ssl.ca_bundle');
+        if ($bundle && is_file($bundle)) {
+            return $bundle;
+        }
 
-        return ($bundle && is_file($bundle)) ? $bundle : true;
+        // Auto-detect a CA bundle — needed on local Windows/XAMPP where php.ini
+        // has no curl.cainfo. On Linux/production none of these resolve and we
+        // return true so the OS cert store is used.
+        foreach ($this->caCandidates() as $path) {
+            if ($path && is_file($path)) {
+                return $path;
+            }
+        }
+
+        return true;
+    }
+
+    /** @return array<int,?string> Possible CA-bundle paths, best first. */
+    private function caCandidates(): array
+    {
+        $paths = [
+            ini_get('curl.cainfo') ?: null,
+            ini_get('openssl.cafile') ?: null,
+        ];
+
+        if (function_exists('openssl_get_cert_locations')) {
+            $loc = openssl_get_cert_locations();
+            $paths[] = $loc['default_cert_file'] ?? null;
+        }
+
+        // Common XAMPP / standalone-PHP bundle locations on Windows.
+        $paths[] = 'C:/xampp/apache/bin/curl-ca-bundle.crt';
+        $paths[] = 'C:/xampp/php/extras/ssl/cacert.pem';
+
+        return $paths;
     }
 
     public function providerLabel(?string $provider): string

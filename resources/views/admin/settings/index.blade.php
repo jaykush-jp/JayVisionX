@@ -29,6 +29,10 @@
                 </div>
             </div>
             <div class="form-group">
+                <label>Company Owner Name</label>
+                <input type="text" name="owner_name" class="form-control" value="{{ $settings['owner_name'] ?? '' }}" placeholder="e.g. Jay Kushwah">
+            </div>
+            <div class="form-group">
                 <label>Site Description</label>
                 <textarea name="site_description" class="form-control" rows="3">{{ $settings['site_description'] ?? '' }}</textarea>
             </div>

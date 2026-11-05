@@ -22,7 +22,7 @@ class HomeController extends Controller
         $blogs        = Blog::active()->take(3)->get();
         $testimonials = Testimonial::active()->get();
         $faqs         = Faq::active()->take(8)->get();
-        $technologies = AdminTechnologyController::list();
+        $technologies = AdminTechnologyController::listActive();
 
         return view('frontend.home.index', compact(
             'page', 'services', 'projects', 'blogs', 'testimonials', 'faqs', 'technologies'

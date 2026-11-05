@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\AdminIntegrationController;
 use App\Http\Controllers\Admin\AdminReviewController;
 use App\Http\Controllers\Admin\AdminSocialPostController;
 use App\Http\Controllers\Admin\AdminAiSettingController;
+use App\Http\Controllers\Admin\AdminCredentialController;
 use App\Http\Controllers\Admin\AdminInboxController;
 use App\Http\Controllers\Admin\AdminAuditController;
 use App\Http\Controllers\Admin\AdminAutomationController;
@@ -143,6 +144,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // AI Support — Configuration
         Route::get('ai-settings', [AdminAiSettingController::class, 'index'])->name('ai-settings.index');
         Route::post('ai-settings', [AdminAiSettingController::class, 'update'])->name('ai-settings.update');
+
+        // API Credentials — AI providers, Google, Meta (encrypted, DB-managed)
+        Route::get('credentials', [AdminCredentialController::class, 'index'])->name('credentials.index');
+        Route::post('credentials', [AdminCredentialController::class, 'update'])->name('credentials.update');
 
         // AI Support — Live Inbox
         Route::get('inbox', [AdminInboxController::class, 'index'])->name('inbox.index');
