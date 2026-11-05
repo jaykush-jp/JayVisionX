@@ -47,7 +47,16 @@ return [
     // fallback when no key is entered there.
     'gemini' => [
         'key'   => env('GEMINI_API_KEY'),
-        'model' => env('GEMINI_MODEL', 'gemini-2.0-flash'),
+        'model' => env('GEMINI_MODEL', 'gemini-3.8-flash'),
+    ],
+
+    // Optional explicit CA bundle for outbound AI API (HTTPS) calls. Leave empty
+    // in production so PHP/cURL uses the OS cert store. On local Windows (XAMPP
+    // / standalone PHP) where curl.cainfo is not set in php.ini, point this at a
+    // cacert.pem so the chatbot can reach the AI provider, e.g.
+    // CURL_CA_BUNDLE="C:\xampp\apache\bin\curl-ca-bundle.crt"
+    'ai_ssl' => [
+        'ca_bundle' => env('CURL_CA_BUNDLE'),
     ],
     'openai' => [
         'key'   => env('OPENAI_API_KEY'),

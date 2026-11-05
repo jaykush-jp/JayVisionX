@@ -22,7 +22,7 @@ class AiProviderService
      */
     public const PROVIDERS = [
         'anthropic' => ['label' => 'Claude (Anthropic)', 'type' => 'anthropic', 'default_model' => 'claude-haiku-5-5', 'key_hint' => 'console.anthropic.com'],
-        'gemini'    => ['label' => 'Google Gemini',      'type' => 'gemini',    'default_model' => 'gemini-2.0-flash', 'key_hint' => 'aistudio.google.com'],
+        'gemini'    => ['label' => 'Google Gemini',      'type' => 'gemini',    'default_model' => 'gemini-3.8-flash', 'key_hint' => 'aistudio.google.com'],
         'openai'    => ['label' => 'OpenAI (GPT)',        'type' => 'openai',    'default_model' => 'gpt-4o-mini',      'base' => 'https://api.openai.com/v1',  'key_hint' => 'platform.openai.com'],
         'deepseek'  => ['label' => 'DeepSeek',            'type' => 'openai',    'default_model' => 'deepseek-chat',    'base' => 'https://api.deepseek.com/v1', 'key_hint' => 'platform.deepseek.com'],
         'grok'      => ['label' => 'Grok (xAI)',          'type' => 'openai',    'default_model' => 'grok-2-latest',    'base' => 'https://api.x.ai/v1',        'key_hint' => 'console.x.ai'],
@@ -50,6 +50,18 @@ class AiProviderService
     public function isConfigured(AiSetting $settings): bool
     {
         return (bool) $this->apiKey($settings);
+    }
+
+    /**
+     * Guzzle "verify" value for outbound HTTPS. Returns an explicit CA-bundle
+     * path when configured (needed on local Windows/PHP where php.ini has no
+     * curl.cainfo), otherwise true so the OS cert store is used (production).
+     */
+    private function sslVerify(): string|bool
+    {
+        $bundle = config('services.ai_ssl.ca_bundle');
+
+        return ($bundle && is_file($bundle)) ? $bundle : true;
     }
 
     public function providerLabel(?string $provider): string
@@ -94,7 +106,7 @@ class AiProviderService
             'x-api-key'         => $key,
             'anthropic-version' => '2023-06-01',
             'content-type'      => 'application/json',
-        ])->timeout(30)->post('https://api.anthropic.com/v1/messages', [
+        ])->withOptions(['verify' => $this->sslVerify()])->timeout(30)->post('https://api.anthropic.com/v1/messages', [
             'model'      => $model,
             'max_tokens' => $maxTok,
             'system'     => $system,
@@ -124,6 +136,7 @@ class AiProviderService
         ], $messages);
 
         $res = Http::timeout(30)
+            ->withOptions(['verify' => $this->sslVerify()])
             ->withQueryParameters(['key' => $key])
             ->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent", [
                 'system_instruction' => ['parts' => [['text' => $system]]],
@@ -152,7 +165,7 @@ class AiProviderService
             $messages
         );
 
-        $res = Http::withToken($key)->timeout(30)->post(rtrim($base, '/') . '/chat/completions', [
+        $res = Http::withToken($key)->withOptions(['verify' => $this->sslVerify()])->timeout(30)->post(rtrim($base, '/') . '/chat/completions', [
             'model'       => $model,
             'max_tokens'  => $maxTok,
             'temperature' => 0.6,

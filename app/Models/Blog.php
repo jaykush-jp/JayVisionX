@@ -22,7 +22,7 @@ class Blog extends Model
 
     public function scopeActive($q)
     {
-        return $q->where('is_active', true)->orderByDesc('sort_order')->orderBy('created_at', 'desc');
+        return $q->where('is_active', true)->orderBy('sort_order')->orderBy('created_at', 'desc');
     }
 
     public function getThumbnailUrlAttribute()

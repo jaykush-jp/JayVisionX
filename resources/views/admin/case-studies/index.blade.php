@@ -7,7 +7,7 @@
 </div>
 <div class="admin-table-wrapper">
     <table class="admin-table">
-        <thead><tr><th>#</th><th>Thumbnail</th><th>Title</th><th>Client</th><th>Industry</th><th>Status</th><th>Actions</th></tr></thead>
+        <thead><tr><th>#</th><th>Thumbnail</th><th>Title</th><th>Client</th><th>Industry</th><th>Order</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody>
             @forelse($caseStudies as $cs)
             <tr>
@@ -16,6 +16,7 @@
                 <td><strong>{{ $cs->title }}</strong></td>
                 <td>{{ $cs->client ?? '-' }}</td>
                 <td>{{ $cs->industry ?? '-' }}</td>
+                <td>{{ $cs->sort_order }}</td>
                 <td><span class="badge {{ $cs->is_active?'badge-yes':'badge-no' }}">{{ $cs->is_active?'Active':'Inactive' }}</span></td>
                 <td class="actions-cell">
                     <a href="{{ route('admin.case-studies.edit',$cs->id) }}" class="btn-sm btn-edit"><i class="fas fa-edit"></i></a>
@@ -23,7 +24,7 @@
                 </td>
             </tr>
             @empty
-            <tr><td colspan="7" class="text-center">No work added yet.</td></tr>
+            <tr><td colspan="8" class="text-center">No work added yet.</td></tr>
             @endforelse
         </tbody>
     </table>

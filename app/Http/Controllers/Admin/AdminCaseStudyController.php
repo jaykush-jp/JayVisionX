@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class AdminCaseStudyController extends Controller
 {
-    public function index() { return view('admin.case-studies.index', ['caseStudies' => CaseStudy::orderByDesc('sort_order')->orderByDesc('id')->paginate(20)]); }
+    public function index() { return view('admin.case-studies.index', ['caseStudies' => CaseStudy::orderBy('sort_order')->orderByDesc('id')->paginate(20)]); }
     public function create() { return view('admin.case-studies.create'); }
     public function store(Request $request)
     {

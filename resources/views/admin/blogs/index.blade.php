@@ -7,7 +7,7 @@
 </div>
 <div class="admin-table-wrapper">
     <table class="admin-table">
-        <thead><tr><th>#</th><th>Thumbnail</th><th>Title</th><th>Category</th><th>Views</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+        <thead><tr><th>#</th><th>Thumbnail</th><th>Title</th><th>Category</th><th>Views</th><th>Order</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
         <tbody>
             @forelse($blogs as $b)
             <tr>
@@ -16,6 +16,7 @@
                 <td><strong>{{ $b->title }}</strong><br><small class="text-muted">{{ $b->slug }}</small></td>
                 <td>{{ $b->category ?? '-' }}</td>
                 <td>{{ $b->views }}</td>
+                <td>{{ $b->sort_order }}</td>
                 <td>
                     <button class="toggle-btn {{ $b->is_active ? 'active' : 'inactive' }}" onclick="toggleStatus('{{ route('admin.blogs.toggle-status',$b->id) }}', this)">
                         {{ $b->is_active ? 'Active' : 'Inactive' }}
@@ -32,7 +33,7 @@
                 </td>
             </tr>
             @empty
-            <tr><td colspan="8" class="text-center">No blog posts yet.</td></tr>
+            <tr><td colspan="9" class="text-center">No blog posts yet.</td></tr>
             @endforelse
         </tbody>
     </table>
