@@ -65,9 +65,10 @@ class AdminCredentialController extends Controller
         foreach (self::groups() as $group => $fields) {
             foreach ($fields as $key => $meta) {
                 $groups[$group][$key] = $meta + [
-                    'isSet' => Credential::has($key),
+                    'isSet'  => Credential::rawHas($key),          // value stored (even if disabled)
+                    'active' => Credential::isActive($key),        // enabled flag
                     // Only non-secret config values are echoed back to the form.
-                    'value' => $meta['secret'] ? null : (Credential::get($key) ?? ''),
+                    'value'  => $meta['secret'] ? null : (Credential::rawValue($key) ?? ''),
                 ];
             }
         }
@@ -77,8 +78,9 @@ class AdminCredentialController extends Controller
 
     public function update(Request $request)
     {
-        $values = (array) $request->input('cred', []);
-        $clears = (array) $request->input('clear', []);
+        $values  = (array) $request->input('cred', []);
+        $clears  = (array) $request->input('clear', []);
+        $actives = (array) $request->input('active', []);  // checkbox present only when ON
 
         $changed = [];
 
@@ -86,7 +88,7 @@ class AdminCredentialController extends Controller
             foreach ($fields as $key => $meta) {
                 // Explicit clear wins.
                 if (! empty($clears[$key])) {
-                    if (Credential::has($key)) {
+                    if (Credential::rawHas($key)) {
                         Credential::set($key, null);
                         $changed[] = $key . ' (cleared)';
                     }
@@ -103,13 +105,21 @@ class AdminCredentialController extends Controller
                     }
                 } else {
                     // Visible config: save exactly what's in the box (blank removes).
-                    if ($val === null) {
-                        continue; // field not present in the request
+                    if ($val !== null) {
+                        $current = Credential::rawValue($key) ?? '';
+                        if ($val !== $current) {
+                            Credential::set($key, $val);
+                            $changed[] = $key;
+                        }
                     }
-                    $current = Credential::get($key) ?? '';
-                    if ($val !== $current) {
-                        Credential::set($key, $val);
-                        $changed[] = $key;
+                }
+
+                // Enable/disable toggle (only affects a stored credential).
+                if (Credential::rawHas($key)) {
+                    $wantActive = isset($actives[$key]);
+                    if (Credential::isActive($key) !== $wantActive) {
+                        Credential::setActive($key, $wantActive);
+                        $changed[] = $key . ($wantActive ? ' (enabled)' : ' (disabled)');
                     }
                 }
             }

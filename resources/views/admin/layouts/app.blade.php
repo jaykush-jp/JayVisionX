@@ -160,6 +160,44 @@
 </div>
 
 <script src="{{ asset('js/admin.js') }}"></script>
+<script>
+/* Keep the sidebar scrolled to where it was after a page navigation, so the
+   clicked menu item stays in view instead of jumping back to the top. */
+(function () {
+    var KEY = 'jvx_admin_sidebar_scroll';
+    var nav  = document.querySelector('.sidebar-nav');
+    var side = document.getElementById('adminSidebar');
+
+    function scroller() {
+        if (nav  && nav.scrollHeight  > nav.clientHeight  + 2) return nav;
+        if (side && side.scrollHeight > side.clientHeight + 2) return side;
+        return nav || side;
+    }
+    var el = scroller();
+    if (!el) return;
+
+    // Restore saved position (runs before first paint at end of <body>).
+    try {
+        var y = parseInt(sessionStorage.getItem(KEY) || '0', 10);
+        if (y > 0) el.scrollTop = y;
+    } catch (e) {}
+
+    var t;
+    el.addEventListener('scroll', function () {
+        clearTimeout(t);
+        t = setTimeout(function () {
+            try { sessionStorage.setItem(KEY, el.scrollTop); } catch (e) {}
+        }, 120);
+    }, { passive: true });
+
+    // Capture the position the instant a menu item is clicked, before navigating.
+    document.querySelectorAll('.sidebar-nav a, .sidebar-nav button').forEach(function (link) {
+        link.addEventListener('click', function () {
+            try { sessionStorage.setItem(KEY, el.scrollTop); } catch (e) {}
+        });
+    });
+})();
+</script>
 @yield('scripts')
 </body>
 </html>

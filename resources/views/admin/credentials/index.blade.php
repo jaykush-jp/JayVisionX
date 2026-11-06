@@ -23,7 +23,8 @@
     </p>
     <p style="color:#6B7FA3;margin-bottom:20px;font-size:13px">
         Secret fields par <em>"saved — leave blank to keep"</em> dikhega: blank chhodne par purani value rahegi.
-        Kisi key ko hatane ke liye uske saath <strong>Clear</strong> checkbox tick karein. Active AI provider aur model
+        Kisi key ko <strong>band</strong> karne ke liye uski <strong>Active</strong> tick hata dein (key delete nahi hogi, bas use nahi hogi).
+        Poori tarah <strong>hatane</strong> ke liye <strong>Clear</strong> tick karein. Active AI provider aur model
         <a href="{{ route('admin.ai-settings.index') }}">AI Configuration</a> me chunein.
     </p>
 
@@ -35,14 +36,24 @@
 
         @foreach($fields as $key => $f)
         <div class="form-group" style="margin-bottom:16px">
-            <label style="display:flex;justify-content:space-between;align-items:center">
+            <label style="display:flex;justify-content:space-between;align-items:center;gap:12px">
                 <span>
                     {{ $f['label'] }}
-                    @if($f['isSet'])<span class="badge badge-yes" style="margin-left:6px">SAVED</span>@endif
+                    @if($f['isSet'])
+                        @if($f['active'])<span class="badge badge-yes" style="margin-left:6px">SAVED</span>
+                        @else<span class="badge badge-no" style="margin-left:6px">DISABLED</span>@endif
+                    @endif
                 </span>
-                <label style="font-weight:400;font-size:12px;color:#B4342A;display:inline-flex;align-items:center;gap:5px;cursor:pointer">
-                    <input type="checkbox" name="clear[{{ $key }}]" value="1" @if(!$f['isSet']) disabled @endif> Clear
-                </label>
+                <span style="display:inline-flex;align-items:center;gap:14px;white-space:nowrap">
+                    @if($f['isSet'])
+                    <label style="font-weight:400;font-size:12px;color:#1E5EFF;display:inline-flex;align-items:center;gap:5px;cursor:pointer" title="Disable to stop using this key without deleting it">
+                        <input type="checkbox" name="active[{{ $key }}]" value="1" @checked($f['active'])> Active
+                    </label>
+                    @endif
+                    <label style="font-weight:400;font-size:12px;color:#B4342A;display:inline-flex;align-items:center;gap:5px;cursor:pointer">
+                        <input type="checkbox" name="clear[{{ $key }}]" value="1" @if(!$f['isSet']) disabled @endif> Clear
+                    </label>
+                </span>
             </label>
 
             @if($f['secret'])

@@ -228,6 +228,11 @@ class DummyDataSeeder extends Seeder
 
     private function customers(): void
     {
+        // Demo CRM leads are for local/staging only — never seed fake leads into production.
+        if (app()->environment('production')) {
+            return;
+        }
+
         if (Contact::where('source', '!=', 'contact_form')->whereIn('status', ['won'])->count() > 0) {
             return;
         }

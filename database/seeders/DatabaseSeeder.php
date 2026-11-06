@@ -20,6 +20,48 @@ class DatabaseSeeder extends Seeder
         $this->seedFaqs();
         $this->seedPages();
         $this->seedBlogs();
+        $this->seedAiConfig();
+
+        // Knowledge base, packages, automation, email templates, projects &
+        // case studies (and, on non-production, demo CRM leads).
+        $this->call(DummyDataSeeder::class);
+    }
+
+    /**
+     * Fill the chatbot persona fields so the AI assistant is ready on a fresh
+     * install. Only empty fields are set — the admin's choices (provider, model,
+     * API key, enabled flag) are never overwritten.
+     */
+    private function seedAiConfig(): void
+    {
+        $ai = \App\Models\AiSetting::current();
+        $set = [];
+
+        if (empty($ai->system_prompt)) {
+            $set['system_prompt'] = 'You are "Vision", the friendly AI assistant for JayVisionX — a Digital Growth & Technology company based in Delhi NCR, India. Help website visitors and potential customers explore our services (website & app development, SEO, Google & Meta Ads, social media marketing, branding, graphic design and video editing), understand pricing from our packages, and request a quote, callback or free consultation. Be warm, concise and genuinely helpful. Reply in the visitor\'s language — English, Hindi or Hinglish. Always suggest a clear next step (free consultation, WhatsApp, or the enquiry form).';
+        }
+        if (empty($ai->business_description)) {
+            $set['business_description'] = 'JayVisionX is a Digital Growth & Technology company in Delhi NCR, India. We help businesses grow with websites, mobile apps, custom software, SEO, Google & Meta Ads, social media marketing, branding, graphic design and video editing. 40+ projects delivered for 50+ happy clients.';
+        }
+        if (empty($ai->welcome_message)) {
+            $set['welcome_message'] = "Hi! 👋 Welcome to JayVisionX. I'm your AI assistant — ask me about our services, pricing or portfolio, or request a free consultation.";
+        }
+        if (! is_array($ai->suggested_questions) || empty($ai->suggested_questions)) {
+            $set['suggested_questions'] = ['Explore Services', 'Website Development Pricing', 'Android App Pricing', 'View Portfolio', 'Request a Custom Quote', 'Talk to Human Support'];
+        }
+        if (empty($ai->fallback_message)) {
+            $set['fallback_message'] = 'Our assistant is briefly offline. Please leave your name and number and our team will get back to you shortly — or WhatsApp us for a quick reply.';
+        }
+        if (empty($ai->response_style)) {
+            $set['response_style'] = 'friendly';
+        }
+        if (! is_array($ai->languages) || empty($ai->languages)) {
+            $set['languages'] = ['en', 'hi', 'hinglish'];
+        }
+
+        if ($set) {
+            $ai->fill($set)->save();
+        }
     }
 
     private function seedSettings(): void
