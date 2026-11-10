@@ -44,14 +44,16 @@
 html {
   scroll-behavior: smooth;
   font-size: 16px;
-  overflow-x: hidden;
+  /* clip (not hidden) prevents horizontal scroll WITHOUT creating a scroll
+     container — which would break the sticky header (position: sticky). */
+  overflow-x: clip;
 }
 body {
   font-family: var(--font-body);
   color: var(--text-body);
   background: var(--white);
   line-height: 1.7;
-  overflow-x: hidden;
+  overflow-x: clip;
   width: 100%;
   max-width: 100%;
 }
