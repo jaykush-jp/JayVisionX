@@ -2010,6 +2010,134 @@ ul {
   font-size: 0.75rem;
   color: var(--text-muted);
 }
+
+/* ===== OUR WORK — results-driven case study rows (distinct from Projects) ===== */
+.cs-intro {
+  max-width: 760px;
+  margin: 0 auto 50px;
+  text-align: center;
+}
+.cs-intro p {
+  color: var(--text-muted);
+  margin-top: 12px;
+}
+.cs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+.cs-row {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 40px;
+  align-items: center;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  transition: var(--transition);
+}
+.cs-row:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+}
+.cs-row--reverse .cs-media {
+  order: 2;
+}
+.cs-media {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: var(--light-grey);
+}
+.cs-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cs-industry {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: var(--accent);
+  color: #fff;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.cs-content {
+  padding: 8px 14px;
+}
+.cs-client {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+.cs-content h3 {
+  font-size: 1.5rem;
+  line-height: 1.3;
+  margin-bottom: 18px;
+}
+.cs-step {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.cs-step-label {
+  flex-shrink: 0;
+  width: 108px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding-top: 2px;
+}
+.cs-step-label--challenge { color: #c0392b; }
+.cs-step-label--solution  { color: var(--primary); }
+.cs-step-label--result    { color: #1a9f54; }
+.cs-step p {
+  color: var(--text-body);
+  font-size: 0.92rem;
+  margin: 0;
+}
+.cs-metrics {
+  display: flex;
+  gap: 14px;
+  margin: 20px 0;
+  background: var(--dark);
+  border-radius: var(--radius-md);
+  padding: 18px;
+}
+.cs-metric {
+  flex: 1;
+  text-align: center;
+}
+.cs-metric strong {
+  display: block;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1.1;
+}
+.cs-metric span {
+  font-size: 0.72rem;
+  color: var(--silver-light);
+}
+@media (max-width: 860px) {
+  .cs-row {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  .cs-row--reverse .cs-media {
+    order: 0;
+  }
+  .cs-content h3 {
+    font-size: 1.3rem;
+  }
+}
 .case-results-bar {
   display: flex;
   gap: 0;

@@ -7,8 +7,8 @@
     <div class="page-banner-overlay"></div>
     <div class="container">
         <div class="page-banner-content" data-aos="fade-up">
-            <h1>Our Projects & Portfolio</h1>
-            <p>Real results for real businesses — explore our work</p>
+            <h1>Projects & Portfolio</h1>
+            <p>The websites, apps and designs we've built for our clients</p>
             <nav class="breadcrumb-nav">
                 <a href="{{ route('home') }}">Home</a>
                 <i class="fas fa-chevron-right"></i>
@@ -20,6 +20,14 @@
 
 <section class="section">
     <div class="container">
+        <div class="cs-intro" data-aos="fade-up">
+            <span class="section-badge">Portfolio</span>
+            <h2 class="section-title">What we've built</h2>
+            <p>
+                Yeh hamare delivered projects hain — websites, mobile apps, web apps aur designs.
+                Inke peeche ke <strong>results aur numbers</strong> dekhne ke liye? <a href="{{ route('our-work') }}">Case Studies &rarr;</a>
+            </p>
+        </div>
         <div class="projects-grid-full" data-aos="fade-up">
             @forelse($projects as $project)
             <div class="project-card" data-aos="fade-up" data-aos-delay="{{ $loop->index * 50 }}">
