@@ -19,8 +19,9 @@ class AdminCaseStudyController extends Controller
             'thumbnail.image'    => 'File ek valid image honi chahiye (jpg, png, webp, gif).',
             'thumbnail.uploaded' => 'Image upload nahi ho payi — size 3 MB se bada hai. Chhoti image use karein.',
         ]);
-        $data = $request->except(['thumbnail', '_token']);
+        $data = $request->except(['thumbnail', '_token', 'stats']);
         $data['slug'] = Str::slug($request->title);
+        $data['stats'] = $this->cleanStats($request);
         if ($request->hasFile('thumbnail')) {
             $data['thumbnail'] = $request->file('thumbnail')->store('case-studies', 'public');
         }
@@ -35,8 +36,9 @@ class AdminCaseStudyController extends Controller
             'thumbnail.image'    => 'File ek valid image honi chahiye (jpg, png, webp, gif).',
             'thumbnail.uploaded' => 'Image upload nahi ho payi — size 3 MB se bada hai. Chhoti image use karein.',
         ]);
-        $data = $request->except(['thumbnail', '_token', '_method']);
+        $data = $request->except(['thumbnail', '_token', '_method', 'stats']);
         $data['slug'] = Str::slug($request->title);
+        $data['stats'] = $this->cleanStats($request);
         if ($request->hasFile('thumbnail')) {
             if ($caseStudy->thumbnail) Storage::disk('public')->delete($caseStudy->thumbnail);
             $data['thumbnail'] = $request->file('thumbnail')->store('case-studies', 'public');
@@ -51,4 +53,26 @@ class AdminCaseStudyController extends Controller
         return redirect()->route('admin.case-studies.index')->with('success', 'Case study deleted.');
     }
     public function show(CaseStudy $caseStudy) { return view('admin.case-studies.show', compact('caseStudy')); }
+
+    /**
+     * Build a clean metrics array from the repeater fields (value + label),
+     * dropping empty rows. Returns null when there are no metrics, so the
+     * stored value is always a proper array|null — never a stray string.
+     */
+    private function cleanStats(Request $request): ?array
+    {
+        $stats = [];
+        foreach ((array) $request->input('stats', []) as $row) {
+            if (! is_array($row)) {
+                continue;
+            }
+            $value = trim((string) ($row['value'] ?? ''));
+            $label = trim((string) ($row['label'] ?? ''));
+            if ($value !== '' || $label !== '') {
+                $stats[] = ['value' => $value, 'label' => $label];
+            }
+        }
+
+        return $stats ?: null;
+    }
 }

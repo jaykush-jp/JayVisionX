@@ -41,13 +41,47 @@
         </div>
 
         <div class="form-group">
-            <label>Short Description</label>
-            <textarea name="result" class="form-control" rows="3" placeholder="One or two lines shown on the Our Work card.">{{ old('result', $caseStudy->result ?? '') }}</textarea>
+            <label>Challenge <small class="text-muted">— client ki problem</small></label>
+            <textarea name="challenge" class="form-control" rows="3" placeholder="Client kis problem ka saamna kar raha tha?">{{ old('challenge', $caseStudy->challenge ?? '') }}</textarea>
         </div>
 
         <div class="form-group">
-            <label>Full Description</label>
-            <textarea name="content" class="form-control" rows="8" placeholder="Details about this work (HTML supported). Optional.">{{ old('content', $caseStudy->content ?? '') }}</textarea>
+            <label>Solution <small class="text-muted">— aapne kya kiya</small></label>
+            <textarea name="solution" class="form-control" rows="3" placeholder="Aapne kaunsi strategy / solution di?">{{ old('solution', $caseStudy->solution ?? '') }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Result <small class="text-muted">— short summary (Our Work card par dikhta hai)</small></label>
+            <textarea name="result" class="form-control" rows="2" placeholder="Ek-do line ka measurable result.">{{ old('result', $caseStudy->result ?? '') }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Key Metrics <small class="text-muted">— bade numbers jo result dikhate hain (e.g. 3x &rarr; More leads)</small></label>
+            @php
+                $existingStats = $caseStudy->stats ?? [];
+                if (is_string($existingStats)) { $existingStats = json_decode($existingStats, true); }
+                if (! is_array($existingStats)) { $existingStats = []; }
+                $existingStats = old('stats', $existingStats);
+            @endphp
+            <table class="admin-table" id="statsTable">
+                <thead><tr><th style="width:35%">Value</th><th>Label</th><th style="width:50px"></th></tr></thead>
+                <tbody id="statsRows">
+                    @foreach($existingStats as $i => $st)
+                    <tr class="stat-row">
+                        <td><input type="text" name="stats[{{ $i }}][value]" class="form-control" value="{{ is_array($st) ? ($st['value'] ?? '') : '' }}" placeholder="3x"></td>
+                        <td><input type="text" name="stats[{{ $i }}][label]" class="form-control" value="{{ is_array($st) ? ($st['label'] ?? '') : '' }}" placeholder="More qualified leads"></td>
+                        <td><button type="button" class="btn-sm btn-delete js-remove-stat"><i class="fas fa-trash"></i></button></td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-secondary" id="addStat" style="margin-top:8px"><i class="fas fa-plus"></i> Add Metric</button>
+            <small class="text-muted" style="display:block;margin-top:6px">3–4 metrics best lagte hain. Khaali rows apne-aap ignore ho jaati hain.</small>
+        </div>
+
+        <div class="form-group">
+            <label>Full Details <small class="text-muted">(optional, HTML allowed)</small></label>
+            <textarea name="content" class="form-control" rows="6" placeholder="Is kaam ke baare me detail (optional).">{{ old('content', $caseStudy->content ?? '') }}</textarea>
         </div>
 
         <div class="form-group">
@@ -72,4 +106,32 @@
         </div>
     </form>
 </div>
+
+<template id="statRowTpl">
+    <tr class="stat-row">
+        <td><input type="text" name="stats[__I__][value]" class="form-control" placeholder="3x"></td>
+        <td><input type="text" name="stats[__I__][label]" class="form-control" placeholder="More qualified leads"></td>
+        <td><button type="button" class="btn-sm btn-delete js-remove-stat"><i class="fas fa-trash"></i></button></td>
+    </tr>
+</template>
+
+<script>
+(function () {
+    var rows = document.getElementById('statsRows');
+    var tpl  = document.getElementById('statRowTpl');
+    var next = {{ count($existingStats) }};
+
+    document.getElementById('addStat').addEventListener('click', function () {
+        var html = tpl.innerHTML.replace(/__I__/g, next++);
+        var tmp = document.createElement('tbody');
+        tmp.innerHTML = html.trim();
+        rows.appendChild(tmp.firstChild);
+    });
+
+    rows.addEventListener('click', function (e) {
+        var btn = e.target.closest('.js-remove-stat');
+        if (btn) { btn.closest('tr').remove(); }
+    });
+})();
+</script>
 @endsection
