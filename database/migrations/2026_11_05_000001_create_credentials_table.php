@@ -17,7 +17,8 @@ return new class extends Migration
         Schema::create('credentials', function (Blueprint $table) {
             $table->id();
             $table->string('key')->unique();
-            $table->text('value')->nullable(); // encrypted ciphertext
+            $table->text('value')->nullable();       // encrypted ciphertext
+            $table->boolean('is_active')->default(true); // disable a key without deleting it
             $table->timestamps();
         });
     }

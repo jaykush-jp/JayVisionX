@@ -3,6 +3,8 @@
 use App\Models\AiSetting;
 use App\Models\Credential;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * One-time move of existing API credentials into the encrypted `credentials`
@@ -14,6 +16,15 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // The Credential model writes the `is_active` column (added in a later
+        // migration). Ensure it exists first so this data migration — which runs
+        // before that one — doesn't fail on a fresh install.
+        if (! Schema::hasColumn('credentials', 'is_active')) {
+            Schema::table('credentials', function (Blueprint $table) {
+                $table->boolean('is_active')->default(true)->after('value');
+            });
+        }
+
         // AI: the active provider's key is currently stored (encrypted) on the
         // ai_settings row — move it to ai.<provider>.key.
         $ai = AiSetting::first();

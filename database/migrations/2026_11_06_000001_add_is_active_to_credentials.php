@@ -13,6 +13,12 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Idempotent: the column may already have been added by the
+        // create-table or credential data migration on newer installs.
+        if (Schema::hasColumn('credentials', 'is_active')) {
+            return;
+        }
+
         Schema::table('credentials', function (Blueprint $table) {
             $table->boolean('is_active')->default(true)->after('value');
         });
@@ -20,6 +26,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (! Schema::hasColumn('credentials', 'is_active')) {
+            return;
+        }
+
         Schema::table('credentials', function (Blueprint $table) {
             $table->dropColumn('is_active');
         });
