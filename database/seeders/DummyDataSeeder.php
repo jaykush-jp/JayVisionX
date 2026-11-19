@@ -64,6 +64,12 @@ class DummyDataSeeder extends Seeder
 
     private function caseStudies(): void
     {
+        // Our Work on the LIVE site should show only the client work the admin
+        // adds — never sample data. So skip seeding case studies in production.
+        if (app()->environment('production')) {
+            return;
+        }
+
         // Remove the earlier seeded case studies that reused Project clients
         // (now replaced by the distinct, results-focused set below).
         \App\Models\CaseStudy::whereIn('slug', [

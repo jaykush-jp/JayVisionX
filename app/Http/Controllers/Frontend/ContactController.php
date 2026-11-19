@@ -48,7 +48,18 @@ class ContactController extends Controller
         // Notify via email + push to Google Sheet (both are failure-tolerant).
         app(LeadNotifier::class)->dispatch($lead);
 
-        return back()->with('success', 'Thank you! Your enquiry has been submitted. Our team will contact you within 24 hours.');
+        // Redirect to the Thank You page — shows a success message and fires the
+        // Google Ads / Meta Pixel "Lead" conversion. The flash flag ensures the
+        // conversion only fires after a real submission, not on a direct visit.
+        return redirect()->route('thank-you')->with('lead_submitted', true);
+    }
+
+    public function thankYou(Request $request)
+    {
+        // Only a genuine form submission should trigger conversion tracking.
+        $justSubmitted = (bool) session('lead_submitted');
+
+        return view('frontend.thankyou', compact('justSubmitted'));
     }
 
     public function newsletter(Request $request)

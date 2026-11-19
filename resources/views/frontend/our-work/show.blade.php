@@ -96,7 +96,9 @@
             <div class="cs-related-grid">
                 @foreach($related as $rc)
                 <a href="{{ route('our-work.show', $rc->slug) }}" class="cs-related-card">
-                    <div class="cs-related-img"><img src="{{ $rc->thumbnail_url }}" alt="{{ $rc->title }}" loading="lazy">
+                    <div class="cs-related-img">
+                        @if($rc->thumbnail)<img src="{{ $rc->thumbnail_url }}" alt="{{ $rc->title }}" loading="lazy">
+                        @else<div class="cs-media-ph"><i class="fas fa-chart-line"></i></div>@endif
                         @if($rc->industry)<span class="cs-industry">{{ $rc->industry }}</span>@endif
                     </div>
                     <div class="cs-related-body">

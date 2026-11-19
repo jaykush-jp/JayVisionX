@@ -146,6 +146,22 @@
                 <label>Google Tag Manager ID (e.g. GTM-XXXXXXX)</label>
                 <input type="text" name="google_tag_manager" class="form-control" value="{{ $settings['google_tag_manager'] ?? '' }}">
             </div>
+            <div class="form-group">
+                <label>Meta Pixel ID (Facebook &amp; Instagram Ads)</label>
+                <input type="text" name="meta_pixel_id" class="form-control" value="{{ $settings['meta_pixel_id'] ?? '' }}" placeholder="e.g. 1234567890">
+                <small class="text-muted">Pixel auto-tracks PageView; a <strong>Lead</strong> event fires on the Thank You page after a form submit.</small>
+            </div>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>Google Ads ID (e.g. AW-XXXXXXXXX)</label>
+                    <input type="text" name="google_ads_id" class="form-control" value="{{ $settings['google_ads_id'] ?? '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Google Ads Conversion Label</label>
+                    <input type="text" name="google_ads_conversion_label" class="form-control" value="{{ $settings['google_ads_conversion_label'] ?? '' }}" placeholder="e.g. AbC-D_efGh">
+                    <small class="text-muted">From your Google Ads conversion action — fires on the Thank You page.</small>
+                </div>
+            </div>
         </div>
     </div>
 

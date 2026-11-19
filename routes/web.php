@@ -59,6 +59,7 @@ Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/landing', [LandingController::class, 'index'])->name('landing');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+Route::get('/thank-you', [ContactController::class, 'thankYou'])->name('thank-you');
 Route::post('/newsletter', [ContactController::class, 'newsletter'])->name('newsletter');
 
 // Legal pages

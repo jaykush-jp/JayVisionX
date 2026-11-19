@@ -40,7 +40,11 @@
             @endphp
             <article class="cs-row {{ $loop->index % 2 ? 'cs-row--reverse' : '' }}" data-aos="fade-up">
                 <div class="cs-media">
+                    @if($cs->thumbnail)
                     <img src="{{ $cs->thumbnail_url }}" alt="{{ $cs->title }}" loading="lazy">
+                    @else
+                    <div class="cs-media-ph"><i class="fas fa-chart-line"></i></div>
+                    @endif
                     @if($cs->industry)<span class="cs-industry">{{ $cs->industry }}</span>@endif
                 </div>
                 <div class="cs-content">

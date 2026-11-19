@@ -57,6 +57,91 @@ body {
   width: 100%;
   max-width: 100%;
 }
+
+/* ===== Thank You page ===== */
+.thankyou-section { min-height: 60vh; display: flex; align-items: center; }
+.thankyou-card {
+  max-width: 620px;
+  margin: 0 auto;
+  text-align: center;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 48px 32px;
+}
+.thankyou-check {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  margin: 0 auto 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  color: #fff;
+  background: linear-gradient(135deg, #1a9f54, #27c06a);
+  box-shadow: 0 10px 28px rgba(26, 159, 84, 0.35);
+}
+.thankyou-card h1 { font-size: 2rem; margin-bottom: 10px; }
+.thankyou-lead { font-size: 1.1rem; color: var(--text-dark); margin-bottom: 6px; font-weight: 600; }
+.thankyou-sub { color: var(--text-muted); margin-bottom: 26px; }
+.thankyou-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.btn-whatsapp { background: #25d366; color: #fff; }
+.btn-whatsapp:hover { background: #1fb959; color: #fff; }
+
+/* ===== Preloader ===== */
+.jvx-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+.jvx-preloader.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+.jvx-preloader-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+.jvx-preloader-logo {
+  height: 60px;
+  width: auto;
+  animation: jvxPulse 1.3s ease-in-out infinite;
+}
+@keyframes jvxPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.08); opacity: 0.75; }
+}
+.jvx-preloader-bar {
+  width: 160px;
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(10, 124, 224, 0.15);
+  overflow: hidden;
+}
+.jvx-preloader-bar span {
+  display: block;
+  height: 100%;
+  width: 40%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  animation: jvxSlide 1.1s ease-in-out infinite;
+}
+@keyframes jvxSlide {
+  0%   { transform: translateX(-120%); }
+  100% { transform: translateX(320%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jvx-preloader-logo, .jvx-preloader-bar span { animation: none; }
+}
 h1,
 h2,
 h3,
@@ -2055,6 +2140,16 @@ ul {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+.cs-media-ph {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.6rem;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
 }
 .cs-industry {
   position: absolute;

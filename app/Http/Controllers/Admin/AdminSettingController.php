@@ -23,6 +23,7 @@ class AdminSettingController extends Controller
         'footer_about',
         'hero_title', 'hero_subtitle', 'hero_cta_text', 'hero_cta_link',
         'google_analytics', 'google_tag_manager',
+        'meta_pixel_id', 'google_ads_id', 'google_ads_conversion_label',
     ];
 
     public function index()

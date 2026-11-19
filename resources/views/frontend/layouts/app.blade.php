@@ -20,6 +20,22 @@
     @endif
     <!-- End Google Tag Manager -->
 
+    <!-- Meta Pixel -->
+    @if (\App\Models\Setting::get('meta_pixel_id'))
+        <script>
+            !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+            n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '{{ \App\Models\Setting::get('meta_pixel_id') }}');
+            fbq('track', 'PageView');
+        </script>
+        <noscript><img height="1" width="1" style="display:none" alt=""
+            src="https://www.facebook.com/tr?id={{ \App\Models\Setting::get('meta_pixel_id') }}&ev=PageView&noscript=1"/></noscript>
+    @endif
+    <!-- End Meta Pixel -->
+
     <link rel="icon" href="{{ asset('images/favicon/favicon.ico') }}?v=10">
 
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon/favicon-16x16.png') }}?v=10">
@@ -108,6 +124,14 @@
 </head>
 
 <body>
+
+    <!-- Preloader -->
+    <div id="jvx-preloader" class="jvx-preloader" aria-hidden="true">
+        <div class="jvx-preloader-inner">
+            <img src="{{ \App\Models\Setting::get('site_logo') ? asset('storage/' . \App\Models\Setting::get('site_logo')) : asset('images/logo.png') }}" alt="{{ \App\Models\Setting::get('site_name', 'JayVisionX') }}" class="jvx-preloader-logo">
+            <span class="jvx-preloader-bar"><span></span></span>
+        </div>
+    </div>
 
     <!-- Google Tag Manager (noscript) -->
     @if (\App\Models\Setting::get('google_tag_manager'))
@@ -644,20 +668,35 @@
 
     @yield('scripts')
 
-    <!-- Google Analytics -->
-    @if (\App\Models\Setting::get('google_analytics'))
-        <script async src="https://www.googletagmanager.com/gtag/js?id={{ \App\Models\Setting::get('google_analytics') }}">
-        </script>
+    <!-- Google Analytics (GA4) + Google Ads -->
+    @php
+        $ga4   = \App\Models\Setting::get('google_analytics');
+        $adsId = \App\Models\Setting::get('google_ads_id');
+        $gtagLoadId = $ga4 ?: $adsId;
+    @endphp
+    @if ($gtagLoadId)
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gtagLoadId }}"></script>
         <script>
             window.dataLayer = window.dataLayer || [];
-
-            function gtag() {
-                dataLayer.push(arguments);
-            }
+            function gtag() { dataLayer.push(arguments); }
             gtag('js', new Date());
-            gtag('config', '{{ \App\Models\Setting::get('google_analytics') }}');
+            @if ($ga4)   gtag('config', '{{ $ga4 }}');   @endif
+            @if ($adsId) gtag('config', '{{ $adsId }}'); @endif
         </script>
     @endif
+
+    <!-- Hide preloader once the page has loaded -->
+    <script>
+        (function () {
+            var pl = document.getElementById('jvx-preloader');
+            if (!pl) return;
+            function hide() { pl.classList.add('is-hidden'); setTimeout(function () { pl.style.display = 'none'; }, 600); }
+            if (document.readyState === 'complete') { hide(); }
+            else { window.addEventListener('load', hide); }
+            // Safety: never let the preloader get stuck.
+            setTimeout(hide, 6000);
+        })();
+    </script>
 
 </body>
 
