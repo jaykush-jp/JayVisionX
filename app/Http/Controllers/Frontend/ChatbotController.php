@@ -69,7 +69,7 @@ class ChatbotController extends Controller
                 'content'         => $message,
             ]);
         } catch (\Throwable $e) {
-            $this->safeLog('Chatbot session/persist failed: ' . $e->getMessage());
+            $this->safeLog('Chatbot session/persist failed: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
         }
 
         // Decide the reply — a failure here degrades to the FAQ/knowledge
@@ -77,7 +77,7 @@ class ChatbotController extends Controller
         try {
             [$reply, $mode, $sources] = $this->resolveReply($message, $session, $settings);
         } catch (\Throwable $e) {
-            $this->safeLog('Chatbot resolveReply failed: ' . $e->getMessage());
+            $this->safeLog('Chatbot resolveReply failed: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
             try {
                 $reply = $this->fallbackReply($message);
             } catch (\Throwable $e2) {

@@ -22,21 +22,30 @@ class AutomationEngine
      */
     public function run(string $trigger, array $context = []): void
     {
-        $rules = AutomationRule::active()->where('trigger', $trigger)->get();
+        // Automation is a best-effort side-effect (notifications + logs). It must
+        // NEVER break the visitor flow (chat reply / lead capture), so the whole
+        // body is guarded. The file:line is logged to pinpoint any failure.
+        try {
+            $rules = AutomationRule::active()->where('trigger', $trigger)->get();
 
-        if ($rules->isEmpty()) {
-            // Still log the event itself so the Reports/overview have signal.
-            $this->log(null, $trigger, $context['summary'] ?? $trigger, $context);
-            return;
-        }
-
-        foreach ($rules as $rule) {
-            try {
-                $this->execute($rule, $context);
-                $this->log($rule->id, $trigger, $rule->actionLabel(), $context);
-            } catch (\Throwable $e) {
-                Log::warning("Automation rule #{$rule->id} failed: " . $e->getMessage());
+            if ($rules->isEmpty()) {
+                // Still log the event itself so the Reports/overview have signal.
+                $this->log(null, $trigger, $context['summary'] ?? $trigger, $context);
+                return;
             }
+
+            foreach ($rules as $rule) {
+                try {
+                    $this->execute($rule, $context);
+                    $this->log($rule->id, $trigger, $rule->actionLabel(), $context);
+                } catch (\Throwable $e) {
+                    Log::warning("Automation rule #{$rule->id} failed: " . $e->getMessage()
+                        . ' @ ' . $e->getFile() . ':' . $e->getLine());
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning("Automation [{$trigger}] failed: " . $e->getMessage()
+                . ' @ ' . $e->getFile() . ':' . $e->getLine());
         }
     }
 
