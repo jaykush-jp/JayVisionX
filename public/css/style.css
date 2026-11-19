@@ -2206,6 +2206,87 @@ ul {
   .cs-related-grid { grid-template-columns: 1fr; }
   .cs-detail-block { padding: 18px; }
 }
+
+/* ===== TEAM (About page "Meet Our Team") ===== */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 26px;
+}
+.team-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  text-align: center;
+  transition: var(--transition);
+}
+.team-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-md);
+}
+.team-photo {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--light-grey);
+}
+.team-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.team-photo-initials {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+}
+.team-card:hover .team-photo img { transform: scale(1.05); }
+.team-socials {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  background: linear-gradient(to top, rgba(10, 22, 40, 0.75), transparent);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: var(--transition);
+}
+.team-card:hover .team-socials { opacity: 1; transform: translateY(0); }
+.team-socials a {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: var(--transition);
+}
+.team-socials a:hover { background: var(--primary); color: #fff; }
+.team-info { padding: 18px 16px 22px; }
+.team-info h4 { font-size: 1.08rem; margin-bottom: 2px; }
+.team-designation {
+  display: block;
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.82rem;
+  margin-bottom: 8px;
+}
+.team-role { color: var(--text-muted); font-size: 0.85rem; margin: 0; line-height: 1.5; }
+@media (max-width: 980px) { .team-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 720px)  { .team-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; } }
 @media (max-width: 860px) {
   .cs-row {
     grid-template-columns: 1fr;
@@ -4003,6 +4084,29 @@ ul {
 /* The hidden attribute must win over the forms' display:flex,
    so the lead form / input actually hide when toggled. */
 .chatbot-lead-form[hidden], .chatbot-input[hidden] { display: none !important; }
+
+/* ===== Chatbot polish + mobile alignment ===== */
+/* Long links / phone numbers in bot replies must wrap inside the bubble. */
+.chatbot-msg { white-space: pre-line; }
+.chatbot-msg a { word-break: break-word; overflow-wrap: anywhere; }
+.chatbot-messages { scroll-behavior: smooth; }
+
+/* Phone: panel becomes near full-width and respects the safe area so it is
+   never clipped or misaligned. */
+@media (max-width: 480px) {
+  .chatbot { left: 12px; right: 12px; bottom: 16px; }
+  .chatbot-panel {
+    left: 0;
+    right: 0;
+    width: auto;
+    max-width: none;
+    height: 72vh;
+    height: 72dvh;
+    max-height: calc(100dvh - 96px);
+  }
+  .chatbot-launcher-label { display: none; }
+  .chatbot-msg { max-width: 90%; font-size: 0.92rem; }
+}
 
 /* Collapse the navbar to a hamburger before it overflows (993–1199px),
    where the full horizontal nav no longer fits and the CTA was clipped. */

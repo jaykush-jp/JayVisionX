@@ -94,6 +94,43 @@
         </div>
     </section>
 
+    <!-- Meet Our Team -->
+    @if(isset($team) && $team->count() > 0)
+    <section class="section team-members-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-badge">Our People</span>
+                <h2 class="section-title">Meet Our Team</h2>
+                <p class="section-subtitle">The people behind JayVisionX who make your growth happen.</p>
+            </div>
+            <div class="team-grid" data-aos="fade-up" data-aos-delay="100">
+                @foreach($team as $member)
+                <div class="team-card" data-aos="fade-up" data-aos-delay="{{ $loop->index * 60 }}">
+                    <div class="team-photo">
+                        @if($member->photo)
+                        <img src="{{ $member->photo_url }}" alt="{{ $member->name }}" loading="lazy">
+                        @else
+                        <div class="team-photo-initials">{{ strtoupper(substr($member->name, 0, 1)) }}</div>
+                        @endif
+                        @if($member->linkedin_url || $member->instagram_url)
+                        <div class="team-socials">
+                            @if($member->linkedin_url)<a href="{{ $member->linkedin_url }}" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>@endif
+                            @if($member->instagram_url)<a href="{{ $member->instagram_url }}" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>@endif
+                        </div>
+                        @endif
+                    </div>
+                    <div class="team-info">
+                        <h4>{{ $member->name }}</h4>
+                        @if($member->designation)<span class="team-designation">{{ $member->designation }}</span>@endif
+                        @if($member->role)<p class="team-role">{{ $member->role }}</p>@endif
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+    @endif
+
     <!-- Testimonials on About Page -->
     @if($testimonials->count() > 0)
         <section class="section testimonials-section">

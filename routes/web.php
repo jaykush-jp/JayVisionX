@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Admin\AdminPageController;
 use App\Http\Controllers\Admin\AdminCaseStudyController;
 use App\Http\Controllers\Admin\AdminTechnologyController;
+use App\Http\Controllers\Admin\AdminTeamController;
 use App\Http\Controllers\Admin\AdminKnowledgeController;
 use App\Http\Controllers\Admin\AdminPackageController;
 use App\Http\Controllers\Admin\AdminEmailTemplateController;
@@ -126,6 +127,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('technologies', [AdminTechnologyController::class, 'index'])->name('technologies.index');
         Route::post('technologies', [AdminTechnologyController::class, 'update'])->name('technologies.update');
 
+        // Team (About page "Meet Our Team" section)
+        Route::resource('team', AdminTeamController::class)->except('show');
+        Route::post('team/{id}/toggle-status', [AdminTeamController::class, 'toggleStatus'])->name('team.toggle-status');
+
         // Blogs
         Route::resource('blogs', AdminBlogController::class)->except('show');
         Route::post('blogs/{id}/toggle-status', [AdminBlogController::class, 'toggleStatus'])->name('blogs.toggle-status');
@@ -192,6 +197,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Marketing — integrations, reviews, social posts
         Route::get('integrations', [AdminIntegrationController::class, 'index'])->name('integrations.index');
+        Route::post('integrations/{provider}/toggle', [AdminIntegrationController::class, 'toggle'])->name('integrations.toggle');
         Route::get('integrations/{provider}/connect', [AdminIntegrationController::class, 'connect'])->name('integrations.connect');
         Route::get('integrations/{provider}/callback', [AdminIntegrationController::class, 'callback'])->name('integrations.callback');
         Route::post('integrations/{provider}/disconnect', [AdminIntegrationController::class, 'disconnect'])->name('integrations.disconnect');

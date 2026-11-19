@@ -44,6 +44,9 @@
         <a href="{{ route('admin.technologies.index') }}" class="sidebar-link {{ request()->routeIs('admin.technologies*') ? 'active' : '' }}">
             <i class="fas fa-microchip"></i> <span>Technologies</span>
         </a>
+        <a href="{{ route('admin.team.index') }}" class="sidebar-link {{ request()->routeIs('admin.team*') ? 'active' : '' }}">
+            <i class="fas fa-users"></i> <span>Team</span>
+        </a>
         <a href="{{ route('admin.testimonials.index') }}" class="sidebar-link {{ request()->routeIs('admin.testimonials*') ? 'active' : '' }}">
             <i class="fas fa-star"></i> <span>Testimonials</span>
         </a>

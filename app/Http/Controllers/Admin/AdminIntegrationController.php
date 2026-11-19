@@ -56,6 +56,7 @@ class AdminIntegrationController extends Controller
                 $ai = AiSetting::current();
                 $svc = app(AiProviderService::class);
                 $connected = $svc->isConfigured($ai);
+                $aiKey = 'ai.' . ($ai->provider ?: 'gemini') . '.key';
                 return [
                     'key'   => 'anthropic',
                     'name'  => 'AI Chatbot',
@@ -63,8 +64,11 @@ class AdminIntegrationController extends Controller
                     'connected' => $connected,
                     'detail'    => $connected
                         ? ('Active provider: ' . $svc->providerLabel($ai->provider) . '. Chatbot runs in AI mode.')
-                        : 'Runs in free FAQ fallback mode. Pick a provider & add a key in AI Configuration.',
+                        : 'Runs in free FAQ fallback mode. Pick a provider & add a key in API Credentials.',
                     'manage'    => route('admin.ai-settings.index'),
+                    'toggle_key'  => 'anthropic',
+                    'can_toggle'  => Credential::rawHas($aiKey),
+                    'enabled'     => Credential::isActive($aiKey),
                 ];
             })(),
             [
@@ -77,6 +81,9 @@ class AdminIntegrationController extends Controller
                 'detail'    => $gbp->isConnected()
                     ? ('Connected: ' . ($gbp->accountLabel() ?: 'Google account'))
                     : ($gbp->isConfigured() ? 'Ready to connect — reviews & Google Posts.' : 'Add Google OAuth credentials in API Credentials to enable.'),
+                'toggle_key'  => 'google',
+                'can_toggle'  => Credential::rawHas('google.client_id'),
+                'enabled'     => Credential::isActive('google.client_id'),
             ],
             [
                 'key'       => 'meta',
@@ -88,6 +95,9 @@ class AdminIntegrationController extends Controller
                 'detail'    => $meta->isConnected()
                     ? ('Connected: ' . ($meta->accountLabel() ?: 'Meta account'))
                     : ($meta->isConfigured() ? 'Ready to connect — publish posts to FB & IG.' : 'Add Meta app credentials in API Credentials to enable.'),
+                'toggle_key'  => 'meta',
+                'can_toggle'  => Credential::rawHas('meta.app_id'),
+                'enabled'     => Credential::isActive('meta.app_id'),
             ],
         ];
 
@@ -179,6 +189,36 @@ class AdminIntegrationController extends Controller
     {
         OauthToken::where('provider', $provider)->delete();
         return back()->with('success', Str::title($provider) . ' disconnected.');
+    }
+
+    /**
+     * Enable/disable a credential-backed integration without deleting its keys.
+     * Flips the underlying credential's active flag (Credential::setActive).
+     */
+    public function toggle(string $provider)
+    {
+        $key = match ($provider) {
+            'anthropic' => 'ai.' . (AiSetting::current()->provider ?: 'gemini') . '.key',
+            'google'    => 'google.client_id',
+            'meta'      => 'meta.app_id',
+            default     => null,
+        };
+
+        if (! $key || ! Credential::rawHas($key)) {
+            return back()->with('error', 'Pehle is integration ki credentials API Credentials me add karein.');
+        }
+
+        $now = ! Credential::isActive($key);
+        Credential::setActive($key, $now);
+
+        $label = match ($provider) {
+            'anthropic' => 'AI Chatbot',
+            'google'    => 'Google',
+            'meta'      => 'Meta',
+            default     => Str::title($provider),
+        };
+
+        return back()->with('success', $label . ' ' . ($now ? 'enabled' : 'disabled') . '.');
     }
 
     /** Generate a one-time OAuth state, remember it in the session, and return it. */

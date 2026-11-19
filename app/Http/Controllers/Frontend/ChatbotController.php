@@ -31,39 +31,65 @@ class ChatbotController extends Controller
             'session_token' => 'nullable|uuid',
         ]);
 
-        // Anything that goes wrong (AI API error, logging/storage issue, etc.)
-        // must never show the visitor a raw 500 — fall back to a friendly reply.
-        try {
-            $message  = trim($data['message']);
-            $settings = AiSetting::current();
+        $message = trim($data['message']);
+        $token   = $data['session_token'] ?? null;
 
-            // --- Rate limiting (abuse protection) ---
+        // Settings (best-effort).
+        try {
+            $settings = AiSetting::current();
+        } catch (\Throwable $e) {
+            $this->safeLog('Chatbot settings load failed: ' . $e->getMessage());
+            $settings = new AiSetting();
+        }
+
+        // Rate limiting (best-effort — never block a reply because of it).
+        try {
             $key = 'chatbot:' . $request->ip();
             $perMinute = max(1, (int) ($settings->rate_limit_per_minute ?: 10));
             if (RateLimiter::tooManyAttempts($key, $perMinute)) {
                 return response()->json([
                     'reply' => "You're sending messages too quickly. Please wait a moment and try again.",
-                    'session_token' => $data['session_token'] ?? null,
+                    'session_token' => $token,
                     'mode'  => 'rate_limited',
                 ], 429);
             }
             RateLimiter::hit($key, 60);
+        } catch (\Throwable $e) {
+            // ignore
+        }
 
-            // --- Resolve or create the conversation ---
-            $session = $this->resolveSession($data['session_token'] ?? null, $request);
-
-            // Persist the visitor's message
+        // Resolve/create the conversation and store the visitor's message.
+        // Best-effort: the chatbot still answers even if persistence fails.
+        $session = null;
+        try {
+            $session = $this->resolveSession($token, $request);
             ChatMessage::create([
                 'chat_session_id' => $session->id,
                 'role'            => 'user',
                 'content'         => $message,
             ]);
+        } catch (\Throwable $e) {
+            $this->safeLog('Chatbot session/persist failed: ' . $e->getMessage());
+        }
 
-            // --- Decide the reply ---
+        // Decide the reply — a failure here degrades to the FAQ/knowledge
+        // fallback, never a raw error.
+        try {
             [$reply, $mode, $sources] = $this->resolveReply($message, $session, $settings);
+        } catch (\Throwable $e) {
+            $this->safeLog('Chatbot resolveReply failed: ' . $e->getMessage());
+            try {
+                $reply = $this->fallbackReply($message);
+            } catch (\Throwable $e2) {
+                $reply = $this->errorFallback();
+            }
+            $mode = 'fallback';
+            $sources = [];
+        }
 
-            // Persist the assistant's reply (unless a human has taken over)
-            if ($mode !== 'human') {
+        // Persist the assistant's reply (best-effort, unless a human took over).
+        if ($session && $mode !== 'human') {
+            try {
                 ChatMessage::create([
                     'chat_session_id' => $session->id,
                     'role'            => 'assistant',
@@ -71,24 +97,17 @@ class ChatbotController extends Controller
                     'sources'         => $sources ?: null,
                     'meta'            => ['mode' => $mode, 'model' => $settings->model],
                 ]);
+                $session->update(['last_message_at' => now()]);
+            } catch (\Throwable $e) {
+                $this->safeLog('Chatbot assistant persist failed: ' . $e->getMessage());
             }
-
-            $session->update(['last_message_at' => now()]);
-
-            return response()->json([
-                'reply'         => $reply,
-                'session_token' => $session->session_token,
-                'mode'          => $mode,
-            ]);
-        } catch (\Throwable $e) {
-            $this->safeLog('Chatbot reply failed: ' . $e->getMessage());
-
-            return response()->json([
-                'reply'         => $this->errorFallback(),
-                'session_token' => $data['session_token'] ?? null,
-                'mode'          => 'error',
-            ]);
         }
+
+        return response()->json([
+            'reply'         => $reply,
+            'session_token' => $session?->session_token ?? $token,
+            'mode'          => $mode,
+        ]);
     }
 
     /** Friendly message shown when the chatbot hits an unexpected error. */
@@ -253,7 +272,7 @@ class ChatbotController extends Controller
     }
 
     /** @return array{0:string,1:string,2:array} [reply, mode, sources] */
-    private function resolveReply(string $message, ChatSession $session, AiSetting $settings): array
+    private function resolveReply(string $message, ?ChatSession $session, AiSetting $settings): array
     {
         // Chatbot disabled by the admin
         if (! $settings->is_enabled) {
@@ -264,7 +283,7 @@ class ChatbotController extends Controller
         }
 
         // A human has taken over this conversation — don't auto-reply
-        if (! $session->is_ai_active) {
+        if ($session && ! $session->is_ai_active) {
             return ["A team member is with you on this chat and will reply here shortly. 🙂", 'human', []];
         }
 
@@ -281,18 +300,20 @@ class ChatbotController extends Controller
     }
 
     /** Normalised message list (role=user/assistant) from the stored conversation. */
-    private function buildMessages(string $message, ChatSession $session): array
+    private function buildMessages(string $message, ?ChatSession $session): array
     {
         $messages = [];
-        $recent = $session->messages()->orderBy('created_at')->get()->slice(-10);
-        foreach ($recent as $m) {
-            if ($m->role === 'system') {
-                continue;
+        if ($session) {
+            $recent = $session->messages()->orderBy('created_at')->get()->slice(-10);
+            foreach ($recent as $m) {
+                if ($m->role === 'system') {
+                    continue;
+                }
+                $messages[] = [
+                    'role'    => $m->role === 'user' ? 'user' : 'assistant',
+                    'content' => $m->content,
+                ];
             }
-            $messages[] = [
-                'role'    => $m->role === 'user' ? 'user' : 'assistant',
-                'content' => $m->content,
-            ];
         }
         if (empty($messages) || $messages[array_key_last($messages)]['content'] !== $message) {
             $messages[] = ['role' => 'user', 'content' => $message];

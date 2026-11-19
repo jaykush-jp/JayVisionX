@@ -4,7 +4,9 @@
 <div class="page-header-row">
     <h2>Integrations</h2>
 </div>
-<p class="muted-intro">Connect the tools that power your marketing. Google Business Profile &amp; Meta need an approved developer app — once credentials are in <code>.env</code>, the Connect button runs the sign-in flow.</p>
+<p class="muted-intro">Connect the tools that power your marketing. Add keys in <a href="{{ route('admin.credentials.index') }}">API Credentials</a>, then Connect here. Use <strong>Enable/Disable</strong> to turn an integration on or off without deleting its keys.</p>
+@if(session('success'))<div class="alert alert-success"><i class="fas fa-check-circle"></i> {{ session('success') }}</div>@endif
+@if(session('error'))<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> {{ session('error') }}</div>@endif
 
 @php
 $brandSvg = [
@@ -24,7 +26,9 @@ $brandSvg = [
             <span class="integration-icon">{!! $brandSvg[$card['key']] ?? '<i class="'.$card['icon'].' fa-fw"></i>' !!}</span>
             <div>
                 <h3>{{ $card['name'] }}</h3>
-                @if($card['connected'] ?? false)
+                @if(($card['can_toggle'] ?? false) && !($card['enabled'] ?? true))
+                    <span class="lead-badge lead-badge-lost">Disabled</span>
+                @elseif($card['connected'] ?? false)
                     <span class="lead-badge lead-badge-won">Connected</span>
                 @elseif(($card['oauth'] ?? false) && !($card['configured'] ?? false))
                     <span class="lead-badge lead-badge-lost">Not configured</span>
@@ -49,6 +53,17 @@ $brandSvg = [
             @elseif(!empty($card['manage']))
                 <a href="{{ $card['manage'] }}" class="btn btn-xs btn-secondary">Manage</a>
             @endif
+
+            @if($card['can_toggle'] ?? false)
+                <form action="{{ route('admin.integrations.toggle', $card['toggle_key']) }}" method="POST" style="display:inline">
+                    @csrf
+                    @if($card['enabled'] ?? true)
+                        <button type="submit" class="btn btn-xs btn-secondary"><i class="fas fa-toggle-on"></i> Disable</button>
+                    @else
+                        <button type="submit" class="btn btn-xs btn-primary"><i class="fas fa-toggle-off"></i> Enable</button>
+                    @endif
+                </form>
+            @endif
         </div>
     </div>
     @endforeach
@@ -57,15 +72,15 @@ $brandSvg = [
 <div class="admin-form-card" style="margin-top:24px">
     <h3 class="section-heading">Setup notes</h3>
     <ul class="setup-notes">
-        <li><strong>Google Business Profile</strong> — create a Google Cloud OAuth client, request Business Profile API access for your verified location, then set <code>GOOGLE_CLIENT_ID</code> / <code>GOOGLE_CLIENT_SECRET</code>. Redirect URI: <code>{{ route('admin.integrations.callback', 'google') }}</code></li>
-        <li><strong>Meta (Facebook &amp; Instagram)</strong> — create a Meta app, complete Business Verification + App Review for publishing, link an IG Business account to your Page, then set <code>META_APP_ID</code> / <code>META_APP_SECRET</code>. Redirect URI: <code>{{ route('admin.integrations.callback', 'meta') }}</code></li>
+        <li><strong>Google Business Profile</strong> — create a Google Cloud OAuth client, request Business Profile API access for your verified location, then add the Client ID / Secret in <a href="{{ route('admin.credentials.index') }}">API Credentials</a>. Redirect URI: <code>{{ route('admin.integrations.callback', 'google') }}</code></li>
+        <li><strong>Meta (Facebook &amp; Instagram)</strong> — create a Meta app, complete Business Verification + App Review for publishing, link an IG Business account to your Page, then add the App ID / Secret in <a href="{{ route('admin.credentials.index') }}">API Credentials</a>. Redirect URI: <code>{{ route('admin.integrations.callback', 'meta') }}</code></li>
         <li><strong>Google Ads conversions</strong> — add your GTM container ID in Website Settings, then create the conversion tag inside Google Tag Manager.</li>
     </ul>
 
     <h3 class="section-heading" style="margin-top:20px">Live lead webhooks</h3>
     <ul class="setup-notes">
-        <li><strong>Meta Lead Ads (Facebook &amp; Instagram)</strong> — in your Meta app, subscribe the Page to the <code>leadgen</code> webhook with callback URL <code>{{ route('webhooks.meta.verify') }}</code> and the verify token from <code>META_LEAD_VERIFY_TOKEN</code>. New lead-form submissions then appear in Leads tagged <em>Meta</em>.</li>
-        <li><strong>Google Ads lead forms</strong> — in your lead-form extension, set the webhook URL to <code>{{ route('webhooks.google.leads') }}</code> and a key matching <code>GOOGLE_LEAD_WEBHOOK_KEY</code>. New leads appear tagged <em>Google</em>.</li>
+        <li><strong>Meta Lead Ads (Facebook &amp; Instagram)</strong> — in your Meta app, subscribe the Page to the <code>leadgen</code> webhook with callback URL <code>{{ route('webhooks.meta.verify') }}</code> and the Lead Webhook Verify Token from API Credentials. New lead-form submissions then appear in Leads tagged <em>Meta</em>.</li>
+        <li><strong>Google Ads lead forms</strong> — in your lead-form extension, set the webhook URL to <code>{{ route('webhooks.google.leads') }}</code> and a key matching the Google Ads Lead Webhook Key in API Credentials. New leads appear tagged <em>Google</em>.</li>
     </ul>
 </div>
 @endsection

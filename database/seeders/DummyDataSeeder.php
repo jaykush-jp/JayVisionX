@@ -24,6 +24,7 @@ class DummyDataSeeder extends Seeder
         $this->packages();
         $this->automation();
         $this->emailTemplates();
+        $this->team();
         $this->customers();
         $this->projects();
         $this->caseStudies();
@@ -63,42 +64,61 @@ class DummyDataSeeder extends Seeder
 
     private function caseStudies(): void
     {
-        if (\App\Models\CaseStudy::count() > 0) {
-            return;
-        }
+        // Remove the earlier seeded case studies that reused Project clients
+        // (now replaced by the distinct, results-focused set below).
+        \App\Models\CaseStudy::whereIn('slug', [
+            '3x-leads-for-a-real-estate-builder',
+            'e-commerce-revenue-doubled',
+            '1-google-ranking-for-a-local-clinic',
+        ])->delete();
 
+        // Results-focused case studies with their OWN clients, kept distinct
+        // from the build-portfolio in Projects. updateOrCreate by slug so this
+        // refreshes the content on re-seed instead of duplicating.
         $rows = [
-            ['3x Leads for a Real Estate Builder', 'Shivaay Group', 'Real Estate',
-                'Low online visibility and very few qualified enquiries.',
-                'Rebuilt the website, ran targeted Google & Meta Ads, and added SEO + lead capture.',
-                '3x more qualified leads in 90 days and a 42% lower cost per lead.',
-                [['label' => 'More leads', 'value' => '3x'], ['label' => 'Lower CPL', 'value' => '-42%']]],
-            ['E-commerce Revenue Doubled', 'TrendKart', 'Retail',
-                'High traffic but low conversions and abandoned carts.',
-                'Redesigned the store UX, optimised checkout and added retargeting campaigns.',
-                'Conversion rate up 2.1x and online revenue doubled in 6 months.',
-                [['label' => 'Revenue', 'value' => '2x'], ['label' => 'Conversions', 'value' => '+110%']]],
-            ['#1 Google Ranking for a Local Clinic', 'MediCare', 'Healthcare',
-                'Invisible on Google for key local searches.',
-                'Local SEO, Google Business Profile optimisation and consistent content.',
-                'Ranked #1 for 20+ local keywords and a 5x increase in calls.',
-                [['label' => 'Keywords #1', 'value' => '20+'], ['label' => 'Calls', 'value' => '5x']]],
+            ['3x-qualified-leads-real-estate', '3x Qualified Leads for a Real Estate Builder', 'Sunrise Realty', 'Real Estate',
+                'The builder was spending on ads but getting mostly junk enquiries and a high cost per lead.',
+                'We rebuilt the landing pages, restructured the Google & Meta Ads with better targeting, and added WhatsApp lead capture + instant follow-up.',
+                '3x more qualified site visits booked in 90 days at a 42% lower cost per lead.',
+                [['value' => '3x', 'label' => 'Qualified leads'], ['value' => '-42%', 'label' => 'Cost per lead'], ['value' => '90', 'label' => 'Days']]],
+            ['ecommerce-revenue-doubled', 'E-commerce Revenue Doubled in 6 Months', 'Bloom Boutique', 'D2C / Retail',
+                'Good traffic but a leaky checkout, abandoned carts and no retargeting.',
+                'We fixed the store UX and checkout, set up abandoned-cart flows and launched Meta retargeting with fresh creatives.',
+                'Conversion rate up 2.1x and online revenue doubled within 6 months.',
+                [['value' => '2x', 'label' => 'Revenue'], ['value' => '+110%', 'label' => 'Conversions'], ['value' => '-31%', 'label' => 'Cart drop-off']]],
+            ['dental-clinic-local-no1', '#1 Local Ranking for a Dental Clinic', 'SmileCare Dental', 'Healthcare',
+                'The clinic was invisible on Google for nearby searches and relied only on referrals.',
+                'Local SEO, Google Business Profile optimisation, review generation and consistent local content.',
+                'Ranked #1 for 20+ local keywords and a 5x increase in appointment calls.',
+                [['value' => '#1', 'label' => 'Local ranking'], ['value' => '20+', 'label' => 'Keywords'], ['value' => '5x', 'label' => 'Calls']]],
+            ['meta-ads-5x-roas-fashion', '5x ROAS from Meta Ads for a Fashion Brand', 'UrbanThread', 'Fashion / D2C',
+                'Ad spend was rising but return on ad spend (ROAS) kept falling and creatives felt stale.',
+                'We rebuilt the funnel, tested scroll-stopping reels/creatives and tightened audience + retargeting layers.',
+                'Scaled to a steady 5x ROAS while increasing monthly ad spend 3x profitably.',
+                [['value' => '5x', 'label' => 'ROAS'], ['value' => '3x', 'label' => 'Ad spend scaled'], ['value' => '+180%', 'label' => 'Purchases']]],
+            ['app-downloads-tripled-aso', 'App Downloads Tripled with ASO + Ads', 'FitPulse', 'Fitness',
+                'A good app with very few organic installs and expensive paid downloads.',
+                'App Store Optimisation (title, keywords, screenshots) plus targeted install campaigns and review prompts.',
+                'Organic installs tripled and cost per install dropped by nearly half.',
+                [['value' => '3x', 'label' => 'Organic installs'], ['value' => '-46%', 'label' => 'Cost per install'], ['value' => '4.6★', 'label' => 'Store rating']]],
         ];
 
-        foreach ($rows as $i => [$title, $client, $industry, $challenge, $solution, $result, $stats]) {
-            \App\Models\CaseStudy::create([
-                'title'      => $title,
-                'slug'       => Str::slug($title),
-                'client'     => $client,
-                'industry'   => $industry,
-                'challenge'  => $challenge,
-                'solution'   => $solution,
-                'result'     => $result,
-                'content'    => '<p>' . $solution . ' ' . $result . '</p>',
-                'stats'      => $stats,
-                'is_active'  => true,
-                'sort_order' => $i + 1,
-            ]);
+        foreach ($rows as $i => [$slug, $title, $client, $industry, $challenge, $solution, $result, $stats]) {
+            \App\Models\CaseStudy::updateOrCreate(
+                ['slug' => $slug],
+                [
+                    'title'      => $title,
+                    'client'     => $client,
+                    'industry'   => $industry,
+                    'challenge'  => $challenge,
+                    'solution'   => $solution,
+                    'result'     => $result,
+                    'content'    => '<p>' . $solution . ' ' . $result . '</p>',
+                    'stats'      => $stats,
+                    'is_active'  => true,
+                    'sort_order' => $i + 1,
+                ]
+            );
         }
     }
 
@@ -209,20 +229,50 @@ class DummyDataSeeder extends Seeder
 
     private function emailTemplates(): void
     {
-        if (EmailTemplate::count() > 0) {
-            return;
-        }
-
+        // Idempotent by name — adds missing templates without duplicating.
         $templates = [
-            ['Welcome / First reply', 'Thanks for reaching out to JayVisionX', "Hi,\n\nThank you for contacting JayVisionX! We've received your enquiry and our team will get back to you shortly.\n\nIn the meantime, feel free to call or WhatsApp us for anything urgent.\n\nBest regards,\nTeam JayVisionX"],
-            ['First Follow-up', 'Following up on your enquiry', "Hi,\n\nJust following up on your enquiry with JayVisionX. We'd love to understand your requirements and share how we can help you grow.\n\nWhen would be a good time for a quick call?\n\nBest regards,\nTeam JayVisionX"],
-            ['Proposal Sent', 'Your proposal from JayVisionX', "Hi,\n\nAs discussed, please find our proposal attached. It includes the scope, timeline and pricing for your project.\n\nHappy to walk you through it on a call. Looking forward to working together!\n\nBest regards,\nTeam JayVisionX"],
-            ['Quote Follow-up', 'Any questions on your quote?', "Hi,\n\nI wanted to check if you had any questions on the quotation we shared. We're happy to adjust the scope to match your budget and goals.\n\nBest regards,\nTeam JayVisionX"],
-            ['Thank You / Won', 'Welcome aboard!', "Hi,\n\nThank you for choosing JayVisionX! We're excited to work with you. Our team will reach out with the next steps and project kickoff details.\n\nBest regards,\nTeam JayVisionX"],
+            ['Welcome / First reply', 'Thanks for reaching out to JayVisionX', "Hi {name},\n\nThank you for contacting JayVisionX! We've received your enquiry and our team will get back to you shortly.\n\nIn the meantime, feel free to call or WhatsApp us for anything urgent.\n\nBest regards,\nTeam JayVisionX"],
+            ['First Follow-up', 'Following up on your enquiry', "Hi {name},\n\nJust following up on your enquiry with JayVisionX. We'd love to understand your requirements and share how we can help you grow.\n\nWhen would be a good time for a quick call?\n\nBest regards,\nTeam JayVisionX"],
+            ['Quotation / Estimate', 'Your quotation from JayVisionX', "Hi {name},\n\nThank you for your interest. Please find your quotation below/attached — it covers the scope, timeline and pricing for {service}.\n\nThis estimate is valid for 15 days. Happy to tailor the scope to your budget on a quick call.\n\nBest regards,\nTeam JayVisionX"],
+            ['Proposal Sent', 'Your proposal from JayVisionX', "Hi {name},\n\nAs discussed, please find our proposal attached. It includes the scope, timeline, deliverables and pricing for your project.\n\nHappy to walk you through it on a call. Looking forward to working together!\n\nBest regards,\nTeam JayVisionX"],
+            ['Quote Follow-up', 'Any questions on your quote?', "Hi {name},\n\nI wanted to check if you had any questions on the quotation we shared. We're happy to adjust the scope to match your budget and goals.\n\nBest regards,\nTeam JayVisionX"],
+            ['Payment Reminder', 'Gentle reminder: invoice pending', "Hi {name},\n\nThis is a friendly reminder that invoice {invoice_no} for {amount} is due. You can pay via the link/details shared earlier.\n\nIf you've already paid, please ignore this message. Thank you!\n\nBest regards,\nTeam JayVisionX"],
+            ['Project Kickoff', 'Welcome aboard — let’s get started 🚀', "Hi {name},\n\nThank you for choosing JayVisionX! We're excited to start on {project}. Here are the next steps:\n\n1. Share the required access/content\n2. We'll set up the project plan & timeline\n3. Weekly updates from your dedicated manager\n\nLet's build something great together!\n\nBest regards,\nTeam JayVisionX"],
+            ['Project Delivered / Handover', 'Your project is live 🎉', "Hi {name},\n\nGreat news — {project} is complete and live! We've shared all the files, logins and documentation.\n\nYour support period starts today. Reach out anytime for updates or maintenance.\n\nThank you for trusting JayVisionX!\n\nBest regards,\nTeam JayVisionX"],
+            ['Monthly Report', 'Your monthly performance report', "Hi {name},\n\nPlease find your monthly report for {month}. Highlights:\n\n• Traffic / leads / rankings summary\n• Campaign performance & spend\n• What we'll focus on next month\n\nHappy to discuss on a call. Thanks for growing with us!\n\nBest regards,\nTeam JayVisionX"],
+            ['Re-engagement', 'Still thinking it over?', "Hi {name},\n\nWe noticed we didn't hear back on your enquiry. No worries — we'd still love to help you grow.\n\nWould a quick 10-minute call this week work? Or reply with your questions and we'll guide you.\n\nBest regards,\nTeam JayVisionX"],
+            ['Review Request', 'Mind sharing a quick review? ⭐', "Hi {name},\n\nWe hope you're happy with the results from JayVisionX! A short Google review would mean a lot and help other businesses find us.\n\nHere's the link: {review_link}\n\nThank you so much!\n\nBest regards,\nTeam JayVisionX"],
+            ['Thank You / Won', 'Welcome aboard!', "Hi {name},\n\nThank you for choosing JayVisionX! We're excited to work with you. Our team will reach out with the next steps and project kickoff details.\n\nBest regards,\nTeam JayVisionX"],
         ];
 
         foreach ($templates as [$name, $subject, $body]) {
-            EmailTemplate::create(compact('name', 'subject', 'body'));
+            EmailTemplate::updateOrCreate(['name' => $name], compact('subject', 'body'));
+        }
+    }
+
+    private function team(): void
+    {
+        if (\App\Models\TeamMember::count() > 0) {
+            return;
+        }
+
+        $members = [
+            ['Jay Kushwah', 'Founder & CEO', 'Leads strategy, growth and client success at JayVisionX.'],
+            ['Digital Marketing Lead', 'Head of Marketing', 'Owns SEO, Google & Meta Ads and paid growth.'],
+            ['Design Lead', 'Creative Head', 'Brand identity, UI/UX and all creative design.'],
+            ['Development Lead', 'Tech Head', 'Websites, web apps and mobile app development.'],
+            ['Social Media Manager', 'Social & Content', 'Content, reels and social media campaigns.'],
+            ['Account Manager', 'Client Success', 'Your single point of contact for everything.'],
+        ];
+
+        foreach ($members as $i => [$name, $designation, $role]) {
+            \App\Models\TeamMember::create([
+                'name'        => $name,
+                'designation' => $designation,
+                'role'        => $role,
+                'is_active'   => true,
+                'sort_order'  => $i + 1,
+            ]);
         }
     }
 

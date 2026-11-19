@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Page;
+use App\Models\TeamMember;
 use App\Models\Testimonial;
 
 class AboutController extends Controller
@@ -12,6 +13,7 @@ class AboutController extends Controller
     {
         $page         = Page::getPage('about');
         $testimonials = Testimonial::active()->get();
-        return view('frontend.about.index', compact('page', 'testimonials'));
+        $team         = TeamMember::active()->get();
+        return view('frontend.about.index', compact('page', 'testimonials', 'team'));
     }
 }
