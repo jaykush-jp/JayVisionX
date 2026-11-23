@@ -42,6 +42,16 @@ class MetaGraphService
         return $this->token?->account_label;
     }
 
+    public function pageId(): ?string
+    {
+        return $this->token->meta['page_id'] ?? null;
+    }
+
+    public function igUserId(): ?string
+    {
+        return $this->token->meta['ig_user_id'] ?? null;
+    }
+
     /** Page access token with leads_retrieval — env override, else OAuth token. */
     public function pageToken(): ?string
     {

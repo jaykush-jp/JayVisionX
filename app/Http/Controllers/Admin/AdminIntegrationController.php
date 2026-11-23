@@ -253,16 +253,86 @@ class AdminIntegrationController extends Controller
             throw new \RuntimeException('No access_token in token response.');
         }
 
+        $accessToken = $res['access_token'];
+        $meta = [];
+
+        // Meta: the user token alone can't publish. Fetch the connected Page
+        // (+ its Page access token) and the linked Instagram Business account,
+        // and store a long-lived token — these are what publishing needs.
+        if ($provider === 'meta') {
+            $assets = $this->fetchMetaAssets($accessToken);
+            $meta   = $assets['meta'];
+            $accessToken = $assets['token'] ?: $accessToken;
+            if (! empty($assets['label'])) {
+                $label = $assets['label'];
+            }
+        }
+
         OauthToken::updateOrCreate(
             ['provider' => $provider],
             [
                 'account_label' => $label,
-                'access_token'  => $res['access_token'],
+                'access_token'  => $accessToken,
                 'refresh_token' => $res['refresh_token'] ?? null,
                 'expires_at'    => isset($res['expires_in']) ? now()->addSeconds((int) $res['expires_in']) : null,
                 'scopes'        => $res['scope'] ?? null,
-                'meta'          => [],
+                'meta'          => $meta,
             ]
         );
+    }
+
+    /**
+     * After a Meta connect, exchange for a long-lived token and pull the
+     * publishing assets: the first managed Page (id + Page token) and the
+     * Instagram Business account linked to it. Returns [token, meta, label].
+     *
+     * @return array{token:?string, meta:array, label:?string}
+     */
+    private function fetchMetaAssets(string $userToken): array
+    {
+        $version = Credential::get('meta.graph_version') ?: 'v21.0';
+        $base    = 'https://graph.facebook.com/' . $version;
+
+        // 1) Exchange the short-lived user token for a long-lived one.
+        $longToken = $userToken;
+        try {
+            $long = Http::get($base . '/oauth/access_token', [
+                'grant_type'        => 'fb_exchange_token',
+                'client_id'         => Credential::get('meta.app_id'),
+                'client_secret'     => Credential::get('meta.app_secret'),
+                'fb_exchange_token' => $userToken,
+            ])->json('access_token');
+            if ($long) {
+                $longToken = $long;
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Meta long-lived token exchange failed: ' . $e->getMessage());
+        }
+
+        // 2) Fetch the Pages the user manages + the linked IG Business account.
+        $meta = [];
+        $label = null;
+        try {
+            $pages = Http::get($base . '/me/accounts', [
+                'fields'       => 'id,name,access_token,instagram_business_account{id,username}',
+                'access_token' => $longToken,
+            ])->json('data', []);
+
+            $page = $pages[0] ?? null;
+            if ($page) {
+                $meta = [
+                    'page_id'           => $page['id'] ?? null,
+                    'page_name'         => $page['name'] ?? null,
+                    'page_access_token' => $page['access_token'] ?? null,
+                    'ig_user_id'        => $page['instagram_business_account']['id'] ?? null,
+                    'ig_username'       => $page['instagram_business_account']['username'] ?? null,
+                ];
+                $label = $page['name'] ?? null;
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Meta pages/IG fetch failed: ' . $e->getMessage());
+        }
+
+        return ['token' => $longToken, 'meta' => $meta, 'label' => $label];
     }
 }

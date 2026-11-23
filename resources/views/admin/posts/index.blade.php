@@ -15,6 +15,18 @@
 .sp-with-icon { position:relative; }
 .sp-with-icon i { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:#9fb0c7; }
 .sp-with-icon .sp-input { padding-left:36px; }
+/* location autocomplete */
+.sp-loc-wrap { position:relative; }
+.sp-geo-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:30px; height:30px; border:none; border-radius:8px; background:#eef3fa; color:var(--primary,#0a7ce0); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.sp-geo-btn:hover { background:var(--primary,#0a7ce0); color:#fff; }
+.sp-geo-btn.loading i { animation:spSpin .8s linear infinite; }
+@keyframes spSpin { to { transform:rotate(360deg); } }
+.sp-with-icon .sp-input { padding-right:42px; }
+.sp-loc-list { position:absolute; left:0; right:0; top:calc(100% + 4px); z-index:20; margin:0; padding:6px; list-style:none; background:#fff; border:1px solid #e1e8f3; border-radius:10px; box-shadow:0 12px 30px rgba(10,22,40,.14); max-height:230px; overflow:auto; display:none; }
+.sp-loc-list.show { display:block; }
+.sp-loc-list li { padding:9px 11px; border-radius:7px; font-size:.84rem; color:#334; cursor:pointer; display:flex; gap:9px; align-items:flex-start; }
+.sp-loc-list li:hover, .sp-loc-list li.active { background:#f0f6ff; }
+.sp-loc-list li i { color:var(--primary,#0a7ce0); margin-top:2px; flex-shrink:0; }
 .sp-row { display:flex; justify-content:space-between; align-items:center; margin-top:5px; }
 .sp-hint { font-size:.76rem; color:#8496ad; }
 .sp-count { font-size:.76rem; color:#8496ad; font-variant-numeric:tabular-nums; }
@@ -152,9 +164,13 @@
 
         <div class="sp-field">
             <label><i class="fas fa-location-dot"></i> Location</label>
-            <div class="sp-with-icon">
-                <i class="fas fa-map-marker-alt"></i>
-                <input type="text" id="spLocation" name="location" class="sp-input" maxlength="120" value="{{ old('location') }}" placeholder="Delhi NCR, India">
+            <div class="sp-loc-wrap">
+                <div class="sp-with-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <input type="text" id="spLocation" name="location" class="sp-input" maxlength="120" autocomplete="off" value="{{ old('location') }}" placeholder="Search a place…">
+                    <button type="button" id="spGeo" class="sp-geo-btn" title="Use my current location"><i class="fas fa-crosshairs"></i></button>
+                </div>
+                <ul class="sp-loc-list" id="spLocList" role="listbox"></ul>
             </div>
         </div>
 
@@ -340,6 +356,55 @@
             phone.className = 'sp-phone sp-phone--' + this.dataset.pv;
             if (media.style.backgroundImage) phone.classList.add('has-img');
         });
+    });
+
+    // ---- Location autocomplete (OpenStreetMap Nominatim — free, no key) ----
+    var locList = document.getElementById('spLocList'),
+        geoBtn  = document.getElementById('spGeo'),
+        locTimer, locData = [];
+
+    function shortName(d) {
+        var a = d.address || {};
+        var city = a.city || a.town || a.village || a.suburb || a.county || '';
+        var parts = [city, a.state, a.country].filter(Boolean);
+        return parts.length ? parts.join(', ') : (d.display_name || '').split(',').slice(0, 3).join(',').trim();
+    }
+    function closeLoc() { locList.classList.remove('show'); locList.innerHTML = ''; }
+
+    if (loc) loc.addEventListener('input', function () {
+        var q = this.value.trim();
+        clearTimeout(locTimer);
+        render();
+        if (q.length < 3) { closeLoc(); return; }
+        locTimer = setTimeout(function () {
+            fetch('https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=6&q=' + encodeURIComponent(q))
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    locData = data || [];
+                    if (!locData.length) { closeLoc(); return; }
+                    locList.innerHTML = locData.map(function (d) {
+                        return '<li><i class="fas fa-location-dot"></i><span>' + d.display_name + '</span></li>';
+                    }).join('');
+                    locList.classList.add('show');
+                    [].forEach.call(locList.children, function (li, i) {
+                        li.addEventListener('click', function () { loc.value = shortName(locData[i]); closeLoc(); render(); });
+                    });
+                }).catch(function () { closeLoc(); });
+        }, 400);
+    });
+    document.addEventListener('click', function (e) { if (loc && e.target !== loc && !locList.contains(e.target)) closeLoc(); });
+
+    // Current location
+    if (geoBtn) geoBtn.addEventListener('click', function () {
+        if (!navigator.geolocation) { alert('Geolocation not supported in this browser.'); return; }
+        geoBtn.classList.add('loading');
+        navigator.geolocation.getCurrentPosition(function (pos) {
+            fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + pos.coords.latitude + '&lon=' + pos.coords.longitude)
+                .then(function (r) { return r.json(); })
+                .then(function (d) { loc.value = shortName(d); render(); })
+                .catch(function () {})
+                .finally(function () { geoBtn.classList.remove('loading'); });
+        }, function () { geoBtn.classList.remove('loading'); alert('Could not get your location — please allow location access.'); }, { timeout: 8000 });
     });
 
     render();

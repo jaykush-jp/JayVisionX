@@ -99,6 +99,7 @@ class AdminSocialPostController extends Controller
         $caption  = $post->caption; // body + hashtags
         $ids = $post->external_ids ?: [];
         $any = false;
+        $errors = [];
 
         foreach ($post->platforms as $platform) {
             $id = match ($platform) {
@@ -110,14 +111,39 @@ class AdminSocialPostController extends Controller
             if ($id) {
                 $ids[$platform] = $id;
                 $any = true;
+            } else {
+                $errors[] = $this->publishReason($platform, $imageUrl, $gbp, $meta);
             }
         }
 
         $post->update([
             'external_ids' => $ids,
             'status'       => $any ? 'published' : 'failed',
-            'error'        => $any ? null : 'No connected channel accepted this post. Connect the integration and retry.',
+            'error'        => $errors ? implode(' ', $errors) : null,
         ]);
+    }
+
+    /** A specific, actionable reason why a platform didn't publish. */
+    private function publishReason(string $platform, ?string $imageUrl, GoogleBusinessProfileService $gbp, MetaGraphService $meta): string
+    {
+        return match ($platform) {
+            'instagram' => ! $meta->isConnected()
+                    ? 'Instagram: not connected — Connect in Integrations.'
+                    : (! $imageUrl
+                        ? 'Instagram: an image is required.'
+                        : (! $meta->igUserId()
+                            ? 'Instagram: no Business account linked to your Page — link it in Meta, then disconnect & reconnect.'
+                            : 'Instagram: publish was rejected — check permissions / App Review & that the IG account is a Business/Creator account.')),
+            'facebook'  => ! $meta->isConnected()
+                    ? 'Facebook: not connected — Connect in Integrations.'
+                    : (! $meta->pageId()
+                        ? 'Facebook: no Page found — disconnect & reconnect and grant Page access.'
+                        : 'Facebook: publish was rejected — check pages_manage_posts permission / App Review.'),
+            'google'    => ! $gbp->isConnected()
+                    ? 'Google: not connected — Connect in Integrations.'
+                    : 'Google: business location not linked yet.',
+            default     => ucfirst($platform) . ': publish failed.',
+        };
     }
 
     /** Normalise hashtags to space-separated #tags. */
