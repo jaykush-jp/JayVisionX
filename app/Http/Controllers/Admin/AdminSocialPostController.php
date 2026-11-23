@@ -77,15 +77,35 @@ class AdminSocialPostController extends Controller
         return back()->with('success', 'Publish attempted — see status.');
     }
 
-    public function destroy($id)
+    public function destroy($id, GoogleBusinessProfileService $gbp, MetaGraphService $meta)
     {
         $post = SocialPost::findOrFail($id);
+        $ids  = $post->external_ids ?: [];
+        $notes = [];
+
+        // Remove from the channels it was published to.
+        if (! empty($ids['facebook'])) {
+            if (! $meta->deleteFacebookPost($ids['facebook'])) {
+                $notes[] = 'Facebook post could not be removed automatically — delete it manually if needed.';
+            }
+        }
+        if (! empty($ids['google'])) {
+            $gbp->deletePost($ids['google']);
+        }
+        if (! empty($ids['instagram'])) {
+            // Instagram Graph API does not allow deleting published posts.
+            $notes[] = 'Instagram does not allow deleting posts via API — please remove it from the Instagram app.';
+        }
+
         if ($post->image) {
             Storage::disk('public')->delete($post->image);
         }
         $post->delete();
 
-        return back()->with('success', 'Post deleted.');
+        $msg = 'Post deleted.';
+        $msg .= $notes ? ' ' . implode(' ', $notes) : ($ids ? ' Removed from connected channels too.' : '');
+
+        return back()->with('success', $msg);
     }
 
     /**

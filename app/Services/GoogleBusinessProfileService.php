@@ -108,6 +108,23 @@ class GoogleBusinessProfileService
         }
     }
 
+    /** Delete a Google local post by its resource name. Returns true on success. */
+    public function deletePost(string $name): bool
+    {
+        if (! $this->isConnected() || ! $name || $name === 'ok') {
+            return false;
+        }
+
+        try {
+            $res = Http::withToken($this->token->access_token)
+                ->delete('https://mybusiness.googleapis.com/v4/' . ltrim($name, '/'));
+            return $res->successful();
+        } catch (\Throwable $e) {
+            Log::warning('GBP deletePost failed: ' . $e->getMessage());
+            return false;
+        }
+    }
+
     /**
      * Create a local post (Google Post). Returns the remote post id or null.
      */

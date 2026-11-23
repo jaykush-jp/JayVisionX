@@ -161,6 +161,24 @@ class MetaGraphService
         }
     }
 
+    /** Delete a published Facebook Page post. Returns true on success. */
+    public function deleteFacebookPost(string $postId): bool
+    {
+        if (! $this->isConnected()) {
+            return false;
+        }
+
+        $pageToken = $this->token->meta['page_access_token'] ?? $this->token->access_token;
+
+        try {
+            $res = Http::delete("{$this->graph}/{$postId}?access_token=" . urlencode($pageToken));
+            return $res->successful() && ($res->json('success') !== false);
+        } catch (\Throwable $e) {
+            Log::warning('Meta deleteFacebookPost failed: ' . $e->getMessage());
+            return false;
+        }
+    }
+
     /** Publish to the linked Instagram Business account. Needs an image. */
     public function createInstagramPost(string $body, ?string $imageUrl = null): ?string
     {
