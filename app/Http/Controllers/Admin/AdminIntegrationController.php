@@ -318,7 +318,15 @@ class AdminIntegrationController extends Controller
                 'access_token' => $longToken,
             ])->json('data', []);
 
+            // Prefer a Page that has a linked Instagram Business account;
+            // otherwise fall back to the first managed Page.
             $page = $pages[0] ?? null;
+            foreach ($pages as $p) {
+                if (! empty($p['instagram_business_account']['id'])) {
+                    $page = $p;
+                    break;
+                }
+            }
             if ($page) {
                 $meta = [
                     'page_id'           => $page['id'] ?? null,
