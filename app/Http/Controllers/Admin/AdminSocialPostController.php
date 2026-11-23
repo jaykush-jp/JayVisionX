@@ -27,6 +27,8 @@ class AdminSocialPostController extends Controller
     {
         $data = $request->validate([
             'body'         => 'required|string',
+            'hashtags'     => 'nullable|string|max:500',
+            'location'     => 'nullable|string|max:120',
             'platforms'    => 'required|array|min:1',
             'platforms.*'  => 'in:google,facebook,instagram',
             'image'        => 'nullable|image|mimes:png,jpg,jpeg,webp|max:4096',
@@ -47,6 +49,8 @@ class AdminSocialPostController extends Controller
 
         $post = SocialPost::create([
             'body'         => $data['body'],
+            'hashtags'     => $this->normaliseHashtags($data['hashtags'] ?? null),
+            'location'     => $data['location'] ?? null,
             'image'        => $imagePath,
             'platforms'    => $data['platforms'],
             'scheduled_at' => $data['action'] === 'schedule' ? $data['scheduled_at'] : null,
@@ -92,14 +96,15 @@ class AdminSocialPostController extends Controller
     private function publish(SocialPost $post, GoogleBusinessProfileService $gbp, MetaGraphService $meta): void
     {
         $imageUrl = $post->image ? asset('storage/' . $post->image) : null;
+        $caption  = $post->caption; // body + hashtags
         $ids = $post->external_ids ?: [];
         $any = false;
 
         foreach ($post->platforms as $platform) {
             $id = match ($platform) {
-                'google'    => $gbp->createPost($post->body, $imageUrl),
-                'facebook'  => $meta->createFacebookPost($post->body, $imageUrl),
-                'instagram' => $meta->createInstagramPost($post->body, $imageUrl),
+                'google'    => $gbp->createPost($caption, $imageUrl),
+                'facebook'  => $meta->createFacebookPost($caption, $imageUrl),
+                'instagram' => $meta->createInstagramPost($caption, $imageUrl),
                 default     => null,
             };
             if ($id) {
@@ -113,5 +118,18 @@ class AdminSocialPostController extends Controller
             'status'       => $any ? 'published' : 'failed',
             'error'        => $any ? null : 'No connected channel accepted this post. Connect the integration and retry.',
         ]);
+    }
+
+    /** Normalise hashtags to space-separated #tags. */
+    private function normaliseHashtags(?string $raw): ?string
+    {
+        if (! $raw) {
+            return null;
+        }
+
+        $tags = preg_split('/[\s,]+/', trim($raw), -1, PREG_SPLIT_NO_EMPTY);
+        $tags = array_map(fn ($t) => '#' . ltrim($t, '#'), $tags);
+
+        return implode(' ', $tags) ?: null;
     }
 }

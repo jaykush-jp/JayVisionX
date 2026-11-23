@@ -7,9 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 class SocialPost extends Model
 {
     protected $fillable = [
-        'body', 'image', 'platforms', 'scheduled_at', 'status',
+        'body', 'image', 'hashtags', 'location', 'platforms', 'scheduled_at', 'status',
         'external_ids', 'error', 'created_by',
     ];
+
+    /** Full caption sent to channels: body + hashtags. */
+    public function getCaptionAttribute(): string
+    {
+        $caption = trim((string) $this->body);
+        if ($this->hashtags) {
+            $caption .= "\n\n" . $this->hashtags;
+        }
+        return $caption;
+    }
 
     protected $casts = [
         'platforms'    => 'array',
