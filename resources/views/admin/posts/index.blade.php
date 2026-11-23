@@ -106,18 +106,18 @@
 
 /* ===== History ===== */
 .sp-history { margin-top:22px; }
-.sp-posts { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
-.sp-post { border:1px solid #e6ecf5; border-radius:14px; overflow:hidden; background:#fff; display:flex; flex-direction:column; }
-.sp-post-img { aspect-ratio:16/10; background:#eef2f8 center/cover no-repeat; display:flex; align-items:center; justify-content:center; color:#aeb9ca; }
-.sp-post-body { padding:14px; flex:1; display:flex; flex-direction:column; gap:8px; }
-.sp-post-plats { display:flex; gap:6px; }
-.sp-post-plats i { width:24px; height:24px; border-radius:6px; color:#fff; display:flex; align-items:center; justify-content:center; font-size:.72rem; }
+.sp-posts { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:14px; }
+.sp-post { border:1px solid #e6ecf5; border-radius:12px; overflow:hidden; background:#fff; display:flex; flex-direction:column; }
+.sp-post-img { aspect-ratio:1/1; background:#eef2f8 center/cover no-repeat; display:flex; align-items:center; justify-content:center; color:#aeb9ca; }
+.sp-post-body { padding:10px 11px; flex:1; display:flex; flex-direction:column; gap:6px; }
+.sp-post-plats { display:flex; gap:5px; }
+.sp-post-plats i { width:20px; height:20px; border-radius:5px; color:#fff; display:flex; align-items:center; justify-content:center; font-size:.64rem; }
 .sp-post-plats .p-instagram { background:linear-gradient(45deg,#e6683c,#bc1888); }
 .sp-post-plats .p-facebook { background:#1877f2; }
 .sp-post-plats .p-google { background:#0f9d58; }
-.sp-post p { margin:0; font-size:.86rem; color:#44566d; line-height:1.5; }
-.sp-post-foot { display:flex; align-items:center; justify-content:space-between; margin-top:auto; padding-top:6px; }
-.sp-status { font-size:.72rem; font-weight:700; padding:3px 10px; border-radius:20px; text-transform:capitalize; }
+.sp-post p { margin:0; font-size:.76rem; color:#44566d; line-height:1.45; }
+.sp-post-foot { display:flex; align-items:center; justify-content:space-between; margin-top:auto; padding-top:4px; }
+.sp-status { font-size:.66rem; font-weight:700; padding:3px 9px; border-radius:20px; text-transform:capitalize; }
 .sp-status.draft { background:#eef2f7; color:#64748b; }
 .sp-status.scheduled { background:#fff3e0; color:#e67e22; }
 .sp-status.published { background:#e7f7ed; color:#1a9f54; }
@@ -266,11 +266,10 @@
                 <div class="sp-post-plats">
                     @foreach($p->platforms ?? [] as $pl)<i class="p-{{ $pl }} fab fa-{{ $pl === 'google' ? 'google' : $pl }}"></i>@endforeach
                 </div>
-                <p>{{ Str::limit($p->body, 120) }}</p>
-                @if($p->hashtags)<p style="color:#0a7ce0;font-size:.8rem">{{ Str::limit($p->hashtags, 80) }}</p>@endif
-                @if($p->location)<p style="font-size:.76rem"><i class="fas fa-map-marker-alt"></i> {{ $p->location }}</p>@endif
-                @if($p->scheduled_at)<p style="font-size:.76rem"><i class="fas fa-clock"></i> {{ $p->scheduled_at->format('d M Y, h:i A') }}</p>@endif
-                @if($p->error)<p style="color:#c0392b;font-size:.76rem">{{ $p->error }}</p>@endif
+                <p>{{ Str::limit($p->body, 70) }}</p>
+                @if($p->location)<p style="font-size:.7rem;color:#8496ad"><i class="fas fa-map-marker-alt"></i> {{ Str::limit($p->location, 24) }}</p>@endif
+                @if($p->scheduled_at)<p style="font-size:.7rem;color:#8496ad"><i class="fas fa-clock"></i> {{ $p->scheduled_at->format('d M, h:i A') }}</p>@endif
+                @if($p->error)<p style="color:#c0392b;font-size:.68rem" title="{{ $p->error }}">{{ Str::limit($p->error, 46) }}</p>@endif
                 <div class="sp-post-foot">
                     <span class="sp-status {{ $p->status }}">{{ $p->status }}</span>
                     <div class="sp-post-acts">

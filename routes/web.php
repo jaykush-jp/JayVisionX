@@ -33,6 +33,7 @@ use App\Http\Controllers\Admin\AdminIntegrationController;
 use App\Http\Controllers\Admin\AdminReviewController;
 use App\Http\Controllers\Admin\AdminSocialPostController;
 use App\Http\Controllers\Admin\AdminAiSettingController;
+use App\Http\Controllers\Admin\AdminAiInsightController;
 use App\Http\Controllers\Admin\AdminCredentialController;
 use App\Http\Controllers\Admin\AdminInboxController;
 use App\Http\Controllers\Admin\AdminAuditController;
@@ -163,6 +164,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('inbox/{id}/assign', [AdminInboxController::class, 'assign'])->name('inbox.assign');
         Route::post('inbox/{id}/note', [AdminInboxController::class, 'note'])->name('inbox.note');
         Route::post('inbox/{id}/convert', [AdminInboxController::class, 'convertToLead'])->name('inbox.convert');
+
+        // AI Support — Spend / usage insights
+        Route::get('ai-insights', [AdminAiInsightController::class, 'index'])->name('ai-insights.index');
 
         // AI Support — Audit logs
         Route::get('audit', [AdminAuditController::class, 'index'])->name('audit.index');

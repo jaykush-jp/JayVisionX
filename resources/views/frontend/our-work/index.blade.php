@@ -30,6 +30,15 @@
             </p>
         </div>
 
+        @if($categories->count())
+        <div class="cs-filter" data-aos="fade-up">
+            <a href="{{ route('our-work') }}" class="cs-filter-tab {{ !$activeCat ? 'active' : '' }}">All Work</a>
+            @foreach($categories as $c)
+            <a href="{{ route('our-work', ['category' => $c]) }}" class="cs-filter-tab {{ $activeCat === $c ? 'active' : '' }}">{{ $c }}</a>
+            @endforeach
+        </div>
+        @endif
+
         <div class="cs-list">
             @forelse($caseStudies as $cs)
             @php
@@ -45,7 +54,7 @@
                     @else
                     <div class="cs-media-ph"><i class="fas fa-chart-line"></i></div>
                     @endif
-                    @if($cs->industry)<span class="cs-industry">{{ $cs->industry }}</span>@endif
+                    @if($cs->category || $cs->industry)<span class="cs-industry">{{ $cs->category ?: $cs->industry }}</span>@endif
                 </div>
                 <div class="cs-content">
                     @if($cs->client)<p class="cs-client"><i class="fas fa-building"></i> {{ $cs->client }}</p>@endif

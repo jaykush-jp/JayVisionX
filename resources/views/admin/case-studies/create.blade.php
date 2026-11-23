@@ -31,13 +31,19 @@
 
         <div class="form-row-2">
             <div class="form-group">
-                <label>Category / Industry</label>
-                <input type="text" name="industry" class="form-control" value="{{ old('industry', $caseStudy->industry ?? '') }}" placeholder="e.g. Website, Real Estate, Healthcare">
+                <label>Work Category <small class="text-muted">(groups it on the Our Work page)</small></label>
+                <input type="text" name="category" class="form-control" list="workCats" value="{{ old('category', $caseStudy->category ?? '') }}" placeholder="e.g. Website, Google Ads, Meta Ads">
+                <datalist id="workCats">@foreach(\App\Models\CaseStudy::CATEGORIES as $c)<option value="{{ $c }}">@endforeach</datalist>
             </div>
             <div class="form-group">
-                <label>Sort Order</label>
-                <input type="number" name="sort_order" class="form-control" value="{{ old('sort_order', $caseStudy->sort_order ?? 0) }}">
+                <label>Industry <small class="text-muted">(client's sector, optional)</small></label>
+                <input type="text" name="industry" class="form-control" value="{{ old('industry', $caseStudy->industry ?? '') }}" placeholder="e.g. Real Estate, Healthcare">
             </div>
+        </div>
+
+        <div class="form-group" style="max-width:220px">
+            <label>Sort Order</label>
+            <input type="number" name="sort_order" class="form-control" value="{{ old('sort_order', $caseStudy->sort_order ?? 0) }}">
         </div>
 
         <div class="form-group">

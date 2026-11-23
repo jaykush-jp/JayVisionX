@@ -2106,6 +2106,31 @@ ul {
   color: var(--text-muted);
   margin-top: 12px;
 }
+.cs-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin: 0 auto 40px;
+  max-width: 900px;
+}
+.cs-filter-tab {
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  color: var(--text-body);
+  border-radius: 30px;
+  padding: 8px 18px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: var(--transition);
+}
+.cs-filter-tab:hover { border-color: var(--primary); color: var(--primary); }
+.cs-filter-tab.active {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff;
+  border-color: transparent;
+}
 .cs-list {
   display: flex;
   flex-direction: column;

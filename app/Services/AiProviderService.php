@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AiSetting;
+use App\Models\AiUsage;
 use App\Models\Credential;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -107,6 +108,9 @@ class AiProviderService
      * ['role' => 'user'|'assistant', 'content' => '...']. Returns null on any
      * failure so the caller can fall back to the DB/FAQ answer.
      */
+    /** Token usage from the last successful call: ['input'=>int,'output'=>int]. */
+    private ?array $lastUsage = null;
+
     public function ask(AiSetting $settings, string $system, array $messages): ?string
     {
         $provider = $settings->provider ?: 'anthropic';
@@ -119,17 +123,55 @@ class AiProviderService
 
         $model   = $settings->model ?: $def['default_model'];
         $maxTok  = (int) ($settings->max_response_tokens ?: 1024);
+        $this->lastUsage = null;
 
         try {
-            return match ($def['type']) {
+            $text = match ($def['type']) {
                 'anthropic' => $this->anthropic($key, $model, $system, $messages, $maxTok),
                 'gemini'    => $this->gemini($key, $model, $system, $messages, $maxTok),
                 'openai'    => $this->openai($def['base'], $key, $model, $system, $messages, $maxTok),
                 default     => null,
             };
+
+            if ($text !== null) {
+                $this->recordUsage($provider, $model);
+            }
+
+            return $text;
         } catch (\Throwable $e) {
             Log::warning("AI provider [{$provider}] failed: " . $e->getMessage());
             return null;
+        }
+    }
+
+    /** Store an estimated-cost usage row for the last call (best-effort). */
+    private function recordUsage(string $provider, string $model): void
+    {
+        try {
+            $in  = (int) ($this->lastUsage['input'] ?? 0);
+            $out = (int) ($this->lastUsage['output'] ?? 0);
+
+            // Index by the literal model key (model names contain dots, which
+            // config() dot-notation would mis-split), falling back per provider.
+            $models = config('ai_pricing.models', []);
+            $rates  = $models[$model]
+                ?? config('ai_pricing.defaults.' . $provider)
+                ?? ['in' => 0, 'out' => 0];
+
+            $cost = ($in / 1_000_000) * ($rates['in'] ?? 0)
+                  + ($out / 1_000_000) * ($rates['out'] ?? 0);
+
+            AiUsage::create([
+                'provider'      => $provider,
+                'model'         => $model,
+                'kind'          => 'text',
+                'input_tokens'  => $in,
+                'output_tokens' => $out,
+                'images'        => 0,
+                'cost'          => round($cost, 6),
+            ]);
+        } catch (\Throwable $e) {
+            // Usage logging must never break a reply.
         }
     }
 
@@ -157,6 +199,11 @@ class AiProviderService
                 $text .= $block['text'];
             }
         }
+
+        $this->lastUsage = [
+            'input'  => (int) $res->json('usage.input_tokens', 0),
+            'output' => (int) $res->json('usage.output_tokens', 0),
+        ];
 
         return trim($text) ?: null;
     }
@@ -187,6 +234,11 @@ class AiProviderService
             $text .= $part['text'] ?? '';
         }
 
+        $this->lastUsage = [
+            'input'  => (int) $res->json('usageMetadata.promptTokenCount', 0),
+            'output' => (int) $res->json('usageMetadata.candidatesTokenCount', 0),
+        ];
+
         return trim($text) ?: null;
     }
 
@@ -209,6 +261,11 @@ class AiProviderService
             Log::warning('OpenAI-compatible API error: ' . $res->status() . ' ' . $res->body());
             return null;
         }
+
+        $this->lastUsage = [
+            'input'  => (int) $res->json('usage.prompt_tokens', 0),
+            'output' => (int) $res->json('usage.completion_tokens', 0),
+        ];
 
         return trim((string) $res->json('choices.0.message.content')) ?: null;
     }

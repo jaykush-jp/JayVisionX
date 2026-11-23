@@ -69,6 +69,9 @@
         <a href="{{ route('admin.ai-settings.index') }}" class="sidebar-link {{ request()->routeIs('admin.ai-settings*') ? 'active' : '' }}">
             <i class="fas fa-robot"></i> <span>AI Configuration</span>
         </a>
+        <a href="{{ route('admin.ai-insights.index') }}" class="sidebar-link {{ request()->routeIs('admin.ai-insights*') ? 'active' : '' }}">
+            <i class="fas fa-coins"></i> <span>AI Insights</span>
+        </a>
         <a href="{{ route('admin.quotes.index') }}" class="sidebar-link {{ request()->routeIs('admin.quotes*') ? 'active' : '' }}">
             <i class="fas fa-file-invoice-dollar"></i> <span>Quotes</span>
         </a>
