@@ -926,6 +926,39 @@ ul {
 .service-card:hover .service-card-icon {
   transform: translateY(-3px) scale(1.05);
 }
+/* Uploaded image replaces the icon on the card */
+.service-card-media {
+  width: 100%;
+  height: 172px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 22px;
+  position: relative;
+  box-shadow: 0 14px 30px rgba(10, 124, 224, 0.18);
+}
+.service-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+.service-card:hover .service-card-media img { transform: scale(1.07); }
+/* Image inside the compact icon tile (services list / full cards) */
+.service-card-icon.has-img {
+  background: none;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 10px 22px rgba(10, 124, 224, 0.22);
+}
+.service-card-icon.has-img::after { display: none; }
+.service-card-icon.has-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  display: block;
+}
 .service-card-title {
   font-size: 1.1rem;
   margin-bottom: 12px;

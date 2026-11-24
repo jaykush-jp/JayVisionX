@@ -28,8 +28,9 @@
         <div class="services-grid-full" data-aos="fade-up">
             @foreach($services as $service)
             <div class="service-card-full" data-aos="fade-up" data-aos-delay="{{ $loop->index * 40 }}">
-                <div class="service-card-icon">
-                    <i class="fas {{ $service->icon ?? 'fa-star' }}"></i>
+                <div class="service-card-icon {{ $service->image ? 'has-img' : '' }}">
+                    @if($service->image)<img src="{{ $service->image_url }}" alt="{{ $service->title }}" loading="lazy">
+                    @else<i class="fas {{ $service->icon ?? 'fa-star' }}"></i>@endif
                 </div>
                 <div class="service-card-body">
                     <h3>{{ $service->title }}</h3>

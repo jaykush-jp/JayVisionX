@@ -131,9 +131,15 @@
         <div class="services-grid" data-aos="fade-up" data-aos-delay="100">
             @foreach($services as $service)
             <div class="service-card" data-aos="fade-up" data-aos-delay="{{ $loop->index * 50 }}">
+                @if($service->image)
+                <div class="service-card-media">
+                    <img src="{{ $service->image_url }}" alt="{{ $service->title }}" loading="lazy">
+                </div>
+                @else
                 <div class="service-card-icon">
                     <i class="fas {{ $service->icon ?? 'fa-star' }}"></i>
                 </div>
+                @endif
                 <h3 class="service-card-title">{{ $service->title }}</h3>
                 <p class="service-card-desc">{{ $service->short_description }}</p>
                 <a href="{{ route('services.show', $service->slug) }}" class="service-card-link">

@@ -36,7 +36,7 @@
 
         <div class="form-row-2">
             <div class="form-group">
-                <label>Service Image</label>
+                <label>Service Image <small class="form-hint">— card par icon ki jagah ye image dikhegi (home + services page). Square/landscape, ~600&times;400px best.</small></label>
                 <input type="file" name="image" class="form-control" accept="image/*">
                 @if(isset($service) && $service->image)
                 <img src="{{ $service->image_url }}" alt="Current" class="preview-img">
