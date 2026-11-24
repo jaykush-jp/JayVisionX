@@ -926,15 +926,13 @@ ul {
 .service-card:hover .service-card-icon {
   transform: translateY(-3px) scale(1.05);
 }
-/* Uploaded image replaces the icon on the card */
+/* Uploaded image replaces the icon on the card (full-bleed to the card top) */
 .service-card-media {
-  width: 100%;
-  height: 172px;
-  border-radius: 16px;
+  height: 200px;
   overflow: hidden;
-  margin-bottom: 22px;
   position: relative;
-  box-shadow: 0 14px 30px rgba(10, 124, 224, 0.18);
+  /* bleed out to the card edges (card padding is 32px 28px) */
+  margin: -32px -28px 22px;
 }
 .service-card-media img {
   width: 100%;
@@ -943,7 +941,34 @@ ul {
   display: block;
   transition: transform 0.5s ease;
 }
-.service-card:hover .service-card-media img { transform: scale(1.07); }
+.service-card:hover .service-card-media img { transform: scale(1.06); }
+
+/* Service detail page gallery */
+.service-gallery { margin-top: 36px; }
+.service-gallery h3 { font-size: 1.25rem; margin-bottom: 16px; }
+.service-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.service-gallery-item {
+  display: block;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+.service-gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+.service-gallery-item:hover img { transform: scale(1.06); }
+@media (max-width: 600px) {
+  .service-gallery-grid { grid-template-columns: repeat(2, 1fr); }
+}
 /* Image inside the compact icon tile (services list / full cards) */
 .service-card-icon.has-img {
   background: none;

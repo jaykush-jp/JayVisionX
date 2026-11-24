@@ -7,12 +7,18 @@
 </div>
 <div class="admin-table-wrapper">
     <table class="admin-table">
-        <thead><tr><th>#</th><th>Icon</th><th>Title</th><th>Status</th><th>Home</th><th>Order</th><th>Actions</th></tr></thead>
+        <thead><tr><th>#</th><th>Thumbnail</th><th>Title</th><th>Status</th><th>Home</th><th>Order</th><th>Actions</th></tr></thead>
         <tbody>
             @forelse($services as $s)
             <tr>
                 <td>{{ $loop->iteration }}</td>
-                <td><i class="fas {{ $s->icon ?? 'fa-star' }}" style="font-size:1.4rem;color:var(--primary)"></i></td>
+                <td>
+                    @if($s->image)
+                    <img src="{{ $s->image_url }}" alt="{{ $s->title }}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;display:block">
+                    @else
+                    <span style="display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:8px;background:#eef3fb;color:var(--primary)"><i class="fas {{ $s->icon ?? 'fa-star' }}" style="font-size:1.2rem"></i></span>
+                    @endif
+                </td>
                 <td><strong>{{ $s->title }}</strong><br><small class="text-muted">{{ $s->slug }}</small></td>
                 <td>
                     <button class="toggle-btn {{ $s->is_active ? 'active' : 'inactive' }}" onclick="toggleStatus('{{ route('admin.services.toggle-status',$s->id) }}', this)">

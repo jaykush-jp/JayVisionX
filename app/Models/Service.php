@@ -10,7 +10,7 @@ class Service extends Model
     use HasFactory;
 
     protected $fillable = [
-        'title', 'slug', 'category', 'icon', 'image', 'banner_image',
+        'title', 'slug', 'category', 'icon', 'image', 'banner_image', 'gallery',
         'short_description', 'description', 'features',
         'deliverables', 'tech_stack', 'exclusions', 'related_projects',
         'starting_price', 'price_type', 'pricing_unit', 'currency', 'estimated_delivery',
@@ -20,6 +20,7 @@ class Service extends Model
 
     protected $casts = [
         'features'         => 'array',
+        'gallery'          => 'array',
         'deliverables'     => 'array',
         'tech_stack'       => 'array',
         'exclusions'       => 'array',
@@ -47,5 +48,12 @@ class Service extends Model
     public function getImageUrlAttribute()
     {
         return $this->image ? asset('storage/' . $this->image) : asset('images/service-default.jpg');
+    }
+
+    /** Array of full URLs for the gallery images (empty if none). */
+    public function getGalleryUrlsAttribute(): array
+    {
+        $items = is_array($this->gallery) ? $this->gallery : [];
+        return array_map(fn ($p) => asset('storage/' . $p), $items);
     }
 }

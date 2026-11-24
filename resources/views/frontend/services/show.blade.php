@@ -42,6 +42,20 @@
                     </ul>
                 </div>
                 @endif
+
+                @php $gallery = is_array($service->gallery) ? $service->gallery : []; @endphp
+                @if(!empty($gallery))
+                <div class="service-gallery">
+                    <h3>Gallery</h3>
+                    <div class="service-gallery-grid">
+                        @foreach($gallery as $g)
+                        <a href="{{ asset('storage/'.$g) }}" target="_blank" rel="noopener" class="service-gallery-item">
+                            <img src="{{ asset('storage/'.$g) }}" alt="{{ $service->title }} image" loading="lazy">
+                        </a>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
             </div>
             <div class="service-detail-sidebar" data-aos="fade-left" data-aos-delay="150">
                 <div class="sidebar-card cta-sidebar">

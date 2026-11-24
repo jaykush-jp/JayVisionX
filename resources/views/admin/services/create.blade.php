@@ -1,6 +1,13 @@
 @extends('admin.layouts.app')
 @section('title', isset($service) ? 'Edit Service' : 'Add Service')
 @section('content')
+<style>
+.gallery-thumbs { display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; }
+.gallery-thumb { display:flex; flex-direction:column; gap:6px; width:120px; }
+.gallery-thumb img { width:120px; height:90px; object-fit:cover; border-radius:8px; border:1px solid #e2e8f0; }
+.gallery-thumb-remove { font-size:.78rem; color:#64748b; display:flex; align-items:center; gap:5px; cursor:pointer; }
+.gallery-thumb-remove input { margin:0; }
+</style>
 <div class="page-header-row">
     <h2>{{ isset($service) ? 'Edit Service' : 'Add New Service' }}</h2>
     <a href="{{ route('admin.services.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
@@ -11,17 +18,10 @@
         @csrf
         @if(isset($service)) @method('PUT') @endif
 
-        <div class="form-row-2">
-            <div class="form-group">
-                <label>Service Title *</label>
-                <input type="text" name="title" class="form-control" value="{{ old('title', $service->title ?? '') }}" required placeholder="e.g. SEO Services in Delhi NCR">
-                @error('title')<span class="invalid-feedback">{{ $message }}</span>@enderror
-            </div>
-            <div class="form-group">
-                <label>Icon Class (Font Awesome)</label>
-                <input type="text" name="icon" class="form-control" value="{{ old('icon', $service->icon ?? '') }}" placeholder="e.g. fa-search">
-                <small class="form-hint">Browse icons at <a href="https://fontawesome.com/icons" target="_blank">fontawesome.com</a></small>
-            </div>
+        <div class="form-group">
+            <label>Service Title *</label>
+            <input type="text" name="title" class="form-control" value="{{ old('title', $service->title ?? '') }}" required placeholder="e.g. SEO Services in Delhi NCR">
+            @error('title')<span class="invalid-feedback">{{ $message }}</span>@enderror
         </div>
 
         <div class="form-group">
@@ -34,21 +34,30 @@
             <textarea name="description" class="form-control wysiwyg" rows="10" id="description">{{ old('description', $service->description ?? '') }}</textarea>
         </div>
 
-        <div class="form-row-2">
-            <div class="form-group">
-                <label>Service Image <small class="form-hint">— card par icon ki jagah ye image dikhegi (home + services page). Square/landscape, ~600&times;400px best.</small></label>
-                <input type="file" name="image" class="form-control" accept="image/*">
-                @if(isset($service) && $service->image)
-                <img src="{{ $service->image_url }}" alt="Current" class="preview-img">
-                @endif
+        <div class="form-group">
+            <label>Service Thumbnail <small class="form-hint">— ye image card (home + services page) aur detail page ke top par dikhegi. Square/landscape, ~600&times;400px best.</small></label>
+            <input type="file" name="image" class="form-control" accept="image/*">
+            @if(isset($service) && $service->image)
+            <img src="{{ $service->image_url }}" alt="Current thumbnail" class="preview-img">
+            @endif
+        </div>
+
+        <div class="form-group">
+            <label>Gallery Images <small class="form-hint">— ek saath multiple images choose karo. Ye service detail page ke gallery me dikhengi.</small></label>
+            <input type="file" name="gallery[]" class="form-control" accept="image/*" multiple>
+            @error('gallery.*')<span class="field-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</span>@enderror
+            @php $existingGallery = (isset($service) && is_array($service->gallery)) ? $service->gallery : []; @endphp
+            @if(!empty($existingGallery))
+            <div class="gallery-thumbs">
+                @foreach($existingGallery as $g)
+                <label class="gallery-thumb">
+                    <img src="{{ asset('storage/'.$g) }}" alt="gallery image" loading="lazy">
+                    <span class="gallery-thumb-remove"><input type="checkbox" name="remove_gallery[]" value="{{ $g }}"> Remove</span>
+                </label>
+                @endforeach
             </div>
-            <div class="form-group">
-                <label>Banner Image</label>
-                <input type="file" name="banner_image" class="form-control" accept="image/*">
-                @if(isset($service) && $service->banner_image)
-                <img src="{{ asset('storage/'.$service->banner_image) }}" alt="Banner" class="preview-img">
-                @endif
-            </div>
+            <small class="form-hint">Kisi image ko hatane ke liye uska "Remove" tick karke Update dabao.</small>
+            @endif
         </div>
 
         <div class="form-group">
