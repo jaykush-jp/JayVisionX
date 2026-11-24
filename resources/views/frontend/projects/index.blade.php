@@ -28,6 +28,15 @@
                 Inke peeche ke <strong>results aur numbers</strong> dekhne ke liye? <a href="{{ route('our-work') }}">Case Studies &rarr;</a>
             </p>
         </div>
+        @if($categories->count())
+        <div class="cs-filter" data-aos="fade-up">
+            <a href="{{ route('projects') }}" class="cs-filter-tab {{ !$activeCat ? 'active' : '' }}">All Projects</a>
+            @foreach($categories as $c)
+            <a href="{{ route('projects', ['category' => $c]) }}" class="cs-filter-tab {{ $activeCat === $c ? 'active' : '' }}">{{ $c }}</a>
+            @endforeach
+        </div>
+        @endif
+
         <div class="projects-grid-full" data-aos="fade-up">
             @forelse($projects as $project)
             <div class="project-card" data-aos="fade-up" data-aos-delay="{{ $loop->index * 50 }}">

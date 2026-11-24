@@ -4,28 +4,16 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\CaseStudy;
-use Illuminate\Http\Request;
+use App\Models\Page;
 
 class CaseStudyController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        // Distinct work categories (for the filter tabs).
-        $categories = CaseStudy::where('is_active', true)
-            ->whereNotNull('category')->where('category', '!=', '')
-            ->distinct()->orderBy('category')->pluck('category');
+        $page    = Page::getPage('our-work');
+        $stories = CaseStudy::active()->get(); // real "Featured Work Stories"
 
-        $activeCat = $request->get('category');
-        $query = CaseStudy::active();
-        if ($activeCat && $categories->contains($activeCat)) {
-            $query->where('category', $activeCat);
-        } else {
-            $activeCat = null;
-        }
-
-        $caseStudies = $query->paginate(9)->withQueryString();
-
-        return view('frontend.our-work.index', compact('caseStudies', 'categories', 'activeCat'));
+        return view('frontend.our-work.index', compact('page', 'stories'));
     }
 
     public function show($slug)

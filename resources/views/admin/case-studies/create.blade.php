@@ -47,6 +47,11 @@
         </div>
 
         <div class="form-group">
+            <label>Overview <small class="text-muted">— project ka short intro (Featured Work card par dikhta hai)</small></label>
+            <textarea name="overview" class="form-control" rows="2" placeholder="Is project ke baare me ek-do line.">{{ old('overview', $caseStudy->overview ?? '') }}</textarea>
+        </div>
+
+        <div class="form-group">
             <label>Challenge <small class="text-muted">— client ki problem</small></label>
             <textarea name="challenge" class="form-control" rows="3" placeholder="Client kis problem ka saamna kar raha tha?">{{ old('challenge', $caseStudy->challenge ?? '') }}</textarea>
         </div>
@@ -59,6 +64,26 @@
         <div class="form-group">
             <label>Result <small class="text-muted">— short summary (Our Work card par dikhta hai)</small></label>
             <textarea name="result" class="form-control" rows="2" placeholder="Ek-do line ka measurable result.">{{ old('result', $caseStudy->result ?? '') }}</textarea>
+        </div>
+
+        @php
+            $feat = old('features', $caseStudy->features ?? []); if (is_array($feat)) $feat = implode("\n", $feat);
+            $tech = old('tech_stack', $caseStudy->tech_stack ?? []); if (is_array($tech)) $tech = implode(', ', $tech);
+        @endphp
+        <div class="form-group">
+            <label>Key Features <small class="text-muted">— ek line me ek feature</small></label>
+            <textarea name="features" class="form-control" rows="4" placeholder="Multi-channel publishing&#10;Role-based access&#10;Analytics dashboard">{{ $feat }}</textarea>
+        </div>
+
+        <div class="form-row-2">
+            <div class="form-group">
+                <label>Technology Stack <small class="text-muted">— comma separated</small></label>
+                <input type="text" name="tech_stack" class="form-control" value="{{ $tech }}" placeholder="Laravel, MySQL, Tailwind, Vue">
+            </div>
+            <div class="form-group">
+                <label>Project URL <small class="text-muted">(optional)</small></label>
+                <input type="url" name="project_url" class="form-control" value="{{ old('project_url', $caseStudy->project_url ?? '') }}" placeholder="https://...">
+            </div>
         </div>
 
         <div class="form-group">

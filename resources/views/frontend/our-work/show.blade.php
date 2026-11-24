@@ -48,6 +48,10 @@
                 <img src="{{ $caseStudy->thumbnail_url }}" alt="{{ $caseStudy->title }}" class="case-detail-img" loading="lazy">
                 @endif
 
+                @if($caseStudy->overview)
+                <p class="case-overview">{{ $caseStudy->overview }}</p>
+                @endif
+
                 @if($caseStudy->challenge)
                 <div class="cs-detail-block cs-detail-block--challenge">
                     <span class="cs-detail-ico"><i class="fas fa-circle-exclamation"></i></span>
@@ -67,6 +71,16 @@
                 </div>
                 @endif
 
+                @php $feats = is_array($caseStudy->features) ? $caseStudy->features : []; @endphp
+                @if(!empty($feats))
+                <div class="cs-detail-block cs-detail-block--features" style="border-left-color:#0a7ce0">
+                    <span class="cs-detail-ico" style="background:#0a7ce0"><i class="fas fa-list-check"></i></span>
+                    <div class="cs-detail-text"><h3>Key Features</h3>
+                        <ul class="cs-feat-list">@foreach($feats as $f)<li><i class="fas fa-circle-check"></i> {{ $f }}</li>@endforeach</ul>
+                    </div>
+                </div>
+                @endif
+
                 @if($caseStudy->content)
                 <div class="case-detail-content">{!! $caseStudy->content !!}</div>
                 @endif
@@ -79,8 +93,16 @@
                     <h4>Project Info</h4>
                     <ul class="project-info-list">
                         @if($caseStudy->client)<li><strong>Client:</strong> {{ $caseStudy->client }}</li>@endif
+                        @if($caseStudy->category)<li><strong>Category:</strong> {{ $caseStudy->category }}</li>@endif
                         @if($caseStudy->industry)<li><strong>Industry:</strong> {{ $caseStudy->industry }}</li>@endif
                     </ul>
+                    @php $tech = is_array($caseStudy->tech_stack) ? $caseStudy->tech_stack : []; @endphp
+                    @if(!empty($tech))
+                    <div class="sidebar-tech"><strong>Tech Stack</strong><div class="ow-tech" style="margin-top:8px">@foreach($tech as $t)<span>{{ $t }}</span>@endforeach</div></div>
+                    @endif
+                    @if($caseStudy->project_url)
+                    <a href="{{ $caseStudy->project_url }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-full mt-2"><i class="fas fa-external-link-alt"></i> Visit Live Project</a>
+                    @endif
                 </div>
                 <div class="sidebar-card cta-sidebar">
                     <h3>Want Similar Results?</h3>

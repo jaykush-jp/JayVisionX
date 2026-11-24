@@ -24,8 +24,11 @@
                 <input type="text" name="title" class="form-control" value="{{ old('title', $project->title ?? '') }}" required>
             </div>
             <div class="form-group">
-                <label>Category</label>
-                <input type="text" name="category" class="form-control" value="{{ old('category', $project->category ?? '') }}" placeholder="e.g. Website, Mobile App, SEO">
+                <label>Category <small class="text-muted">(groups it on the Projects page)</small></label>
+                <input type="text" name="category" class="form-control" list="projCats" value="{{ old('category', $project->category ?? '') }}" placeholder="e.g. SaaS Platform, Website">
+                <datalist id="projCats">
+                    <option value="SaaS Platform"><option value="Web Application"><option value="Website"><option value="Custom Software"><option value="Mobile App">
+                </datalist>
             </div>
         </div>
         <div class="form-row-2">

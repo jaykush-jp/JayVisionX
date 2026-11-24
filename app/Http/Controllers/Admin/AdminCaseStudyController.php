@@ -19,9 +19,11 @@ class AdminCaseStudyController extends Controller
             'thumbnail.image'    => 'File ek valid image honi chahiye (jpg, png, webp, gif).',
             'thumbnail.uploaded' => 'Image upload nahi ho payi — size 3 MB se bada hai. Chhoti image use karein.',
         ]);
-        $data = $request->except(['thumbnail', '_token', 'stats']);
+        $data = $request->except(['thumbnail', '_token', 'stats', 'features', 'tech_stack']);
         $data['slug'] = Str::slug($request->title);
         $data['stats'] = $this->cleanStats($request);
+        $data['features'] = $this->lines($request->input('features'));
+        $data['tech_stack'] = $this->csv($request->input('tech_stack'));
         if ($request->hasFile('thumbnail')) {
             $data['thumbnail'] = $request->file('thumbnail')->store('case-studies', 'public');
         }
@@ -36,9 +38,11 @@ class AdminCaseStudyController extends Controller
             'thumbnail.image'    => 'File ek valid image honi chahiye (jpg, png, webp, gif).',
             'thumbnail.uploaded' => 'Image upload nahi ho payi — size 3 MB se bada hai. Chhoti image use karein.',
         ]);
-        $data = $request->except(['thumbnail', '_token', '_method', 'stats']);
+        $data = $request->except(['thumbnail', '_token', '_method', 'stats', 'features', 'tech_stack']);
         $data['slug'] = Str::slug($request->title);
         $data['stats'] = $this->cleanStats($request);
+        $data['features'] = $this->lines($request->input('features'));
+        $data['tech_stack'] = $this->csv($request->input('tech_stack'));
         if ($request->hasFile('thumbnail')) {
             if ($caseStudy->thumbnail) Storage::disk('public')->delete($caseStudy->thumbnail);
             $data['thumbnail'] = $request->file('thumbnail')->store('case-studies', 'public');
@@ -74,5 +78,25 @@ class AdminCaseStudyController extends Controller
         }
 
         return $stats ?: null;
+    }
+
+    /** Newline-separated textarea → clean array (key features). */
+    private function lines(?string $raw): ?array
+    {
+        if (! $raw) {
+            return null;
+        }
+        $items = array_values(array_filter(array_map('trim', preg_split('/\r?\n/', $raw)), fn ($v) => $v !== ''));
+        return $items ?: null;
+    }
+
+    /** Comma/space-separated string → clean array (tech stack). */
+    private function csv(?string $raw): ?array
+    {
+        if (! $raw) {
+            return null;
+        }
+        $items = array_values(array_filter(array_map('trim', preg_split('/[,\n]+/', $raw)), fn ($v) => $v !== ''));
+        return $items ?: null;
     }
 }
