@@ -165,6 +165,120 @@
     </div>
 </div>
 
+<!-- ===== Custom confirm popup + toast (replaces native alert/confirm) ===== -->
+<style>
+.jvx-modal{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:20px}
+.jvx-modal.open{display:flex}
+.jvx-modal-backdrop{position:absolute;inset:0;background:rgba(15,23,42,.55)}
+.jvx-modal-box{position:relative;background:#fff;border-radius:16px;max-width:400px;width:100%;padding:28px 26px;text-align:center;box-shadow:0 30px 70px rgba(0,0,0,.3);animation:jvxPop .2s ease}
+@keyframes jvxPop{from{transform:translateY(10px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+.jvx-modal-icon{width:58px;height:58px;border-radius:50%;background:#fee2e2;color:#dc2626;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 16px}
+.jvx-modal-title{font-size:1.2rem;margin:0 0 8px;color:#0f172a;font-weight:700}
+.jvx-modal-text{color:#64748b;font-size:.95rem;margin:0 0 22px;line-height:1.5}
+.jvx-modal-actions{display:flex;gap:12px;justify-content:center}
+.jvx-modal-actions .jvx-btn{border:none;border-radius:10px;padding:11px 24px;font-size:.92rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s ease}
+.jvx-btn-ghost{background:#f1f5f9;color:#475569}
+.jvx-btn-ghost:hover{background:#e2e8f0}
+.jvx-btn-danger{background:#dc2626;color:#fff}
+.jvx-btn-danger:hover{background:#b91c1c}
+.jvx-toast-wrap{position:fixed;top:20px;right:20px;z-index:100000;display:flex;flex-direction:column;gap:10px;max-width:340px}
+.jvx-toast{background:#0f172a;color:#fff;padding:13px 16px;border-radius:10px;font-size:.9rem;box-shadow:0 12px 30px rgba(0,0,0,.25);display:flex;gap:10px;align-items:flex-start;line-height:1.4;animation:jvxToastIn .25s ease;transition:all .25s ease}
+.jvx-toast.err{background:#dc2626}
+.jvx-toast.ok{background:#16a34a}
+.jvx-toast i{margin-top:1px}
+@keyframes jvxToastIn{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
+</style>
+<div class="jvx-modal" id="jvxConfirm" aria-hidden="true">
+    <div class="jvx-modal-backdrop" data-jvx-cancel></div>
+    <div class="jvx-modal-box" role="dialog" aria-modal="true" aria-labelledby="jvxConfirmTitle">
+        <div class="jvx-modal-icon"><i class="fas fa-triangle-exclamation"></i></div>
+        <h3 class="jvx-modal-title" id="jvxConfirmTitle">Are you sure?</h3>
+        <p class="jvx-modal-text" id="jvxConfirmText"></p>
+        <div class="jvx-modal-actions">
+            <button type="button" class="jvx-btn jvx-btn-ghost" data-jvx-cancel>Cancel</button>
+            <button type="button" class="jvx-btn jvx-btn-danger" id="jvxConfirmOk">Confirm</button>
+        </div>
+    </div>
+</div>
+<div class="jvx-toast-wrap" id="jvxToasts"></div>
+<script>
+(function () {
+    var modal  = document.getElementById('jvxConfirm');
+    var textEl = document.getElementById('jvxConfirmText');
+    var okBtn  = document.getElementById('jvxConfirmOk');
+    var pendingForm = null;
+
+    function okLabel(msg) {
+        var m = (msg || '').toLowerCase();
+        if (m.indexOf('disconnect') > -1) return 'Disconnect';
+        if (m.indexOf('delete') > -1 || m.indexOf('remove') > -1) return 'Delete';
+        return 'Confirm';
+    }
+    function openModal(msg, form) {
+        pendingForm = form;
+        textEl.textContent = msg || 'Are you sure?';
+        okBtn.textContent  = okLabel(msg);
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        okBtn.focus();
+    }
+    function closeModal() {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        pendingForm = null;
+    }
+    okBtn.addEventListener('click', function () {
+        var f = pendingForm;
+        closeModal();
+        if (f) { f.dataset.jvxConfirmed = '1'; f.submit(); }
+    });
+    modal.querySelectorAll('[data-jvx-cancel]').forEach(function (b) {
+        b.addEventListener('click', closeModal);
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+    });
+
+    // Strip inline onsubmit="return confirm('…')" so the native dialog never fires.
+    document.querySelectorAll('form[onsubmit]').forEach(function (f) {
+        var os = f.getAttribute('onsubmit') || '';
+        var m  = os.match(/confirm\(\s*(['"])([\s\S]*?)\1\s*\)/);
+        if (m) {
+            f.dataset.confirm = m[2];
+            f.removeAttribute('onsubmit');
+            f.onsubmit = null;
+        }
+    });
+
+    // Intercept submit of any confirm form and show the custom popup instead.
+    document.addEventListener('submit', function (e) {
+        var f = e.target;
+        if (f && f.dataset && f.dataset.confirm && f.dataset.jvxConfirmed !== '1') {
+            e.preventDefault();
+            e.stopPropagation();
+            openModal(f.dataset.confirm, f);
+        }
+    }, true);
+
+    // Toast helper + replace blocking alert() with a non-blocking toast.
+    window.jvxToast = function (msg, type) {
+        var wrap = document.getElementById('jvxToasts');
+        if (!wrap) return;
+        var icon = type === 'err' ? 'circle-exclamation' : (type === 'ok' ? 'circle-check' : 'circle-info');
+        var t = document.createElement('div');
+        t.className = 'jvx-toast ' + (type || '');
+        t.innerHTML = '<i class="fas fa-' + icon + '"></i><span></span>';
+        t.querySelector('span').textContent = msg;
+        wrap.appendChild(t);
+        setTimeout(function () {
+            t.style.opacity = '0';
+            t.style.transform = 'translateX(20px)';
+            setTimeout(function () { t.remove(); }, 250);
+        }, 3800);
+    };
+    window.alert = function (msg) { window.jvxToast(String(msg), 'err'); };
+})();
+</script>
 <script src="{{ asset('js/admin.js') }}"></script>
 <script>
 /* Keep the sidebar scrolled to where it was after a page navigation, so the
