@@ -63,10 +63,8 @@
                         <label>Model</label>
                         <input type="text" name="model" id="aiModel" class="form-control" list="aiModelList" autocomplete="off" value="{{ old('model', $settings->model) }}" placeholder="{{ $providers[$settings->provider ?? 'anthropic']['default_model'] ?? '' }}">
                         <datalist id="aiModelList"></datalist>
-                        <div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap">
-                            <button type="button" id="aiLoadModels" class="btn btn-secondary btn-sm"><i class="fas fa-rotate"></i> Load available models</button>
-                            <small class="text-muted" id="aiModelStatus">Load your account's models, or type any model name.</small>
-                        </div>
+                        <button type="button" id="aiLoadModels" style="margin-top:8px;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;background:#eef4fc;color:#0a7ce0;border:1px solid #cfe2fa;border-radius:9px;padding:8px 15px;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s"><i class="fas fa-rotate"></i> Load available models</button>
+                        <small class="text-muted" id="aiModelStatus" style="display:block;margin-top:7px">Load your account's models, or type any model name.</small>
                     </div>
                 </div>
 

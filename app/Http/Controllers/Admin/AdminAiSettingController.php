@@ -138,7 +138,10 @@ class AdminAiSettingController extends Controller
             ]);
         }
 
-        $settings->max_response_tokens = 32; // cheap, fast key/model check (not saved)
+        // Keep a comfortable token budget — reasoning/"thinking" models (e.g.
+        // Gemini) can spend the whole budget before emitting any text, so a tiny
+        // cap makes a working model look dead.
+        $settings->max_response_tokens = max(256, (int) ($settings->max_response_tokens ?: 256));
 
         $reply = $ai->ask($settings, 'You are a connectivity test. Reply with exactly: OK', [
             ['role' => 'user', 'content' => 'Reply with OK.'],
@@ -157,7 +160,7 @@ class AdminAiSettingController extends Controller
         return response()->json([
             'ok'      => false,
             'message' => $ai->lastError()
-                ?: ('No response from ' . $def['label'] . '. Check the API key is valid & active, and that the Model name ("' . ($settings->model ?: $def['default_model']) . '") is correct.'),
+                ?: ('No text from ' . $def['label'] . ' (model "' . ($settings->model ?: $def['default_model']) . '"). Try "Load available models" and pick a valid one, or check the API key.'),
         ]);
     }
 
