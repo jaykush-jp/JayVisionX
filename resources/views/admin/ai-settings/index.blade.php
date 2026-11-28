@@ -61,8 +61,12 @@
                     </div>
                     <div class="form-group">
                         <label>Model</label>
-                        <input type="text" name="model" id="aiModel" class="form-control" value="{{ old('model', $settings->model) }}" placeholder="{{ $providers[$settings->provider ?? 'anthropic']['default_model'] ?? '' }}">
-                        <small class="text-muted">Leave blank to use the provider's default model.</small>
+                        <input type="text" name="model" id="aiModel" class="form-control" list="aiModelList" autocomplete="off" value="{{ old('model', $settings->model) }}" placeholder="{{ $providers[$settings->provider ?? 'anthropic']['default_model'] ?? '' }}">
+                        <datalist id="aiModelList"></datalist>
+                        <div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap">
+                            <button type="button" id="aiLoadModels" class="btn btn-secondary btn-sm"><i class="fas fa-rotate"></i> Load available models</button>
+                            <small class="text-muted" id="aiModelStatus">Load your account's models, or type any model name.</small>
+                        </div>
                     </div>
                 </div>
 
@@ -259,6 +263,36 @@
             }
         })
         .catch(function(){ show('err', '<i class="fas fa-circle-xmark"></i><span>Request failed. Try again.</span>'); })
+        .finally(function(){ btn.disabled = false; });
+    });
+})();
+(function(){
+    // Load the live list of models the saved key can use into the datalist.
+    var btn = document.getElementById('aiLoadModels');
+    var list = document.getElementById('aiModelList');
+    var status = document.getElementById('aiModelStatus');
+    var modelInput = document.getElementById('aiModel');
+    if (!btn) return;
+    btn.addEventListener('click', function(){
+        btn.disabled = true;
+        status.textContent = 'Loading models…';
+        fetch('{{ route('admin.ai-settings.models') }}', {
+            method:'POST',
+            headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}','X-Requested-With':'XMLHttpRequest'},
+            body:'{}'
+        })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+            if (d.ok && d.models && d.models.length) {
+                list.innerHTML = '';
+                d.models.forEach(function(m){ var o = document.createElement('option'); o.value = m; list.appendChild(o); });
+                status.textContent = d.count + ' models loaded — click the Model box to pick one.';
+                modelInput.focus();
+            } else {
+                status.textContent = d.message || 'Could not load models.';
+            }
+        })
+        .catch(function(){ status.textContent = 'Request failed. Try again.'; })
         .finally(function(){ btn.disabled = false; });
     });
 })();

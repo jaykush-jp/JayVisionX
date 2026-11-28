@@ -111,13 +111,23 @@ class AiProviderService
     /** Token usage from the last successful call: ['input'=>int,'output'=>int]. */
     private ?array $lastUsage = null;
 
+    /** Human-readable reason the last call failed (for the Test button). */
+    private ?string $lastError = null;
+
+    public function lastError(): ?string
+    {
+        return $this->lastError;
+    }
+
     public function ask(AiSetting $settings, string $system, array $messages): ?string
     {
         $provider = $settings->provider ?: 'anthropic';
         $def = self::PROVIDERS[$provider] ?? null;
         $key = $this->apiKey($settings);
+        $this->lastError = null;
 
         if (! $def || ! $key || empty($messages)) {
+            $this->lastError = ! $key ? 'No API key saved for this provider.' : 'Provider not available.';
             return null;
         }
 
@@ -140,8 +150,105 @@ class AiProviderService
             return $text;
         } catch (\Throwable $e) {
             Log::warning("AI provider [{$provider}] failed: " . $e->getMessage());
+            $this->lastError = 'Connection error: ' . $e->getMessage();
             return null;
         }
+    }
+
+    /** A short, actionable description of a failed provider HTTP response. */
+    private function describeError($res): string
+    {
+        $status = $res->status();
+        $msg = $res->json('error.message') ?? $res->json('error') ?? '';
+        if (is_array($msg)) {
+            $msg = json_encode($msg);
+        }
+        $hint = match (true) {
+            in_array($status, [401, 403], true) => 'API key is invalid, inactive or lacks access.',
+            $status === 404                     => 'Model name not found for this provider.',
+            $status === 429                     => 'Rate limit or quota exceeded.',
+            $status >= 500                      => 'Provider server error — try again shortly.',
+            $status === 400                     => 'Bad request — often a wrong model name.',
+            default                             => '',
+        };
+        $this->lastError = trim("HTTP {$status}. {$hint}" . ($msg ? " ({$msg})" : ''));
+        return $this->lastError;
+    }
+
+    /**
+     * Fetch the live list of models the active provider's key can use.
+     * Returns model id strings (empty on failure; see lastError()).
+     */
+    public function listModels(AiSetting $settings): array
+    {
+        $provider = $settings->provider ?: 'anthropic';
+        $def = self::PROVIDERS[$provider] ?? null;
+        $key = $this->apiKey($settings);
+        $this->lastError = null;
+
+        if (! $def || ! $key) {
+            $this->lastError = 'No API key saved for this provider.';
+            return [];
+        }
+
+        try {
+            return match ($def['type']) {
+                'gemini'    => $this->geminiModels($key),
+                'anthropic' => $this->anthropicModels($key),
+                'openai'    => $this->openaiModels($def['base'], $key),
+                default     => [],
+            };
+        } catch (\Throwable $e) {
+            $this->lastError = 'Connection error: ' . $e->getMessage();
+            return [];
+        }
+    }
+
+    private function geminiModels(string $key): array
+    {
+        $res = Http::timeout(20)->withOptions(['verify' => $this->sslVerify()])
+            ->get('https://generativelanguage.googleapis.com/v1beta/models', ['key' => $key, 'pageSize' => 200]);
+        if (! $res->successful()) {
+            $this->describeError($res);
+            return [];
+        }
+        $out = [];
+        foreach ($res->json('models', []) as $m) {
+            if (in_array('generateContent', $m['supportedGenerationMethods'] ?? [], true)) {
+                $out[] = preg_replace('#^models/#', '', $m['name'] ?? '');
+            }
+        }
+        return $this->tidyModels($out);
+    }
+
+    private function anthropicModels(string $key): array
+    {
+        $res = Http::withHeaders(['x-api-key' => $key, 'anthropic-version' => '2023-06-01'])
+            ->withOptions(['verify' => $this->sslVerify()])->timeout(20)
+            ->get('https://api.anthropic.com/v1/models', ['limit' => 100]);
+        if (! $res->successful()) {
+            $this->describeError($res);
+            return [];
+        }
+        return $this->tidyModels(array_map(fn ($m) => $m['id'] ?? '', $res->json('data', [])));
+    }
+
+    private function openaiModels(string $base, string $key): array
+    {
+        $res = Http::withToken($key)->withOptions(['verify' => $this->sslVerify()])->timeout(20)
+            ->get(rtrim($base, '/') . '/models');
+        if (! $res->successful()) {
+            $this->describeError($res);
+            return [];
+        }
+        return $this->tidyModels(array_map(fn ($m) => $m['id'] ?? '', $res->json('data', [])));
+    }
+
+    private function tidyModels(array $models): array
+    {
+        $models = array_values(array_filter(array_unique($models)));
+        sort($models);
+        return $models;
     }
 
     /** Store an estimated-cost usage row for the last call (best-effort). */
@@ -190,6 +297,7 @@ class AiProviderService
 
         if (! $res->successful()) {
             Log::warning('Anthropic API error: ' . $res->status() . ' ' . $res->body());
+            $this->describeError($res);
             return null;
         }
 
@@ -226,6 +334,7 @@ class AiProviderService
 
         if (! $res->successful()) {
             Log::warning('Gemini API error: ' . $res->status() . ' ' . $res->body());
+            $this->describeError($res);
             return null;
         }
 
@@ -259,6 +368,7 @@ class AiProviderService
 
         if (! $res->successful()) {
             Log::warning('OpenAI-compatible API error: ' . $res->status() . ' ' . $res->body());
+            $this->describeError($res);
             return null;
         }
 

@@ -152,6 +152,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('ai-settings', [AdminAiSettingController::class, 'index'])->name('ai-settings.index');
         Route::post('ai-settings', [AdminAiSettingController::class, 'update'])->name('ai-settings.update');
         Route::post('ai-settings/test', [AdminAiSettingController::class, 'test'])->name('ai-settings.test');
+        Route::post('ai-settings/models', [AdminAiSettingController::class, 'models'])->name('ai-settings.models');
 
         // API Credentials — AI providers, Google, Meta (encrypted, DB-managed)
         Route::get('credentials', [AdminCredentialController::class, 'index'])->name('credentials.index');

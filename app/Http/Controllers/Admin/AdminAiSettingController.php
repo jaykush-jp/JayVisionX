@@ -156,7 +156,31 @@ class AdminAiSettingController extends Controller
 
         return response()->json([
             'ok'      => false,
-            'message' => 'No response from ' . $def['label'] . '. Check the API key is valid & active, and that the Model name ("' . ($settings->model ?: $def['default_model']) . '") is correct.',
+            'message' => $ai->lastError()
+                ?: ('No response from ' . $def['label'] . '. Check the API key is valid & active, and that the Model name ("' . ($settings->model ?: $def['default_model']) . '") is correct.'),
+        ]);
+    }
+
+    /** Return the live list of models the active provider's key can use. */
+    public function models(AiProviderService $ai)
+    {
+        $settings = AiSetting::current();
+        $provider = $settings->provider ?: 'anthropic';
+        $models   = $ai->listModels($settings);
+
+        if (! empty($models)) {
+            return response()->json([
+                'ok'       => true,
+                'models'   => $models,
+                'provider' => AiProviderService::PROVIDERS[$provider]['label'] ?? $provider,
+                'count'    => count($models),
+            ]);
+        }
+
+        return response()->json([
+            'ok'      => false,
+            'message' => $ai->lastError() ?: 'Could not load models. Check the saved API key.',
+            'models'  => [],
         ]);
     }
 
