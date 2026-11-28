@@ -14,7 +14,7 @@ class AdminSocialPostController extends Controller
 {
     public function index(GoogleBusinessProfileService $gbp, MetaGraphService $meta)
     {
-        $posts = SocialPost::latest()->paginate(15);
+        $posts = SocialPost::latest()->paginate(10);
         $connections = [
             'google'    => $gbp->isConnected(),
             'facebook'  => $meta->isConnected(),
