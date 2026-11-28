@@ -111,5 +111,6 @@ class SocialPost extends Model
         'google'    => 'Google Business Profile',
         'facebook'  => 'Facebook',
         'instagram' => 'Instagram',
+        'linkedin'  => 'LinkedIn',
     ];
 }

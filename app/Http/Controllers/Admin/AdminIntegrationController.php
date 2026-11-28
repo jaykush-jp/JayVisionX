@@ -9,6 +9,7 @@ use App\Models\Setting;
 use App\Models\AiSetting;
 use App\Services\AiProviderService;
 use App\Services\GoogleBusinessProfileService;
+use App\Services\LinkedInService;
 use App\Services\MetaGraphService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -25,7 +26,7 @@ use Illuminate\Support\Str;
  */
 class AdminIntegrationController extends Controller
 {
-    public function index(GoogleBusinessProfileService $gbp, MetaGraphService $meta)
+    public function index(GoogleBusinessProfileService $gbp, MetaGraphService $meta, LinkedInService $linkedin)
     {
         $cards = [
             [
@@ -99,6 +100,20 @@ class AdminIntegrationController extends Controller
                 'can_toggle'  => Credential::rawHas('meta.app_id'),
                 'enabled'     => Credential::isActive('meta.app_id'),
             ],
+            [
+                'key'       => 'linkedin',
+                'name'      => 'LinkedIn',
+                'icon'      => 'fab fa-linkedin',
+                'oauth'     => true,
+                'configured'=> $linkedin->isConfigured(),
+                'connected' => $linkedin->isConnected(),
+                'detail'    => $linkedin->isConnected()
+                    ? ('Connected: ' . ($linkedin->accountLabel() ?: 'LinkedIn account'))
+                    : ($linkedin->isConfigured() ? 'Ready to connect — publish posts to your LinkedIn feed.' : 'Add LinkedIn app credentials in API Credentials to enable.'),
+                'toggle_key'  => 'linkedin',
+                'can_toggle'  => Credential::rawHas('linkedin.client_id'),
+                'enabled'     => Credential::isActive('linkedin.client_id'),
+            ],
         ];
 
         return view('admin.integrations.index', compact('cards'));
@@ -135,6 +150,20 @@ class AdminIntegrationController extends Controller
                 'state'         => $this->issueState('meta'),
             ]);
             return redirect('https://www.facebook.com/' . (Credential::get('meta.graph_version') ?: 'v21.0') . '/dialog/oauth?' . $params);
+        }
+
+        if ($provider === 'linkedin') {
+            if (! Credential::get('linkedin.client_id')) {
+                return back()->with('error', 'LinkedIn app credentials are not configured in API Credentials yet.');
+            }
+            $params = http_build_query([
+                'response_type' => 'code',
+                'client_id'     => Credential::get('linkedin.client_id'),
+                'redirect_uri'  => route('admin.integrations.callback', 'linkedin'),
+                'scope'         => Credential::get('linkedin.scopes') ?: 'openid profile w_member_social',
+                'state'         => $this->issueState('linkedin'),
+            ]);
+            return redirect('https://www.linkedin.com/oauth/v2/authorization?' . $params);
         }
 
         abort(404);
@@ -174,6 +203,16 @@ class AdminIntegrationController extends Controller
                 ])->json();
 
                 $this->storeToken('meta', $res, 'Meta (Facebook & Instagram)');
+            } elseif ($provider === 'linkedin') {
+                $res = Http::asForm()->post('https://www.linkedin.com/oauth/v2/accessToken', [
+                    'grant_type'    => 'authorization_code',
+                    'code'          => $request->code,
+                    'redirect_uri'  => route('admin.integrations.callback', 'linkedin'),
+                    'client_id'     => Credential::get('linkedin.client_id'),
+                    'client_secret' => Credential::get('linkedin.client_secret'),
+                ])->json();
+
+                $this->storeToken('linkedin', $res, 'LinkedIn');
             } else {
                 abort(404);
             }
@@ -201,6 +240,7 @@ class AdminIntegrationController extends Controller
             'anthropic' => 'ai.' . (AiSetting::current()->provider ?: 'gemini') . '.key',
             'google'    => 'google.client_id',
             'meta'      => 'meta.app_id',
+            'linkedin'  => 'linkedin.client_id',
             default     => null,
         };
 
@@ -215,6 +255,7 @@ class AdminIntegrationController extends Controller
             'anthropic' => 'AI Chatbot',
             'google'    => 'Google',
             'meta'      => 'Meta',
+            'linkedin'  => 'LinkedIn',
             default     => Str::title($provider),
         };
 
@@ -265,6 +306,20 @@ class AdminIntegrationController extends Controller
             $accessToken = $assets['token'] ?: $accessToken;
             if (! empty($assets['label'])) {
                 $label = $assets['label'];
+            }
+        }
+
+        // LinkedIn: the member URN (needed to author posts) comes from the
+        // OpenID userinfo endpoint — store it alongside the token.
+        if ($provider === 'linkedin') {
+            try {
+                $info = Http::withToken($accessToken)->get('https://api.linkedin.com/v2/userinfo')->json();
+                if (! empty($info['sub'])) {
+                    $meta  = ['person_urn' => 'urn:li:person:' . $info['sub'], 'name' => $info['name'] ?? null];
+                    $label = $info['name'] ?? 'LinkedIn';
+                }
+            } catch (\Throwable $e) {
+                Log::warning('LinkedIn userinfo fetch failed: ' . $e->getMessage());
             }
         }
 

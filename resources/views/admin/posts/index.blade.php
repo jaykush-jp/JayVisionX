@@ -75,6 +75,7 @@
 .sp-pv-tab[data-pv=instagram].active { color:#dc2743; }
 .sp-pv-tab[data-pv=facebook].active { color:#1877f2; }
 .sp-pv-tab[data-pv=google].active { color:#0f9d58; }
+.sp-pv-tab[data-pv=linkedin].active { color:#0a66c2; }
 
 .sp-phone { background:#fff; border:1px solid #e6ecf5; border-radius:16px; overflow:hidden; box-shadow:0 12px 40px rgba(10,22,40,.12); max-width:390px; margin:0 auto; }
 .sp-pv-head { display:flex; align-items:center; gap:10px; padding:12px 14px; }
@@ -97,11 +98,12 @@
 .sp-pv-tags { color:#00376b; }
 
 /* facebook chrome */
-.sp-phone .sp-fb-only, .sp-phone .sp-ig-only, .sp-phone .sp-g-only { display:none; }
+.sp-phone .sp-fb-only, .sp-phone .sp-ig-only, .sp-phone .sp-g-only, .sp-phone .sp-li-only { display:none; }
 .sp-phone--instagram .sp-ig-only { display:block; }
 .sp-phone--instagram .sp-ig-actions { display:flex; }
 .sp-phone--facebook .sp-fb-only { display:block; }
 .sp-phone--google .sp-g-only { display:block; }
+.sp-phone--linkedin .sp-li-only { display:block; }
 .sp-fb-text { padding:4px 14px 12px; font-size:.9rem; color:#1c1e21; line-height:1.5; white-space:pre-wrap; word-break:break-word; }
 .sp-fb-bar { display:flex; border-top:1px solid #eceef1; }
 .sp-fb-bar span { flex:1; text-align:center; padding:9px; font-size:.82rem; color:#65676b; font-weight:600; }
@@ -203,7 +205,7 @@
                 <label class="sp-plat {{ $conn ? 'connected' : '' }}" data-p="{{ $key }}">
                     <input type="checkbox" name="platforms[]" value="{{ $key }}">
                     <span class="sp-plat-ic"><i class="fab fa-{{ $key === 'google' ? 'google' : $key }}"></i></span>
-                    <span><b>{{ $key === 'google' ? 'Google' : ucfirst($key) }}</b><small class="sp-hint">{{ $conn ? 'Connected' : 'Not connected' }}</small></span>
+                    <span><b>{{ $key === 'google' ? 'Google' : ($key === 'linkedin' ? 'LinkedIn' : ucfirst($key)) }}</b><small class="sp-hint">{{ $conn ? 'Connected' : 'Not connected' }}</small></span>
                     <span class="sp-dot" title="{{ $conn ? 'Connected' : 'Not connected' }}"></span>
                 </label>
                 @endforeach
@@ -228,6 +230,7 @@
             <button type="button" class="sp-pv-tab active" data-pv="instagram"><i class="fab fa-instagram"></i> Instagram</button>
             <button type="button" class="sp-pv-tab" data-pv="facebook"><i class="fab fa-facebook"></i> Facebook</button>
             <button type="button" class="sp-pv-tab" data-pv="google"><i class="fab fa-google"></i> Google</button>
+            <button type="button" class="sp-pv-tab" data-pv="linkedin"><i class="fab fa-linkedin"></i> LinkedIn</button>
         </div>
 
         <div class="sp-phone sp-phone--instagram" id="spPhone">
@@ -236,12 +239,12 @@
                 <div class="sp-pv-meta">
                     <b id="spPvName">{{ $igHandle }}</b>
                     <span id="spPvLoc" class="sp-ig-only" style="display:none"></span>
-                    <span class="sp-fb-only">Just now · <i class="fas fa-globe-americas"></i></span>
+                    <span class="sp-fb-only sp-li-only">Just now · <i class="fas fa-globe-americas"></i></span>
                 </div>
                 <i class="fas fa-ellipsis-h"></i>
             </div>
 
-            <div class="sp-fb-text sp-fb-only" id="spPvFbText"></div>
+            <div class="sp-fb-text sp-fb-only sp-li-only" id="spPvFbText"></div>
 
             <div class="sp-pv-media" id="spPvMedia">
                 <div class="sp-pv-ph"><i class="fas fa-image"></i><p>Image preview</p></div>
@@ -255,7 +258,7 @@
             <div class="sp-pv-caption sp-ig-only"><b id="spPvIgName">{{ $igHandle }}</b><span id="spPvIgCap"></span></div>
 
             <!-- Facebook -->
-            <div class="sp-fb-bar sp-fb-only"><span><i class="far fa-thumbs-up"></i> Like</span><span><i class="far fa-comment"></i> Comment</span><span><i class="fas fa-share"></i> Share</span></div>
+            <div class="sp-fb-bar sp-fb-only sp-li-only"><span><i class="far fa-thumbs-up"></i> Like</span><span><i class="far fa-comment"></i> Comment</span><span><i class="fas fa-share"></i> Share</span></div>
 
             <!-- Google -->
             <div class="sp-g-text sp-g-only" id="spPvGText"></div>

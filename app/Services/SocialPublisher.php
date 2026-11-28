@@ -9,6 +9,7 @@ class SocialPublisher
     public function __construct(
         private GoogleBusinessProfileService $gbp,
         private MetaGraphService $meta,
+        private LinkedInService $linkedin,
     ) {}
 
     /**
@@ -29,6 +30,7 @@ class SocialPublisher
                 'google'    => $this->gbp->createPost($caption, $imageUrl),
                 'facebook'  => $this->meta->createFacebookPost($caption, $imageUrl),
                 'instagram' => $this->meta->createInstagramPost($caption, $imageUrl),
+                'linkedin'  => $this->linkedin->createPost($caption, $imageUrl),
                 default     => null,
             };
             if ($id) {
@@ -65,6 +67,11 @@ class SocialPublisher
             'google'    => ! $this->gbp->isConnected()
                     ? 'Google: not connected — Connect in Integrations.'
                     : 'Google: business location not linked yet.',
+            'linkedin'  => ! $this->linkedin->isConnected()
+                    ? 'LinkedIn: not connected — Connect in Integrations.'
+                    : (! $this->linkedin->personUrn()
+                        ? 'LinkedIn: profile not detected — disconnect & reconnect (needs openid + profile scopes).'
+                        : 'LinkedIn: publish was rejected — check the "Share on LinkedIn" product & w_member_social scope.'),
             default     => ucfirst($platform) . ': publish failed.',
         };
     }

@@ -55,6 +55,12 @@ class AdminCredentialController extends Controller
                 'meta.page_access_token' => ['label' => 'Page Access Token',        'secret' => true],
                 'meta.lead_verify_token' => ['label' => 'Lead Webhook Verify Token', 'secret' => true],
             ],
+            'LinkedIn' => [
+                'linkedin.client_id'     => ['label' => 'Client ID',     'secret' => false, 'hint' => 'linkedin.com/developers — your app'],
+                'linkedin.client_secret' => ['label' => 'Client Secret', 'secret' => true],
+                'linkedin.scopes'        => ['label' => 'OAuth Scopes',  'secret' => false, 'hint' => 'openid profile w_member_social'],
+                'linkedin.api_version'   => ['label' => 'API Version',   'secret' => false, 'hint' => 'e.g. 202411 (YYYYMM)'],
+            ],
         ];
     }
 
