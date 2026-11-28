@@ -196,6 +196,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('contacts/{id}/note', [AdminContactController::class, 'storeNote'])->name('contacts.note');
         Route::post('contacts/{id}/follow-up', [AdminContactController::class, 'setFollowUp'])->name('contacts.follow-up');
         Route::post('contacts/{id}/reply', [AdminContactController::class, 'reply'])->name('contacts.reply');
+        Route::post('contacts/{id}/ai-followup', [AdminContactController::class, 'toggleAiFollowup'])->name('contacts.ai-followup');
 
         // Email templates
         Route::resource('email-templates', AdminEmailTemplateController::class)->except('show');

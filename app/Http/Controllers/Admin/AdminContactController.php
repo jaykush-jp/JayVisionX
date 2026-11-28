@@ -174,6 +174,26 @@ class AdminContactController extends Controller
         );
     }
 
+    /** Pause or resume AI auto follow-up for a single lead. */
+    public function toggleAiFollowup($id)
+    {
+        $lead = Contact::findOrFail($id);
+        $pause = ! $lead->ai_followup_opt_out;
+
+        $lead->ai_followup_opt_out = $pause;
+        if (! $pause) {
+            // Resuming: queue the next follow-up now if there are any left.
+            $max = max(1, (int) (\App\Models\Setting::get('ai_followup_max') ?: 3));
+            $lead->ai_followup_at = ($lead->ai_followups_sent < $max && ! in_array($lead->status, ['won', 'lost'], true))
+                ? now() : null;
+        }
+        $lead->save();
+
+        $this->log($lead, 'note', $pause ? 'AI follow-up paused.' : 'AI follow-up resumed.');
+
+        return back()->with('success', $pause ? 'AI follow-up paused for this lead.' : 'AI follow-up resumed.');
+    }
+
     public function destroy($id)
     {
         Contact::findOrFail($id)->delete();

@@ -11,14 +11,33 @@ class Contact extends Model
         'name', 'phone', 'email', 'service_interested', 'budget', 'message',
         'is_read', 'ip_address',
         'status', 'source', 'value', 'last_contacted_at', 'follow_up_at',
+        'ai_followups_sent', 'ai_followup_at', 'ai_followup_opt_out',
     ];
 
     protected $casts = [
-        'is_read'           => 'boolean',
-        'value'             => 'decimal:2',
-        'last_contacted_at' => 'datetime',
-        'follow_up_at'      => 'datetime',
+        'is_read'             => 'boolean',
+        'value'               => 'decimal:2',
+        'last_contacted_at'   => 'datetime',
+        'follow_up_at'        => 'datetime',
+        'ai_followup_at'      => 'datetime',
+        'ai_followup_opt_out' => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        // When AI auto follow-up is on, schedule a new lead's first follow-up so
+        // the scheduler picks it up on its next run. Only for leads with an email
+        // that are still open.
+        static::creating(function (Contact $lead) {
+            if (empty($lead->ai_followup_at)
+                && ! $lead->ai_followup_opt_out
+                && ! empty($lead->email)
+                && ! in_array($lead->status, ['won', 'lost'], true)
+                && Setting::get('ai_followup_enabled')) {
+                $lead->ai_followup_at = now();
+            }
+        });
+    }
 
     /** Pipeline stages, in order, with a label + badge colour key. */
     public const STATUSES = [

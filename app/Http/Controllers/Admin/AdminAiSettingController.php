@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AiSetting;
 use App\Models\AuditLog;
 use App\Models\Credential;
+use App\Models\Setting;
 use App\Services\AiProviderService;
 use Illuminate\Http\Request;
 
@@ -35,6 +36,12 @@ class AdminAiSettingController extends Controller
             'providers'   => AiProviderService::PROVIDERS,
             'keyIsSet'    => Credential::has("ai.{$settings->provider}.key") || (bool) $settings->api_key,
             'activeKeyOk' => $ai->isConfigured($settings),
+            'followup'    => [
+                'enabled'      => (bool) Setting::get('ai_followup_enabled'),
+                'max'          => (int) (Setting::get('ai_followup_max') ?: 3),
+                'gap_hours'    => (int) (Setting::get('ai_followup_gap_hours') ?: 48),
+                'instructions' => (string) Setting::get('ai_followup_instructions'),
+            ],
         ]);
     }
 
@@ -57,6 +64,9 @@ class AdminAiSettingController extends Controller
             'rate_limit_per_minute' => 'nullable|integer|min:1|max:120',
             'daily_message_limit'  => 'nullable|integer|min:0',
             'monthly_cost_cap'     => 'nullable|numeric|min:0',
+            'ai_followup_max'      => 'nullable|integer|min:1|max:10',
+            'ai_followup_gap_hours' => 'nullable|integer|min:1|max:720',
+            'ai_followup_instructions' => 'nullable|string|max:1000',
         ]);
 
         $settings = AiSetting::current();
@@ -87,6 +97,12 @@ class AdminAiSettingController extends Controller
             'daily_message_limit'  => $data['daily_message_limit'] ?? null,
             'monthly_cost_cap'     => $data['monthly_cost_cap'] ?? null,
         ])->save();
+
+        // Lead AI auto follow-up settings (stored in the settings table).
+        Setting::set('ai_followup_enabled', $request->boolean('ai_followup_enabled') ? '1' : '');
+        Setting::set('ai_followup_max', (string) ($data['ai_followup_max'] ?? 3));
+        Setting::set('ai_followup_gap_hours', (string) ($data['ai_followup_gap_hours'] ?? 48));
+        Setting::set('ai_followup_instructions', trim((string) ($data['ai_followup_instructions'] ?? '')));
 
         AuditLog::record('updated', 'ai_setting', $settings->id, ['is_enabled' => $settings->is_enabled, 'model' => $settings->model]);
 

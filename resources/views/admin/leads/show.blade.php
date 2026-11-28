@@ -60,6 +60,38 @@
             </form>
         </div>
 
+        <!-- AI auto follow-up -->
+        @php
+            $fuEnabled = (bool) \App\Models\Setting::get('ai_followup_enabled');
+            $fuMax = (int) (\App\Models\Setting::get('ai_followup_max') ?: 3);
+        @endphp
+        <div class="admin-form-card">
+            <h3 class="section-heading"><i class="fas fa-robot"></i> AI Auto Follow-up</h3>
+            @if(! $fuEnabled)
+                <p class="text-muted" style="margin:0">AI follow-up abhi band hai. <a href="{{ route('admin.ai-settings.index') }}">AI Configuration</a> me enable karein.</p>
+            @else
+                <p style="margin:0 0 10px">
+                    Sent: <strong>{{ $lead->ai_followups_sent }}/{{ $fuMax }}</strong>
+                    @if($lead->ai_followup_opt_out)
+                        · <span class="badge badge-no">Paused</span>
+                    @elseif(in_array($lead->status, ['won','lost']))
+                        · <span class="text-muted">Stopped ({{ $lead->statusLabel() }})</span>
+                    @elseif($lead->ai_followup_at)
+                        · Next: <strong>{{ $lead->ai_followup_at->format('d M, h:i A') }}</strong>
+                    @elseif($lead->ai_followups_sent >= $fuMax)
+                        · <span class="badge badge-yes">All sent</span>
+                    @endif
+                </p>
+                <form action="{{ route('admin.contacts.ai-followup', $lead->id) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-secondary">
+                        <i class="fas fa-{{ $lead->ai_followup_opt_out ? 'play' : 'pause' }}"></i>
+                        {{ $lead->ai_followup_opt_out ? 'Resume AI follow-up' : 'Pause AI follow-up' }}
+                    </button>
+                </form>
+            @endif
+        </div>
+
         <!-- Reply by email -->
         <div class="admin-form-card">
             <h3 class="section-heading">Send Email Reply</h3>

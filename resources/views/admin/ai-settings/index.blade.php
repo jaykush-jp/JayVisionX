@@ -128,6 +128,29 @@
                     </div>
                 </div>
 
+                <h3 class="section-heading" style="margin-top:8px"><i class="fas fa-user-clock"></i> Lead auto follow-up (AI)</h3>
+                <p class="text-muted" style="margin:-6px 0 14px;font-size:.85rem">Jab koi naya lead aata hai (jiska email ho), AI apne-aap warm follow-up emails bhejta rahega jab tak lead reply na kare ya Won/Lost na ho jaye. AI key na ho to friendly template emails jaati hain.</p>
+                <div class="form-group form-check-group">
+                    <label class="form-check-label">
+                        <input type="checkbox" name="ai_followup_enabled" value="1" {{ ($followup['enabled'] ?? false) ? 'checked' : '' }}>
+                        <span>Enable AI auto follow-up for new leads</span>
+                    </label>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Max follow-ups per lead</label>
+                        <input type="number" name="ai_followup_max" class="form-control" value="{{ old('ai_followup_max', $followup['max'] ?? 3) }}" min="1" max="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Gap between follow-ups <small class="text-muted">(hours)</small></label>
+                        <input type="number" name="ai_followup_gap_hours" class="form-control" value="{{ old('ai_followup_gap_hours', $followup['gap_hours'] ?? 48) }}" min="1" max="720">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Follow-up instructions / tone <small class="text-muted">(optional)</small></label>
+                    <textarea name="ai_followup_instructions" class="form-control" rows="2" placeholder="e.g. mention our ₹6,999 website offer, keep it friendly and short">{{ old('ai_followup_instructions', $followup['instructions'] ?? '') }}</textarea>
+                </div>
+
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save"></i> Save Configuration</button>
                 </div>
