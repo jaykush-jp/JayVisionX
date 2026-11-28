@@ -80,9 +80,16 @@ class AdminAiSettingController extends Controller
             $settings->api_key = null; // legacy column no longer used for reads
         }
 
+        // Blank model = use the provider's current default (the column is NOT
+        // NULL, and a blank box submits as null, so resolve it here).
+        $model = trim((string) ($data['model'] ?? ''));
+        if ($model === '') {
+            $model = AiProviderService::PROVIDERS[$newProvider]['default_model'] ?? 'gpt-4o-mini';
+        }
+
         $settings->fill([
             'provider'             => $newProvider,
-            'model'                => $data['model'] ?? null,
+            'model'                => $model,
             'business_description' => $data['business_description'] ?? null,
             'system_prompt'        => $data['system_prompt'] ?? null,
             'welcome_message'      => $data['welcome_message'] ?? null,
