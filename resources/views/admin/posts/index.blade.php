@@ -54,9 +54,11 @@
 .sp-plat[data-p=instagram] .sp-plat-ic { background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); }
 .sp-plat[data-p=facebook] .sp-plat-ic { background:#1877f2; }
 .sp-plat[data-p=google] .sp-plat-ic { background:#0f9d58; }
+.sp-plat[data-p=linkedin] .sp-plat-ic { background:#0a66c2; }
+.sp-plat-ic + span { flex:1; min-width:0; }
 .sp-plat b { font-size:.86rem; color:#223; display:block; }
 .sp-plat small { font-size:.7rem; }
-.sp-plat .sp-dot { margin-left:auto; width:9px; height:9px; border-radius:50%; background:#cbd5e1; flex-shrink:0; }
+.sp-plat .sp-dot { width:9px; height:9px; border-radius:50%; background:#cbd5e1; flex-shrink:0; align-self:center; }
 .sp-plat.connected .sp-dot { background:#22c55e; }
 .sp-plat.checked { border-color:var(--primary,#0a7ce0); box-shadow:0 0 0 3px rgba(10,124,224,.1); background:#f5faff; }
 
@@ -204,7 +206,7 @@
                 @php $conn = $connections[$key] ?? false; @endphp
                 <label class="sp-plat {{ $conn ? 'connected' : '' }}" data-p="{{ $key }}">
                     <input type="checkbox" name="platforms[]" value="{{ $key }}">
-                    <span class="sp-plat-ic"><i class="fab fa-{{ $key === 'google' ? 'google' : $key }}"></i></span>
+                    <span class="sp-plat-ic"><i class="fab fa-{{ $key === 'google' ? 'google' : ($key === 'linkedin' ? 'linkedin-in' : $key) }}"></i></span>
                     <span><b>{{ $key === 'google' ? 'Google' : ($key === 'linkedin' ? 'LinkedIn' : ucfirst($key)) }}</b><small class="sp-hint">{{ $conn ? 'Connected' : 'Not connected' }}</small></span>
                     <span class="sp-dot" title="{{ $conn ? 'Connected' : 'Not connected' }}"></span>
                 </label>
