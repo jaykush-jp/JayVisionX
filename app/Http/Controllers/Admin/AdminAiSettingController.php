@@ -109,6 +109,50 @@ class AdminAiSettingController extends Controller
         return back()->with('success', 'AI configuration saved.');
     }
 
+    /**
+     * Live check that the selected provider's saved API key actually works —
+     * sends a tiny request using the provider's default model and reports back.
+     */
+    public function test(AiProviderService $ai)
+    {
+        // Test the SAVED configuration exactly as the chatbot uses it — same
+        // provider, model and key — so the result reflects the real setup.
+        $settings = AiSetting::current();
+        $provider = $settings->provider ?: 'anthropic';
+        $def = AiProviderService::PROVIDERS[$provider] ?? null;
+
+        if (! $def) {
+            return response()->json(['ok' => false, 'message' => 'Unknown provider selected.']);
+        }
+        if (! $ai->isConfigured($settings)) {
+            return response()->json([
+                'ok'      => false,
+                'message' => "No API key saved for {$def['label']}. Add the key and Save first.",
+            ]);
+        }
+
+        $settings->max_response_tokens = 32; // cheap, fast key/model check (not saved)
+
+        $reply = $ai->ask($settings, 'You are a connectivity test. Reply with exactly: OK', [
+            ['role' => 'user', 'content' => 'Reply with OK.'],
+        ]);
+
+        if ($reply !== null && trim($reply) !== '') {
+            return response()->json([
+                'ok'       => true,
+                'message'  => 'Connection working',
+                'provider' => $def['label'],
+                'model'    => $settings->model ?: $def['default_model'],
+                'reply'    => mb_substr(trim($reply), 0, 80),
+            ]);
+        }
+
+        return response()->json([
+            'ok'      => false,
+            'message' => 'No response from ' . $def['label'] . '. Check the API key is valid & active, and that the Model name ("' . ($settings->model ?: $def['default_model']) . '") is correct.',
+        ]);
+    }
+
     private function linesToArray(?string $raw): ?array
     {
         if (! $raw) {

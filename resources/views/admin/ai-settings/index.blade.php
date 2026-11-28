@@ -1,12 +1,37 @@
 @extends('admin.layouts.app')
 @section('title', 'AI Configuration')
 @section('content')
+<style>
+.ai-config .section-heading { display:flex; align-items:center; gap:9px; font-size:1rem; font-weight:700; color:#0f172a; padding-bottom:9px; border-bottom:2px solid #eef2f7; margin:24px 0 16px; }
+.ai-config .section-heading i { color:#0a7ce0; }
+.ai-config .admin-form-card { border-radius:16px; }
+.ai-config label { font-weight:600; color:#334155; font-size:.86rem; }
+.ai-config .form-control { border-radius:10px; }
+.ai-subcard { background:#f8fafc; border:1px solid #eef2f7; border-radius:14px; padding:14px 18px 4px; margin-top:20px; }
+.ai-subcard .section-heading { margin-top:4px; border-bottom-color:#e2e8f0; }
+.ai-subcard--accent { background:linear-gradient(135deg,#eff6ff,#f6faff); border-color:#dbeafe; }
+.ai-subcard--accent .section-heading i { color:#0a66c2; }
+/* Provider connection card */
+.ai-test-card { text-align:left; }
+.ai-provider-row { display:flex; align-items:center; gap:12px; padding:12px 14px; background:#f8fafc; border:1px solid #eef2f7; border-radius:12px; margin-bottom:12px; }
+.ai-provider-ic { width:42px; height:42px; border-radius:11px; background:linear-gradient(145deg,#0a7ce0,#13b0ff); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
+.ai-provider-meta b { display:block; font-size:.95rem; color:#0f172a; }
+.ai-provider-meta small { color:#64748b; font-size:.78rem; }
+.ai-test-btn { width:100%; justify-content:center; }
+.ai-test-result { margin-top:12px; padding:12px 14px; border-radius:11px; font-size:.86rem; display:none; align-items:flex-start; gap:9px; line-height:1.45; }
+.ai-test-result.show { display:flex; }
+.ai-test-result.ok { background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; }
+.ai-test-result.err { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+.ai-test-result.load { background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; }
+.ai-test-result i { margin-top:2px; }
+.ai-config .lead-badge { font-size:.68rem; padding:2px 8px; border-radius:20px; vertical-align:middle; }
+</style>
 <div class="page-header-row">
-    <h2>AI Configuration</h2>
+    <h2><i class="fas fa-robot" style="color:#0a7ce0"></i> AI Configuration</h2>
     <a href="{{ route('admin.inbox.index') }}" class="btn btn-secondary"><i class="fas fa-inbox"></i> Live Inbox</a>
 </div>
 
-<div class="crm-detail-grid">
+<div class="crm-detail-grid ai-config">
     <!-- Settings form -->
     <div class="crm-col">
         <div class="admin-form-card">
@@ -106,7 +131,8 @@
                     <textarea name="fallback_message" class="form-control" rows="2">{{ old('fallback_message', $settings->fallback_message) }}</textarea>
                 </div>
 
-                <h3 class="section-heading" style="margin-top:8px">Limits &amp; cost safeguards</h3>
+                <div class="ai-subcard">
+                <h3 class="section-heading" style="margin-top:0"><i class="fas fa-shield-halved"></i> Limits &amp; cost safeguards</h3>
                 <div class="form-row-2">
                     <div class="form-group">
                         <label>Rate limit (messages / minute / visitor)</label>
@@ -127,8 +153,10 @@
                         <input type="number" step="0.01" name="monthly_cost_cap" class="form-control" value="{{ old('monthly_cost_cap', $settings->monthly_cost_cap) }}" min="0">
                     </div>
                 </div>
+                </div>
 
-                <h3 class="section-heading" style="margin-top:8px"><i class="fas fa-user-clock"></i> Lead auto follow-up (AI)</h3>
+                <div class="ai-subcard ai-subcard--accent">
+                <h3 class="section-heading" style="margin-top:0"><i class="fas fa-user-clock"></i> Lead auto follow-up (AI)</h3>
                 <p class="text-muted" style="margin:-6px 0 14px;font-size:.85rem">Jab koi naya lead aata hai (jiska email ho), AI apne-aap warm follow-up emails bhejta rahega jab tak lead reply na kare ya Won/Lost na ho jaye. AI key na ho to friendly template emails jaati hain.</p>
                 <div class="form-group form-check-group">
                     <label class="form-check-label">
@@ -150,6 +178,7 @@
                     <label>Follow-up instructions / tone <small class="text-muted">(optional)</small></label>
                     <textarea name="ai_followup_instructions" class="form-control" rows="2" placeholder="e.g. mention our ₹6,999 website offer, keep it friendly and short">{{ old('ai_followup_instructions', $followup['instructions'] ?? '') }}</textarea>
                 </div>
+                </div>
 
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save"></i> Save Configuration</button>
@@ -158,10 +187,24 @@
         </div>
     </div>
 
-    <!-- Test chat -->
+    <!-- Provider test + Test chat -->
     <div class="crm-col">
+        <div class="admin-form-card ai-test-card">
+            <h3 class="section-heading"><i class="fas fa-plug-circle-check"></i> Provider connection</h3>
+            <div class="ai-provider-row">
+                <span class="ai-provider-ic"><i class="fas fa-microchip"></i></span>
+                <div class="ai-provider-meta">
+                    <b id="aiProvName">{{ $providers[$settings->provider ?? 'anthropic']['label'] ?? '—' }}</b>
+                    <small>{{ $keyIsSet ? 'API key saved' : 'No API key saved yet' }}</small>
+                </div>
+            </div>
+            <button type="button" id="aiTestBtn" class="btn btn-primary ai-test-btn"><i class="fas fa-bolt"></i> Test connection</button>
+            <div id="aiTestResult" class="ai-test-result"></div>
+            <p class="text-muted" style="font-size:.76rem;margin:10px 0 0">Provider ya key badli? Pehle <strong>Save Configuration</strong> karo, phir test.</p>
+        </div>
+
         <div class="admin-form-card">
-            <h3 class="section-heading">Test chat</h3>
+            <h3 class="section-heading"><i class="fas fa-comments"></i> Test chat</h3>
             <p class="text-muted" style="margin-bottom:10px">Try the assistant with your current settings &amp; knowledge. Uses the live chatbot endpoint.</p>
             <div id="testMessages" class="test-chat-box"></div>
             <form id="testForm" class="chatbot-input" style="display:flex;gap:8px;margin-top:10px">
@@ -180,13 +223,44 @@
     var providerSel = document.getElementById('aiProvider');
     var modelInput = document.getElementById('aiModel');
     var keyHint = document.getElementById('aiKeyHint');
+    var provName = document.getElementById('aiProvName');
     if (providerSel) {
         providerSel.addEventListener('change', function(){
             var opt = providerSel.options[providerSel.selectedIndex];
             if (modelInput) modelInput.placeholder = opt.getAttribute('data-model') || '';
             if (keyHint) keyHint.textContent = opt.getAttribute('data-hint') || '';
+            if (provName) provName.textContent = opt.getAttribute('data-label') || '';
         });
     }
+})();
+(function(){
+    // Test the selected AI provider's saved key with a tiny live request.
+    var btn = document.getElementById('aiTestBtn');
+    var out = document.getElementById('aiTestResult');
+    var providerSel = document.getElementById('aiProvider');
+    if (!btn) return;
+    function esc(s){ var d = document.createElement('div'); d.textContent = (s == null ? '' : s); return d.innerHTML; }
+    function show(cls, html){ out.className = 'ai-test-result show ' + cls; out.innerHTML = html; }
+    btn.addEventListener('click', function(){
+        var provider = providerSel ? providerSel.value : '';
+        btn.disabled = true;
+        show('load', '<i class="fas fa-spinner fa-spin"></i><span>Testing connection…</span>');
+        fetch('{{ route('admin.ai-settings.test') }}', {
+            method:'POST',
+            headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}','X-Requested-With':'XMLHttpRequest'},
+            body: JSON.stringify({ provider: provider })
+        })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+            if (d.ok) {
+                show('ok', '<i class="fas fa-circle-check"></i><span><strong>Working ✓</strong><br>' + esc(d.provider) + ' · ' + esc(d.model) + '<br><em>Reply: ' + esc(d.reply) + '</em></span>');
+            } else {
+                show('err', '<i class="fas fa-circle-xmark"></i><span>' + esc(d.message || 'Test failed.') + '</span>');
+            }
+        })
+        .catch(function(){ show('err', '<i class="fas fa-circle-xmark"></i><span>Request failed. Try again.</span>'); })
+        .finally(function(){ btn.disabled = false; });
+    });
 })();
 (function(){
     var form = document.getElementById('testForm');
