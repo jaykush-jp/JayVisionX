@@ -12,6 +12,11 @@
 .sp-input, .sp-textarea { width:100%; border:1px solid #d9e2ef; border-radius:10px; padding:11px 13px; font-family:inherit; font-size:.92rem; transition:.15s; background:#fbfdff; }
 .sp-input:focus, .sp-textarea:focus { outline:none; border-color:var(--primary,#0a7ce0); box-shadow:0 0 0 3px rgba(10,124,224,.12); background:#fff; }
 .sp-textarea { resize:vertical; min-height:120px; line-height:1.55; }
+.sp-toolbar { display:flex; align-items:center; gap:6px; margin-bottom:8px; flex-wrap:wrap; }
+.sp-tb { border:1px solid #d9e2ef; background:#fff; width:32px; height:32px; border-radius:8px; cursor:pointer; color:#334155; font-size:.85rem; display:inline-flex; align-items:center; justify-content:center; transition:.15s; }
+.sp-tb:hover { background:#eef4fc; border-color:var(--primary,#0a7ce0); color:var(--primary,#0a7ce0); }
+.sp-tb-hint { font-size:.72rem; color:#94a3b8; margin-left:4px; }
+@media (max-width:520px){ .sp-tb-hint{ width:100%; margin-left:0; } }
 .sp-with-icon { position:relative; }
 .sp-with-icon i { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:#9fb0c7; }
 .sp-with-icon .sp-input { padding-left:36px; }
@@ -152,6 +157,12 @@
 
         <div class="sp-field">
             <label>Content *</label>
+            <div class="sp-toolbar">
+                <button type="button" class="sp-tb" data-style="bold" title="Bold (select text first)"><i class="fas fa-bold"></i></button>
+                <button type="button" class="sp-tb" data-style="italic" title="Italic (select text first)"><i class="fas fa-italic"></i></button>
+                <button type="button" class="sp-tb" data-style="bullet" title="Bullet list"><i class="fas fa-list-ul"></i></button>
+                <span class="sp-tb-hint">Select text, then click — styling shows on Instagram, Facebook &amp; LinkedIn too.</span>
+            </div>
             <textarea id="spBody" name="body" class="sp-textarea" maxlength="2200" placeholder="What do you want to share?" required>{{ old('body') }}</textarea>
             <div class="sp-row"><span class="sp-hint">Write your caption here.</span><span class="sp-count"><span id="spCount">0</span>/2200</span></div>
         </div>
@@ -300,14 +311,15 @@
         media = document.getElementById('spPvMedia');
 
     function render() {
-        var text = body.value || 'Your caption will appear here…';
+        var raw  = body.value;
+        var text = raw ? jvxStyleText(raw) : 'Your caption will appear here…';
         var tg = (tags.value || '').trim();
         var cap = text + (tg ? '\n' : '');
         // Instagram caption
         document.getElementById('spPvIgCap').textContent = ' ' + text;
         var igTags = document.querySelector('.sp-pv-caption');
-        // Facebook / Google text
-        var fullFb = text + (tg ? '\n\n' + tg : '');
+        // Facebook / Google text (single line gap before hashtags)
+        var fullFb = text + (tg ? '\n' + tg : '');
         document.getElementById('spPvFbText').textContent = fullFb;
         document.getElementById('spPvGText').textContent = fullFb;
         // hashtags appended (IG)
@@ -404,6 +416,81 @@
                 .catch(function () {})
                 .finally(function () { geoBtn.classList.remove('loading'); });
         }, function () { geoBtn.classList.remove('loading'); alert('Could not get your location — please allow location access.'); }, { timeout: 8000 });
+    });
+
+    /* ---- Text styling: Unicode bold/italic so it shows on every platform ---- */
+    function mapAlnum(s, U, L, D) {
+        var o = '';
+        for (const ch of s) {
+            var c = ch.codePointAt(0);
+            if (c >= 65 && c <= 90) o += String.fromCodePoint(U + c - 65);
+            else if (c >= 97 && c <= 122) o += String.fromCodePoint(L + c - 97);
+            else if (c >= 48 && c <= 57) o += String.fromCodePoint(D + c - 48);
+            else o += ch;
+        }
+        return o;
+    }
+    function toBold(s) { return mapAlnum(s, 0x1D5D4, 0x1D5EE, 0x1D7EC); }
+    function toItalic(s) {
+        var o = '';
+        for (const ch of s) {
+            var c = ch.codePointAt(0);
+            if (ch === 'h') o += String.fromCodePoint(0x210E);
+            else if (c >= 65 && c <= 90) o += String.fromCodePoint(0x1D434 + c - 65);
+            else if (c >= 97 && c <= 122) o += String.fromCodePoint(0x1D44E + c - 97);
+            else o += ch;
+        }
+        return o;
+    }
+    function toNormal(s) {
+        var o = '';
+        for (const ch of s) {
+            var c = ch.codePointAt(0);
+            if (c >= 0x1D5D4 && c <= 0x1D5ED) o += String.fromCharCode(65 + (c - 0x1D5D4));
+            else if (c >= 0x1D5EE && c <= 0x1D607) o += String.fromCharCode(97 + (c - 0x1D5EE));
+            else if (c >= 0x1D7EC && c <= 0x1D7F5) o += String.fromCharCode(48 + (c - 0x1D7EC));
+            else if (c >= 0x1D434 && c <= 0x1D44D) o += String.fromCharCode(65 + (c - 0x1D434));
+            else if (c >= 0x1D44E && c <= 0x1D467) o += String.fromCharCode(97 + (c - 0x1D44E));
+            else if (c === 0x210E) o += 'h';
+            else o += ch;
+        }
+        return o;
+    }
+    function isBold(s)   { for (const ch of s) { var c = ch.codePointAt(0); if ((c >= 0x1D5D4 && c <= 0x1D607) || (c >= 0x1D7EC && c <= 0x1D7F5)) return true; } return false; }
+    function isItalic(s) { for (const ch of s) { var c = ch.codePointAt(0); if ((c >= 0x1D434 && c <= 0x1D467) || c === 0x210E) return true; } return false; }
+
+    // Mirror of SocialPost::styleForSocial() for the live preview.
+    window.jvxStyleText = function (t) {
+        t = t.replace(/\r\n|\r/g, '\n');
+        t = t.replace(/\[([^\]]*)\]\(([^)\s]+)\)/g, function (m, a, b) { return a.trim() || b; });
+        t = t.replace(/^[ \t]*[-*+][ \t]+/gm, '• ');
+        t = t.replace(/^[ \t]{0,3}#{1,6}[ \t]+(.+)$/gm, function (m, a) { return toBold(a.trim()); });
+        t = t.replace(/\*\*(.+?)\*\*/gs, function (m, a) { return toBold(a); });
+        t = t.replace(/__(.+?)__/gs, function (m, a) { return toBold(a); });
+        t = t.replace(/(?<!\*)\*(?!\s)(.+?)(?<!\s)\*(?!\*)/gs, function (m, a) { return toItalic(a); });
+        t = t.replace(/(?<![\w_])_(?!\s)(.+?)(?<!\s)_(?![\w_])/gs, function (m, a) { return toItalic(a); });
+        t = t.replace(/\n{3,}/g, '\n\n');
+        return t;
+    };
+
+    function applyStyle(type) {
+        var start = body.selectionStart, end = body.selectionEnd;
+        if (start === end) { body.focus(); return; }
+        var sel = body.value.slice(start, end), out;
+        if (type === 'bullet') {
+            out = sel.split('\n').map(function (l) { l = l.replace(/^•\s*/, ''); return l.trim() ? '• ' + l : l; }).join('\n');
+        } else {
+            var normal = toNormal(sel);
+            if (type === 'bold')   out = isBold(sel)   ? normal : toBold(normal);
+            else                   out = isItalic(sel) ? normal : toItalic(normal);
+        }
+        body.value = body.value.slice(0, start) + out + body.value.slice(end);
+        body.setSelectionRange(start, start + out.length);
+        body.focus();
+        body.dispatchEvent(new Event('input'));
+    }
+    document.querySelectorAll('.sp-tb').forEach(function (b) {
+        b.addEventListener('click', function () { applyStyle(b.dataset.style); });
     });
 
     render();

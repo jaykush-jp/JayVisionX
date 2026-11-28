@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\SocialPost;
 use App\Services\GoogleBusinessProfileService;
 use App\Services\MetaGraphService;
+use App\Services\SocialPublisher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -59,7 +60,7 @@ class AdminSocialPostController extends Controller
         ]);
 
         if ($data['action'] === 'publish') {
-            $this->publish($post, app(GoogleBusinessProfileService::class), app(MetaGraphService::class));
+            app(SocialPublisher::class)->publish($post);
         }
 
         return redirect()->route('admin.posts.index')->with('success', match ($data['action']) {
@@ -69,10 +70,10 @@ class AdminSocialPostController extends Controller
         });
     }
 
-    public function publishNow($id, GoogleBusinessProfileService $gbp, MetaGraphService $meta)
+    public function publishNow($id, SocialPublisher $publisher)
     {
         $post = SocialPost::findOrFail($id);
-        $this->publish($post, $gbp, $meta);
+        $publisher->publish($post);
 
         return back()->with('success', 'Publish attempted — see status.');
     }
@@ -106,64 +107,6 @@ class AdminSocialPostController extends Controller
         $msg .= $notes ? ' ' . implode(' ', $notes) : ($ids ? ' Removed from connected channels too.' : '');
 
         return back()->with('success', $msg);
-    }
-
-    /**
-     * Push a post to each selected channel. Channels that aren't connected are
-     * skipped; if nothing publishes the post is marked failed so it stays
-     * actionable. Goes fully live once the integrations are connected.
-     */
-    private function publish(SocialPost $post, GoogleBusinessProfileService $gbp, MetaGraphService $meta): void
-    {
-        $imageUrl = $post->image ? asset('storage/' . $post->image) : null;
-        $caption  = $post->caption; // body + hashtags
-        $ids = $post->external_ids ?: [];
-        $any = false;
-        $errors = [];
-
-        foreach ($post->platforms as $platform) {
-            $id = match ($platform) {
-                'google'    => $gbp->createPost($caption, $imageUrl),
-                'facebook'  => $meta->createFacebookPost($caption, $imageUrl),
-                'instagram' => $meta->createInstagramPost($caption, $imageUrl),
-                default     => null,
-            };
-            if ($id) {
-                $ids[$platform] = $id;
-                $any = true;
-            } else {
-                $errors[] = $this->publishReason($platform, $imageUrl, $gbp, $meta);
-            }
-        }
-
-        $post->update([
-            'external_ids' => $ids,
-            'status'       => $any ? 'published' : 'failed',
-            'error'        => $errors ? implode(' ', $errors) : null,
-        ]);
-    }
-
-    /** A specific, actionable reason why a platform didn't publish. */
-    private function publishReason(string $platform, ?string $imageUrl, GoogleBusinessProfileService $gbp, MetaGraphService $meta): string
-    {
-        return match ($platform) {
-            'instagram' => ! $meta->isConnected()
-                    ? 'Instagram: not connected — Connect in Integrations.'
-                    : (! $imageUrl
-                        ? 'Instagram: an image is required.'
-                        : (! $meta->igUserId()
-                            ? 'Instagram: no Business account linked to your Page — link it in Meta, then disconnect & reconnect.'
-                            : 'Instagram: publish was rejected — check permissions / App Review & that the IG account is a Business/Creator account.')),
-            'facebook'  => ! $meta->isConnected()
-                    ? 'Facebook: not connected — Connect in Integrations.'
-                    : (! $meta->pageId()
-                        ? 'Facebook: no Page found — disconnect & reconnect and grant Page access.'
-                        : 'Facebook: publish was rejected — check pages_manage_posts permission / App Review.'),
-            'google'    => ! $gbp->isConnected()
-                    ? 'Google: not connected — Connect in Integrations.'
-                    : 'Google: business location not linked yet.',
-            default     => ucfirst($platform) . ': publish failed.',
-        };
     }
 
     /** Normalise hashtags to space-separated #tags. */
