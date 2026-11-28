@@ -11,9 +11,15 @@
             <td align="center">
                 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(10,22,40,0.08);">
                     <tr>
-                        <td style="background:linear-gradient(120deg,#0a5baa,#0a7ce0 60%,#15c6ff);padding:24px 28px;">
-                            <h1 style="margin:0;color:#ffffff;font-size:20px;">{{ \App\Models\Setting::get('site_name', 'JayVisionX') }}</h1>
-                            <p style="margin:6px 0 0;color:#e8f3ff;font-size:13px;">{{ \App\Models\Setting::get('site_tagline', 'Digital Growth & Technology Company') }}</p>
+                        <td align="center" style="background:#ffffff;padding:26px 28px 20px;">
+                            <img src="{{ \App\Models\Setting::get('site_logo') ? asset('storage/' . \App\Models\Setting::get('site_logo')) : asset('images/jaylogo.png') }}"
+                                 alt="{{ \App\Models\Setting::get('site_name', 'JayVisionX') }}"
+                                 width="190" style="display:block;width:190px;max-width:62%;height:auto;border:0;margin:0 auto;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background:linear-gradient(120deg,#0a5baa,#0a7ce0 60%,#15c6ff);background-color:#0a7ce0;padding:12px 28px;text-align:center;">
+                            <p style="margin:0;color:#ffffff;font-size:13px;letter-spacing:.3px;">{{ \App\Models\Setting::get('site_tagline', 'Digital Growth & Technology Company') }}</p>
                         </td>
                     </tr>
                     <tr>

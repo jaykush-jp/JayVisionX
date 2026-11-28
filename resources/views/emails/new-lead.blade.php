@@ -11,7 +11,14 @@
             <td align="center">
                 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(10,22,40,0.08);">
                     <tr>
-                        <td style="background:linear-gradient(120deg,#0a5baa,#0a7ce0 60%,#15c6ff);padding:24px 28px;">
+                        <td align="center" style="background:#ffffff;padding:22px 28px 16px;">
+                            <img src="{{ \App\Models\Setting::get('site_logo') ? asset('storage/' . \App\Models\Setting::get('site_logo')) : asset('images/jaylogo.png') }}"
+                                 alt="{{ \App\Models\Setting::get('site_name', 'JayVisionX') }}"
+                                 width="170" style="display:block;width:170px;max-width:58%;height:auto;border:0;margin:0 auto;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background:linear-gradient(120deg,#0a5baa,#0a7ce0 60%,#15c6ff);background-color:#0a7ce0;padding:20px 28px;">
                             <h1 style="margin:0;color:#ffffff;font-size:20px;">🔔 New Enquiry Received</h1>
                             <p style="margin:6px 0 0;color:#e8f3ff;font-size:13px;">JayVisionX — Lead Notification</p>
                         </td>
